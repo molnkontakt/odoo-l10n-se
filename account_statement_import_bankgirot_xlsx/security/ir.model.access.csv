@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_bankgirot_wizard_user,bankgirot.wizard.user,model_account_bankgirot_import_wizard,base.group_user,1,1,1,1
+access_bankgirot_wizard_invoice,bankgirot.wizard.invoice,model_account_bankgirot_import_wizard,account.group_account_invoice,1,1,1,1

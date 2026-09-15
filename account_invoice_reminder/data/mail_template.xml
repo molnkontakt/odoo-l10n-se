@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="mail_template_reminder" model="mail.template">
+        <field name="name">Betalningspåminnelse</field>
+        <field name="model_id" ref="model_account_reminder"/>
+        <field name="subject">{{ object.level_id.name }}: {{ ', '.join(object.move_ids.mapped('name')) }} – {{ object.company_id.name }}</field>
+        <field name="email_from">{{ object.company_id.email_formatted or user.email_formatted }}</field>
+        <!-- use_default_to=False: annars ignoreras partner_to och Odoos standardmottagare används, som aldrig
+             föreslår en adress som är ett eget alias (t.ex. en distributionslista på kunden) → tomt mail. -->
+        <field name="use_default_to" eval="False"/>
+        <field name="partner_to">{{ object.partner_id.id }}</field>
+        <field name="report_template_ids" eval="[(4, ref('account_invoice_reminder.action_report_reminder'))]"/>
+        <field name="auto_delete" eval="True"/>
+        <field name="lang">{{ object.partner_id.lang }}</field>
+        <field name="body_html" type="html">
+<div style="margin: 0px; padding: 0px; font-size: 13px;">
+    <p>Hej,</p>
+    <p>
+        Vi saknar betalning för nedanstående faktura<t t-if="len(object.move_ids) > 1">or</t> från
+        <t t-out="object.company_id.name"/>.
+        <t t-if="object.fee_move_id">
+            Enligt lag (1981:739) om ersättning för inkassokostnader debiteras en avgift på
+            <t t-out="format_amount(object.fee_move_id.amount_total, object.currency_id)"/>,
+            se bifogad faktura <t t-out="object.fee_move_id.name"/>.
+        </t>
+    </p>
+    <t t-if="object.level_id.note"><t t-out="object.level_id.note"/></t>
+    <table style="border-collapse: collapse; margin: 12px 0;">
+        <tr>
+            <th style="text-align:left; padding: 4px 12px 4px 0; border-bottom: 1px solid #ccc;">Faktura</th>
+            <th style="text-align:left; padding: 4px 12px 4px 0; border-bottom: 1px solid #ccc;">Förfallodatum</th>
+            <th style="text-align:right; padding: 4px 0; border-bottom: 1px solid #ccc;">Kvar att betala</th>
+        </tr>
+        <t t-foreach="object._payment_lines()" t-as="m">
+            <tr>
+                <td style="padding: 4px 12px 4px 0;"><t t-out="m.name"/><t t-if="m.reminder_fee_for_id"> (avgift)</t></td>
+                <td style="padding: 4px 12px 4px 0;"><t t-out="format_date(m.invoice_date_due)"/></td>
+                <td style="text-align:right; padding: 4px 0;"><t t-out="format_amount(m.amount_residual, m.currency_id)"/></td>
+            </tr>
+        </t>
+        <tr>
+            <td colspan="2" style="padding: 6px 12px 4px 0; border-top: 1px solid #ccc;"><strong>Att betala</strong></td>
+            <td style="text-align:right; padding: 6px 0 4px 0; border-top: 1px solid #ccc;"><strong t-out="format_amount(object.amount_total, object.currency_id)"/></td>
+        </tr>
+    </table>
+    <p>
+        Betala till <t t-if="object._bank_account()">bankgiro/konto <strong t-out="object._bank_account()"/></t>
+        och ange fakturanummer som meddelande. Påminnelsen och fakturorna finns bifogade.
+        Har du redan betalat kan du bortse från det här mailet.
+    </p>
+    <p>Vänliga hälsningar<br/><t t-out="object.company_id.name"/></p>
+</div>
+        </field>
+    </record>
+</odoo>

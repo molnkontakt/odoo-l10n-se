@@ -1,0 +1,42 @@
+# Changelog
+
+All notable changes to the modules in this repository are documented here,
+one section per module. The format follows
+[Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions use Odoo's
+`<odoo-version>.<major>.<minor>.<patch>` scheme.
+
+## account_invoice_reminder
+
+### [19.0.1.1.1] — 2026-09-15
+
+- Initial public release. Reminder levels per company, fee invoice, PDF report,
+  e-mail/manual delivery (extensible), invoice list filter and action, review
+  wizard. Template ships with `use_default_to=False` so `partner_to` is honoured
+  even when the customer's e-mail is one of the system's own aliases.
+
+## account_statement_import_swedbank_csv
+
+### [19.0.1.4.1] — 2026-09-15
+
+- Detect row order from the dates instead of assuming newest-first; balances are
+  taken from the running-balance column of the oldest and newest rows. An
+  oldest-first export previously produced mirrored balances.
+
+### [19.0.1.4.0] — 2026-09-15
+
+- Initial public release. Balance-based `unique_import_id`, Swish matching on
+  `phone_sanitized`, optional automatic reconciliation (journal flag).
+
+## account_statement_import_bankgirot_xlsx
+
+### [19.0.1.3.0] — 2026-09-15
+
+- Initial public release. Parses Bankgirot's text-formatted amounts, matches on
+  OCR, customer name in reference/message, invoice number and amount; optional
+  automatic reconciliation of the lump sum (journal flag).
+
+## l10n_se_ocr
+
+### [19.0.1.0.0] — 2026-09-15
+
+- Initial public release.

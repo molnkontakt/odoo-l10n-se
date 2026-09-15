@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="bankgirot_import_wizard_form" model="ir.ui.view">
+        <field name="name">account.bankgirot.import.wizard.form</field>
+        <field name="model">account.bankgirot.import.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Importera Bankgirot insättningsuppgifter">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>Bankgirot insättningsuppgifter</h1>
+                        <p class="text-muted">
+                            Ladda upp en eller flera <code>.xlsx</code>-filer från Bankgirots Insättningsuppgifter.
+                            Verktyget matchar varje detaljrad mot befintliga bankrader (Swedbank-import) och kundfakturor,
+                            sätter partner på bankraden om alla detaljer pekar på samma kund, och postar en chatter-anteckning
+                            med per-faktura uppdelning.
+                        </p>
+                    </div>
+                    <group>
+                        <field name="file_ids" widget="many2many_binary"/>
+                    </group>
+                    <field name="result_html" widget="html" readonly="1" invisible="not result_html"/>
+                </sheet>
+                <footer>
+                    <button name="action_import" type="object" string="Importera" class="btn-primary"
+                            invisible="result_html"/>
+                    <button string="Stäng" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="bankgirot_import_wizard_action" model="ir.actions.act_window">
+        <field name="name">Importera Bankgirot insättningsuppgifter</field>
+        <field name="res_model">account.bankgirot.import.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

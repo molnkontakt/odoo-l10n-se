@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_reminder_level_list" model="ir.ui.view">
+        <field name="name">account.reminder.level.list</field>
+        <field name="model">account.reminder.level</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="days"/>
+                <field name="fee_product_id"/>
+                <field name="fee_amount"/>
+                <field name="fee_journal_id"/>
+                <field name="mail_template_id"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="active" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+    <record id="view_reminder_level_form" model="ir.ui.view">
+        <field name="name">account.reminder.level.form</field>
+        <field name="model">account.reminder.level</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="sequence"/>
+                            <field name="days"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="active"/>
+                        </group>
+                        <group>
+                            <field name="fee_product_id"/>
+                            <field name="fee_amount"/>
+                            <field name="fee_journal_id"/>
+                            <field name="mail_template_id"/>
+                        </group>
+                    </group>
+                    <separator string="Text i påminnelsen"/>
+                    <field name="note" nolabel="1"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="action_reminder_level" model="ir.actions.act_window">
+        <field name="name">Påminnelsenivåer</field>
+        <field name="res_model">account.reminder.level</field>
+        <field name="view_mode">list,form</field>
+    </record>
+    <menuitem id="menu_reminder_level" name="Påminnelsenivåer" parent="account.account_invoicing_menu"
+              action="action_reminder_level" sequence="60" groups="account.group_account_manager"/>
+</odoo>

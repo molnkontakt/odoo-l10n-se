@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_move_form_reminder" model="ir.ui.view">
+        <field name="name">account.move.form.reminder</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@id='other_tab']//group[@id='other_tab_group']" position="inside">
+                <group string="Påminnelser" name="reminders" invisible="move_type != 'out_invoice'">
+                    <field name="reminder_next_level_id"/>
+                    <field name="reminder_level_id"/>
+                    <field name="reminder_date"/>
+                    <field name="reminder_count"/>
+                    <field name="reminder_fee_for_id" invisible="not reminder_fee_for_id"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+    <record id="view_move_search_reminder" model="ir.ui.view">
+        <field name="name">account.move.search.reminder</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_account_invoice_filter"/>
+        <field name="arch" type="xml">
+            <filter name="late" position="after">
+                <filter name="reminder_due" string="Påminnelse att skicka" domain="[('reminder_next_level_id', '!=', False)]"/>
+                <filter name="reminded" string="Påminda" domain="[('reminder_count', '>', 0)]"/>
+            </filter>
+        </field>
+    </record>
+    <record id="view_move_list_reminder" model="ir.ui.view">
+        <field name="name">account.move.list.reminder</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_invoice_tree"/>
+        <field name="arch" type="xml">
+            <field name="invoice_date_due" position="after">
+                <field name="reminder_level_id" optional="hide"/>
+                <field name="reminder_date" optional="hide"/>
+            </field>
+        </field>
+    </record>
+</odoo>

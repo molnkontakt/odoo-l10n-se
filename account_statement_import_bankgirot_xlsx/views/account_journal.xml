@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="journal_dashboard_view_bankgirot" model="ir.ui.view">
+        <field name="model">account.journal</field>
+        <field name="inherit_id" ref="account.account_journal_dashboard_kanban_view"/>
+        <field name="arch" type="xml">
+            <xpath expr='//div[@name="bank_cash_buttons"]' position='inside'>
+                <button t-if="journal_type == 'bank'"
+                        name="action_open_bankgirot_import_wizard"
+                        type="object"
+                        class="btn btn-primary"
+                        groups="account.group_account_user">
+                    <span>Importera Bankgirot</span>
+                </button>
+            </xpath>
+        </field>
+    </record>
+    <record id="view_account_journal_form_bankgirot" model="ir.ui.view">
+        <field name="name">account.journal.form.bankgirot</field>
+        <field name="model">account.journal</field>
+        <field name="inherit_id" ref="account.view_account_journal_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='bank_statements_source'][@widget='radio']" position="after">
+                <field name="bankgirot_auto_reconcile" invisible="type != 'bank'"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
