@@ -29,6 +29,12 @@ one section per module. The format follows
 
 ## account_statement_import_bankgirot_xlsx
 
+### [19.0.1.4.0] — 2026-09-15
+
+- Matched invoices are always added as a reconciliation proposal on the bank
+  line (OCA `account_reconcile_oca`); the journal option only decides whether
+  the proposal is confirmed automatically.
+
 ### [19.0.1.3.1] — 2026-09-15
 
 - Match the invoice number literally as printed ("INV/2026/0011") before trying digit

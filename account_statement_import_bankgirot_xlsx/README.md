@@ -12,14 +12,17 @@ the reference or message (normalised), invoice number, amount. The result is
 posted as a note on the bank statement line ("split" with payer, amount and the
 matched invoice or the reason no match was found).
 
-## Automatic reconciliation
+## Reconciliation proposal
+
+With OCA `account_reconcile_oca` installed, the matched invoices are always
+added as a *proposal* on the bank line, so opening it in the reconciliation
+view only requires confirming (or fixing the unmatched rows). Always starts
+from a clean line (`clean_reconcile()`), so a half-edited view does not
+interfere.
 
 Journal option *Reconcile Bankgirot automatically on import*: when every detail
 row matched its own open invoice and the residual amounts add up to the bank
-line, the line is reconciled against all of them at once. Requires OCA
-`account_reconcile_oca`; otherwise the split note is left for manual
-reconciliation. Always starts from a clean line (`clean_reconcile()`), so a
-half-edited reconciliation view does not interfere.
+line, the proposal is confirmed immediately.
 
 ## Notes
 

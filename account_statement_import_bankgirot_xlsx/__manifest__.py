@@ -1,6 +1,6 @@
 {
     "name": "Bankgirot Insättningsuppgifter Import",
-    "version": "19.0.1.3.1",
+    "version": "19.0.1.4.0",
     "category": "Accounting",
     "summary": "Berika Swedbank-bankrader med detaljerade insättningsuppgifter från Bankgirot (XLSX)",
     "depends": ["account"],

@@ -214,17 +214,22 @@ class BankgirotImportWizard(models.TransientModel):
             lines = lines.filtered(lambda ln: digits in (ln.payment_ref or "")) or lines
         return lines[:1]
 
-    def _auto_reconcile(self, stl, enriched):
-        """Stämmer av bankraden mot de matchade fakturorna med account_reconcile_oca:s logik, samma
-        väg som avstämningsvyn. Bara när det är entydigt: varje detaljrad har en egen faktura, ingen
-        faktura förekommer två gånger, och fakturornas restbelopp summerar till bankraden."""
-        invoices = [x["inv"] for x in enriched if x.get("inv")]
-        if len(invoices) != len(enriched) or len({i.id for i in invoices}) != len(invoices):
-            return " · <i>ej automatiskt: alla rader matchade inte</i>"
-        if abs(sum(i.amount_residual for i in invoices) - stl.amount) >= 0.005:
-            return " · <i>ej automatiskt: summan avviker</i>"
+    def _propose_reconcile(self, stl, enriched, auto):
+        """Lägger de matchade fakturorna som förslag i avstämningsvyn (account_reconcile_oca:s
+        reconcile_data_info), så att bankraden bara behöver bekräftas. Med ``auto`` (journalvalet)
+        bekräftas den direkt när det är entydigt: varje detaljrad har en egen faktura, ingen faktura
+        förekommer två gånger, och restbeloppen summerar till bankraden."""
         if not hasattr(stl, "_add_account_move_line"):
-            return " · <i>ej automatiskt: account_reconcile_oca saknas</i>"
+            return " · <i>inget förslag: account_reconcile_oca saknas</i>"
+        invoices, seen = [], set()
+        for x in enriched:
+            inv = x.get("inv")
+            if inv and inv.id not in seen and inv.amount_residual > 0:
+                invoices.append(inv)
+                seen.add(inv.id)
+        if not invoices:
+            return " · <i>inget förslag: ingen faktura matchade</i>"
+        complete = len(invoices) == len(enriched)
         try:
             # Börja från rent bord: avstämningsvyn sparar ett halvfärdigt läge om raden varit öppen,
             # och _add_account_move_line bygger vidare på det som ligger där.
@@ -234,19 +239,20 @@ class BankgirotImportWizard(models.TransientModel):
                     lambda ln: ln.account_id.account_type == "asset_receivable" and not ln.reconciled)
                 if len(receivable) != 1:
                     stl.clean_reconcile()
-                    return " · <i>ej automatiskt: fakturarad tvetydig</i>"
+                    return f" · <i>inget förslag: fakturarad tvetydig ({inv.name})</i>"
                 stl._add_account_move_line(receivable)
-            if not stl.reconcile_data_info.get("can_reconcile"):
-                logger.info("Bankgirot: %s balanserar inte, data=%s", stl.payment_ref,
-                            [(d.get("kind"), d.get("amount"), d.get("name")) for d in stl.reconcile_data_info.get("data", [])])
-                stl.clean_reconcile()
-                return " · <i>ej automatiskt: balanserar inte</i>"
-            stl.reconcile_bank_line()
-            logger.info("Bankgirot: %s avstämd mot %s", stl.payment_ref, ", ".join(i.name for i in invoices))
-            return " · <b>avstämd mot {}</b>".format(", ".join(i.name for i in invoices))
+            names = ", ".join(i.name for i in invoices)
+            balanced = bool(stl.reconcile_data_info.get("can_reconcile"))
+            if auto and complete and balanced:
+                stl.reconcile_bank_line()
+                logger.info("Bankgirot: %s avstämd mot %s", stl.payment_ref, names)
+                return f" · <b>avstämd mot {names}</b>"
+            why = "" if balanced else ", summan avviker" if complete else ", alla rader matchade inte"
+            return f" · <i>föreslagen i avstämningsvyn: {names}{why}</i>"
         except Exception:
-            logger.exception("Bankgirot: automatisk avstämning misslyckades för %s", stl.payment_ref)
-            return " · <i>ej automatiskt: fel, se loggen</i>"
+            logger.exception("Bankgirot: avstämningsförslag misslyckades för %s", stl.payment_ref)
+            stl.clean_reconcile()
+            return " · <i>inget förslag: fel, se loggen</i>"
 
     # ── Main action ─────────────────────────────────────────────────────
 
@@ -339,8 +345,8 @@ class BankgirotImportWizard(models.TransientModel):
 
             # Automatisk avstämning (journalval): alla detaljer → varsin öppen faktura, summan = bankraden
             auto_status = ""
-            if stl.journal_id.bankgirot_auto_reconcile and not stl.is_reconciled:
-                auto_status = self._auto_reconcile(stl, enriched)
+            if not stl.is_reconciled:
+                auto_status = self._propose_reconcile(stl, enriched, stl.journal_id.bankgirot_auto_reconcile)
 
             matched_count = sum(1 for x in enriched if x["pid"])
             partner_status = ""
