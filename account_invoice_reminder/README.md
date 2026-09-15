@@ -12,16 +12,18 @@ and the OCA alternatives are not available on 19.
 
 - **Reminder level** (`account.reminder.level`, *Accounting → Configuration →
   Reminder levels*): per company, with name, *days after due date*, optional fee
-  product and amount, journal for the fee invoice, mail template and a text shown
-  in the PDF and e-mail. Levels are walked in sequence: an invoice gets the next
+  amount and income account, mail template and a text shown in the PDF and e-mail. Levels are walked in sequence: an invoice gets the next
   level after the last one sent once the days are reached. A level is never
   skipped (an invoice 50 days overdue that was never reminded gets level 1).
 - **Reminder** (`account.reminder`, *Customers → Payment reminders*): one customer,
-  one level, all invoices eligible for that level. Creates the fee as a separate
-  posted customer invoice (`reminder_fee_for_id`; fee invoices are never reminded
-  themselves), renders the PDF (`report_reminder`) and delivers it. Can be
-  *prepared* first and sent later. Cancelling a prepared reminder credits the fee
-  invoice (posted entries may be hashed).
+  one level, all invoices eligible for that level. The fee is a line *on the
+  reminder* (PDF, e-mail, SMS), not a separate invoice, as in Fortnox/Visma/Bokio:
+  nothing is booked until the customer pays it. Can be *prepared* first and sent
+  later.
+- **Booking the fee**: for each level with a fee and income account the module
+  keeps a manual reconciliation model (a button in the bank reconciliation view,
+  *Påminnelseavgift (level)*) that books the surplus on the bank line to the income
+  account. Invoice residual + fee → click the invoice, click the button, reconcile.
 - **Delivery** (`channel`): *E-mail* (template + PDF + the invoices) or *Manual*
   (no sending; PDF kept on the reminder for printing). Default per customer via
   `_default_channel(partner)`. Other modules add channels with `selection_add`
@@ -50,5 +52,6 @@ are plain data and can be edited per level or template.
   Odoo ignores `partner_to` and computes default recipients, which never include
   an address that is one of the system's own aliases (e.g. a distribution-list
   alias on the customer), leaving the mail without recipients.
-- Fee invoices use the fee product's income account and taxes; the reminder fee
-  is VAT-exempt in Sweden (account 3930 is customary).
+- The reminder fee is VAT-exempt in Sweden; account 3930 *Påminnelseavgifter* is
+  customary. Reminders created before 1.2.0 keep their separate fee invoice in
+  *Avgiftsfaktura (äldre)*.

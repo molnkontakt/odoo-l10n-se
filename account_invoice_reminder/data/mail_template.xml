@@ -18,10 +18,9 @@
     <p>
         Vi saknar betalning för nedanstående faktura<t t-if="len(object.move_ids) > 1">or</t> från
         <t t-out="object.company_id.name"/>.
-        <t t-if="object.fee_move_id">
-            Enligt lag (1981:739) om ersättning för inkassokostnader debiteras en avgift på
-            <t t-out="format_amount(object.fee_move_id.amount_total, object.currency_id)"/>,
-            se bifogad faktura <t t-out="object.fee_move_id.name"/>.
+        <t t-if="object.fee_amount">
+            Enligt lag (1981:739) om ersättning för inkassokostnader tillkommer en påminnelseavgift på
+            <t t-out="format_amount(object.fee_amount, object.currency_id)"/>.
         </t>
     </p>
     <t t-if="object.level_id.note"><t t-out="object.level_id.note"/></t>
@@ -38,6 +37,11 @@
                 <td style="text-align:right; padding: 4px 0;"><t t-out="format_amount(m.amount_residual, m.currency_id)"/></td>
             </tr>
         </t>
+        <tr t-if="object.fee_amount and not object.fee_move_id">
+            <td style="padding: 4px 12px 4px 0;">Påminnelseavgift</td>
+            <td style="padding: 4px 12px 4px 0;"></td>
+            <td style="text-align:right; padding: 4px 0;"><t t-out="format_amount(object.fee_amount, object.currency_id)"/></td>
+        </tr>
         <tr>
             <td colspan="2" style="padding: 6px 12px 4px 0; border-top: 1px solid #ccc;"><strong>Att betala</strong></td>
             <td style="text-align:right; padding: 6px 0 4px 0; border-top: 1px solid #ccc;"><strong t-out="format_amount(object.amount_total, object.currency_id)"/></td>

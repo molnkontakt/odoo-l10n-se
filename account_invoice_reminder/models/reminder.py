@@ -19,8 +19,10 @@ class AccountReminder(models.Model):
     date = fields.Date(default=fields.Date.context_today, readonly=True)
     move_ids = fields.Many2many("account.move", "account_reminder_move_rel", "reminder_id", "move_id",
                                 string="Fakturor", readonly=True)
-    fee_move_id = fields.Many2one("account.move", string="Avgiftsfaktura", readonly=True, copy=False)
-    fee_amount = fields.Monetary(compute="_compute_amounts", currency_field="currency_id")
+    fee_amount = fields.Monetary(string="Påminnelseavgift", currency_field="currency_id", readonly=True,
+                                 help="Avgiften enligt nivån när påminnelsen skapades. Står på påminnelsen och bokförs först när den betalas.")
+    fee_move_id = fields.Many2one("account.move", string="Avgiftsfaktura (äldre)", readonly=True, copy=False,
+                                  help="Före 1.2.0 fakturerades avgiften separat; fältet finns kvar för de påminnelserna.")
     amount_overdue = fields.Monetary(string="Förfallet belopp", compute="_compute_amounts", currency_field="currency_id")
     amount_total = fields.Monetary(string="Att betala", compute="_compute_amounts", currency_field="currency_id")
     currency_id = fields.Many2one(related="company_id.currency_id")
@@ -38,17 +40,18 @@ class AccountReminder(models.Model):
         for rec in self:
             rec.name = f"{rec.level_id.name or _('Påminnelse')} {rec.date or ''} – {rec.partner_id.name or ''}"
 
-    @api.depends("move_ids.amount_residual", "fee_move_id.amount_residual", "fee_move_id.amount_total")
+    @api.depends("move_ids.amount_residual", "fee_amount", "fee_move_id.amount_residual")
     def _compute_amounts(self):
         for rec in self:
             rec.amount_overdue = sum(rec.move_ids.mapped("amount_residual"))
-            rec.fee_amount = rec.fee_move_id.amount_total if rec.fee_move_id else 0.0
-            rec.amount_total = rec.amount_overdue + (rec.fee_move_id.amount_residual if rec.fee_move_id else 0.0)
+            fee = rec.fee_move_id.amount_residual if rec.fee_move_id else rec.fee_amount
+            rec.amount_total = rec.amount_overdue + fee
 
     # ------------------------------------------------------------------ hjälpare för mallar/rapport
 
     def _payment_lines(self):
-        """Rader att visa i PDF och mail: fakturorna och avgiftsfakturan, med restbelopp."""
+        """Rader att visa i PDF och mail: fakturorna (och en äldre avgiftsfaktura), med restbelopp. Avgiften
+        visas som egen rad från fee_amount."""
         self.ensure_one()
         moves = self.move_ids.sorted("invoice_date_due")
         if self.fee_move_id:
@@ -63,51 +66,24 @@ class AccountReminder(models.Model):
     # ------------------------------------------------------------------ skapande
 
     @api.model
-    def _prepare_fee_move(self, partner, level, moves):
-        product = level.fee_product_id
-        price = level.fee_amount or product.lst_price
-        names = ", ".join(moves.mapped("name"))
-        return {
-            "move_type": "out_invoice",
-            "company_id": level.company_id.id,
-            **({"journal_id": level.fee_journal_id.id} if level.fee_journal_id else {}),
-            "partner_id": partner.id,
-            "invoice_date": fields.Date.context_today(self),
-            "invoice_origin": names,
-            "narration": False,
-            "invoice_line_ids": [Command.create({
-                "product_id": product.id,
-                "name": f"{product.name}, {names}",
-                "quantity": 1,
-                "price_unit": price,
-                "tax_ids": [Command.set(product.taxes_id.filtered(lambda t: t.company_id == level.company_id).ids)],
-            })],
-        }
-
-    @api.model
     def _default_channel(self, partner):
         """Förvalt sätt för en kund – e-post om det finns, annars manuellt. Utökas av andra moduler."""
         return "email" if partner.email else "manual"
 
     @api.model
     def create_for(self, partner, level, moves, channel=None):
-        """Skapar påminnelsen och (om nivån har avgift) avgiftsfakturan, bokförd. Skickar inget."""
+        """Skapar påminnelsen med nivåns avgift som belopp på påminnelsen. Skickar inget."""
         moves = moves.filtered(lambda m: m.partner_id == partner and m.company_id == level.company_id)
         if not moves:
             raise UserError(_("Inga fakturor att påminna om för %s.", partner.name))
-        reminder = self.create({"company_id": level.company_id.id, "partner_id": partner.id, "level_id": level.id,
-                                "move_ids": [Command.set(moves.ids)], "channel": channel or self._default_channel(partner)})
-        if level.fee_product_id:
-            fee = self.env["account.move"].with_company(level.company_id).create(self._prepare_fee_move(partner, level, moves))
-            fee.reminder_fee_for_id = reminder
-            fee.action_post()
-            reminder.fee_move_id = fee
-        return reminder
+        return self.create({"company_id": level.company_id.id, "partner_id": partner.id, "level_id": level.id,
+                            "move_ids": [Command.set(moves.ids)], "fee_amount": level.fee_amount,
+                            "channel": channel or self._default_channel(partner)})
 
     # ------------------------------------------------------------------ utskick
 
     def _attachments(self):
-        """Fakturornas PDF:er (genereras vid behov) och avgiftsfakturans."""
+        """Fakturornas PDF:er (genereras vid behov)."""
         self.ensure_one()
         moves = self._payment_lines()
         missing = moves.filtered(lambda m: not m.invoice_pdf_report_id)
@@ -177,7 +153,7 @@ class AccountReminder(models.Model):
         channel = dict(self._fields["channel"]._description_selection(self.env)).get(self.channel, self.channel)
         body = Markup("<p><b>%s</b> (%s) %s, %s%s.</p>") % (
             self.level_id.name, _("nivå %s", self.level_id.sequence), self.date, channel,
-            (Markup(", ") + _("avgiftsfaktura %s", self.fee_move_id.name)) if self.fee_move_id else "")
+            (Markup(", ") + _("avgift %s", self.fee_amount)) if self.fee_amount else "")
         for move in self.move_ids:
             move.message_post(body=body, message_type="comment", subtype_xmlid="mail.mt_note")
         self.message_post(body=_("Skickad."), message_type="comment", subtype_xmlid="mail.mt_note")
@@ -186,12 +162,6 @@ class AccountReminder(models.Model):
         for rec in self:
             if rec.state == "sent":
                 raise UserError(_("%s är redan skickad.", rec.name))
-            if rec.fee_move_id and rec.fee_move_id.state == "posted":
-                # Bokförd (kanske hashad) avgiftsfaktura kan inte backas – kreditera och stäm av
-                rec.fee_move_id._reverse_moves(
-                    [{"date": fields.Date.context_today(self), "ref": _("Påminnelse %s avbruten", rec.name)}], cancel=True)
-            elif rec.fee_move_id:
-                rec.fee_move_id.button_cancel()
             rec.state = "cancel"
         return True
 

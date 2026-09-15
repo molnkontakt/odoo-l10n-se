@@ -18,11 +18,10 @@ class AccountReminder(models.Model):
         self.ensure_one()
         Send = self.env["account.move.send"]
         oldest = self.move_ids.sorted("invoice_date_due")[:1]
-        fee_txt = f"{self.fee_amount:.0f}" if self.fee_move_id else "0"
         return Send._sms_param("reminder_text").format(
             company=self.company_id.name, level=self.level_id.name.upper(), partner=self.partner_id.name,
             names=", ".join(self.move_ids.mapped("name")), overdue=f"{self.amount_overdue:.0f}", due=oldest.invoice_date_due,
-            fee=fee_txt, fee_name=self.fee_move_id.name or "", total=f"{self.amount_total:.0f}",
+            fee=f"{self.fee_amount:.0f}", fee_name=self.fee_move_id.name or "", total=f"{self.amount_total:.0f}",
             bank=self._bank_account() or "?", url=Send._sms_portal_url(oldest))
 
     def _send_sms(self):

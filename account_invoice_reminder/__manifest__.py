@@ -1,6 +1,6 @@
 {
     "name": "Betalningspåminnelser (nivåer, avgift, historik)",
-    "version": "19.0.1.1.1",
+    "version": "19.0.1.2.0",
     "category": "Accounting",
     "summary": "Påminnelsenivåer per bolag med dagar efter förfall, lagstadgad påminnelseavgift som egen faktura, PDF och e-post, historik per kund",
     "description": """

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo noupdate="1">
-    <!-- Platshållare: {company} {level} {partner} {names} {overdue} {due} {fee} {fee_name} {total} {bank} {url} -->
+    <!-- Platshållare: {company} {level} {partner} {names} {overdue} {due} {fee} {total} {bank} {url} -->
     <record id="param_reminder_text" model="ir.config_parameter">
         <field name="key">sms_46elks.reminder_text</field>
-        <field name="value">{company}: {level} {names}. {overdue} kr förföll {due}. Avgift {fee} kr ({fee_name}). Betala {total} kr till {bank}. {url}</field>
+        <field name="value">{company}: {level} {names}. {overdue} kr förföll {due}. Påminnelseavgift {fee} kr. Betala {total} kr till {bank}. {url}</field>
     </record>
 </odoo>

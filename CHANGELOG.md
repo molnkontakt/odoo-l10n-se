@@ -19,6 +19,14 @@ one section per module. The format follows
 
 ## account_invoice_reminder
 
+### [19.0.1.2.0] — 2026-09-15
+
+- **Fee is no longer a separate invoice.** The level has a fee amount and an income
+  account; the fee is shown on the reminder (PDF/e-mail/SMS) and booked when paid
+  through an auto-created manual reconciliation model (button in the bank
+  reconciliation view). Migration copies product prices to `fee_amount`; existing
+  reminders keep their fee invoice in `fee_move_id`.
+
 ### [19.0.1.1.1] — 2026-09-15
 
 - Initial public release. Reminder levels per company, fee invoice, PDF report,

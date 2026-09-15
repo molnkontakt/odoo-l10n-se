@@ -96,5 +96,4 @@ class AccountReminderSendWizardLine(models.TransientModel):
         for line in self:
             line.move_names = ", ".join(line.move_ids.mapped("name"))
             line.amount_overdue = sum(line.move_ids.mapped("amount_residual"))
-            product = line.level_id.fee_product_id
-            line.fee_amount = (line.level_id.fee_amount or product.lst_price) if product else 0.0
+            line.fee_amount = line.level_id.fee_amount
