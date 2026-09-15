@@ -17,11 +17,11 @@
     <p>Hej,</p>
     <p>
         Vi saknar betalning för nedanstående faktura<t t-if="len(object.move_ids) > 1">or</t> från
-        <t t-out="object.company_id.name"/>.
-        <t t-if="object.fee_amount">
-            Enligt lag (1981:739) om ersättning för inkassokostnader tillkommer en påminnelseavgift på
-            <t t-out="format_amount(object.fee_amount, object.currency_id)"/>.
+        <t t-out="object.company_id.name"/><t t-if="object.company_id.company_registry"> (org.nr <t t-out="object.company_id.company_registry"/>)</t>.
+        <t t-if="object.fee_amount or object.previous_fee_amount">
+            Enligt lag (1981:739) om ersättning för inkassokostnader m.m. tillkommer nedanstående avgifter.
         </t>
+        <t t-if="object.date_due"><strong>Betala senast <t t-out="format_date(object.date_due)"/>.</strong></t>
     </p>
     <t t-if="object.level_id.note"><t t-out="object.level_id.note"/></t>
     <table style="border-collapse: collapse; margin: 12px 0;">
@@ -37,8 +37,15 @@
                 <td style="text-align:right; padding: 4px 0;"><t t-out="format_amount(m.amount_residual, m.currency_id)"/></td>
             </tr>
         </t>
+        <t t-foreach="object._previous_fee_reminders()" t-as="prev">
+            <tr>
+                <td style="padding: 4px 12px 4px 0;">Avgift: <t t-out="prev.level_id.name"/> <t t-out="format_date(prev.date)"/></td>
+                <td style="padding: 4px 12px 4px 0;"></td>
+                <td style="text-align:right; padding: 4px 0;"><t t-out="format_amount(prev.fee_amount, object.currency_id)"/></td>
+            </tr>
+        </t>
         <tr t-if="object.fee_amount and not object.fee_move_id">
-            <td style="padding: 4px 12px 4px 0;">Påminnelseavgift</td>
+            <td style="padding: 4px 12px 4px 0;">Avgift: <t t-out="object.level_id.name"/> (lag 1981:739)</td>
             <td style="padding: 4px 12px 4px 0;"></td>
             <td style="text-align:right; padding: 4px 0;"><t t-out="format_amount(object.fee_amount, object.currency_id)"/></td>
         </tr>
@@ -48,9 +55,10 @@
         </tr>
     </table>
     <p>
-        Betala till <t t-if="object._bank_account()">bankgiro/konto <strong t-out="object._bank_account()"/></t>
+        Betala <strong t-out="format_amount(object.amount_total, object.currency_id)"/><t t-if="object.date_due"> senast
+        <strong t-out="format_date(object.date_due)"/></t> till <t t-if="object._bank_account()">bankgiro/konto <strong t-out="object._bank_account()"/></t>
         och ange fakturanummer som meddelande. Påminnelsen och fakturorna finns bifogade.
-        Har du redan betalat kan du bortse från det här mailet.
+        Har du redan betalat kan du bortse från det här mailet; anser du att kravet är felaktigt, svara inom samma tid.
     </p>
     <p>Vänliga hälsningar<br/><t t-out="object.company_id.name"/></p>
 </div>

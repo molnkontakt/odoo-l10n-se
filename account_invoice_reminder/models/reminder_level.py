@@ -20,6 +20,14 @@ class AccountReminderLevel(models.Model):
         string="Dagar efter förfallodatum", required=True, default=14,
         help="Nivån blir aktuell när fakturan är så här många dagar efter sitt förfallodatum (räknat från förfallodatum, inte från föregående påminnelse).",
     )
+    days_to_pay = fields.Integer(
+        string="Betalningsfrist (dagar)", default=10,
+        help="Dagar från påminnelsens datum till 'betala senast'. Inkassokrav: minst 8 dagar (inkassolagen 5 §, IMY).",
+    )
+    require_letter = fields.Boolean(
+        string="Kräver brev",
+        help="Förvalt sätt blir brev även när kunden har e-post (inkassokrav ska vara skriftliga och kunna bevisas avsända).",
+    )
     fee_amount = fields.Monetary(
         string="Avgift", currency_field="currency_id",
         help="Påminnelse-/inkassoavgift som står på påminnelsen (t.ex. lagstadgade 60 kr). 0 = ingen avgift. "

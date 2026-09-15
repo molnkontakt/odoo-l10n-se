@@ -9,11 +9,12 @@ class AccountReminder(models.Model):
     channel = fields.Selection(selection_add=[("ekopost", "Brev via Ekopost")], ondelete={"ekopost": "set default"})
 
     @api.model
-    def _default_channel(self, partner):
+    def _default_channel(self, partner, level=None):
         Send = self.env["account.move.send"]
-        if not partner.email and Send._ekopost_configured() and Send._ekopost_address_ok(partner):
+        letter_ok = Send._ekopost_configured() and Send._ekopost_address_ok(partner)
+        if letter_ok and ((level and level.require_letter) or not partner.email):
             return "ekopost"
-        return super()._default_channel(partner)
+        return super()._default_channel(partner, level)
 
     def _send_ekopost(self):
         """Påminnelse-PDF:en följd av fakturorna (och avgiftsfakturan), sammanslagna till ett brev."""

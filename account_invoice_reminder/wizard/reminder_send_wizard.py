@@ -53,7 +53,7 @@ class AccountReminderSendWizard(models.TransientModel):
         Reminder = self.env["account.reminder"]
         res["line_ids"] = [Command.create({
             "partner_id": partner.id, "level_id": level.id, "move_ids": [Command.set(ms.ids)],
-            "channel": Reminder._default_channel(partner),
+            "channel": Reminder._default_channel(partner, level),
         }) for (partner, level), ms in groups.items()]
         res["skipped"] = "\n".join(skipped)
         return res
@@ -96,4 +96,4 @@ class AccountReminderSendWizardLine(models.TransientModel):
         for line in self:
             line.move_names = ", ".join(line.move_ids.mapped("name"))
             line.amount_overdue = sum(line.move_ids.mapped("amount_residual"))
-            line.fee_amount = line.level_id.fee_amount
+            line.fee_amount = line.level_id.fee_amount + self.env["account.reminder"]._previous_fee_amount_for(line.partner_id, line.move_ids)

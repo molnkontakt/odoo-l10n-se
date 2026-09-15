@@ -1,6 +1,6 @@
 {
     "name": "Betalningspåminnelse som SMS via 46elks",
-    "version": "19.0.1.0.1",
+    "version": "19.0.1.1.0",
     "category": "Accounting",
     "summary": "Sättet 'SMS via 46elks' för betalningspåminnelser",
     "author": "Molnkontakt AB",

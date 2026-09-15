@@ -11,6 +11,9 @@
         <field name="binding_type">report</field>
     </record>
 
+    <!-- Uppfyller formkraven för inkassokrav (inkassolagen 5 §): borgenär med org.nr, grunden för fordran
+         (faktura, datum, avser), kapitalbelopp och avgifter var för sig, betalningsfrist med datum, och
+         nivåtexten som beskriver nästa steg. -->
     <template id="report_reminder">
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="o">
@@ -27,36 +30,45 @@
                         <h2><span t-field="o.level_id.name"/></h2>
                         <p>
                             <span t-field="o.date"/>
+                            <t t-if="o.date_due"> · <strong>Betala senast <span t-field="o.date_due"/></strong></t>
                         </p>
                         <p>
-                            Vi saknar betalning för nedanstående faktura<t t-if="len(o.move_ids) > 1">or</t>.
-                            <t t-if="o.fee_amount">Enligt lag (1981:739) om ersättning för inkassokostnader tillkommer
-                            en avgift på <span t-field="o.fee_amount"/>.</t>
+                            Vi saknar betalning för nedanstående faktura<t t-if="len(o.move_ids) > 1">or</t> från
+                            <span t-field="o.company_id.name"/><t t-if="o.company_id.company_registry"> (org.nr <span t-field="o.company_id.company_registry"/>)</t>.
+                            <t t-if="o.fee_amount or o.previous_fee_amount">Enligt lag (1981:739) om ersättning för
+                            inkassokostnader m.m. tillkommer nedanstående avgifter.</t>
                         </p>
                         <div t-if="o.level_id.note" t-field="o.level_id.note"/>
                         <table class="table table-sm">
                             <thead>
                                 <tr>
                                     <th>Faktura</th>
+                                    <th>Avser</th>
                                     <th>Fakturadatum</th>
                                     <th>Förfallodatum</th>
-                                    <th class="text-end">Belopp</th>
                                     <th class="text-end">Kvar att betala</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr t-foreach="o._payment_lines()" t-as="m">
                                     <td><span t-field="m.name"/><t t-if="m.reminder_fee_for_id"> (avgift)</t></td>
+                                    <td><span t-out="m.ref or m.invoice_origin or ''"/></td>
                                     <td><span t-field="m.invoice_date"/></td>
                                     <td><span t-field="m.invoice_date_due"/></td>
-                                    <td class="text-end"><span t-field="m.amount_total"/></td>
                                     <td class="text-end"><span t-field="m.amount_residual"/></td>
                                 </tr>
+                                <tr t-foreach="o._previous_fee_reminders()" t-as="prev">
+                                    <td>Avgift</td>
+                                    <td><span t-field="prev.level_id.name"/> <span t-field="prev.date"/></td>
+                                    <td/>
+                                    <td/>
+                                    <td class="text-end"><span t-field="prev.fee_amount"/></td>
+                                </tr>
                                 <tr t-if="o.fee_amount and not o.fee_move_id">
-                                    <td>Påminnelseavgift</td>
+                                    <td>Avgift</td>
+                                    <td><span t-field="o.level_id.name"/> (lag 1981:739)</td>
                                     <td/>
                                     <td/>
-                                    <td class="text-end"><span t-field="o.fee_amount"/></td>
                                     <td class="text-end"><span t-field="o.fee_amount"/></td>
                                 </tr>
                             </tbody>
@@ -68,13 +80,14 @@
                             </tfoot>
                         </table>
                         <p>
-                            Betala till <t t-if="o._bank_account()">bankgiro/konto <strong t-esc="o._bank_account()"/></t>
+                            Betala <strong t-field="o.amount_total"/><t t-if="o.date_due"> senast <strong t-field="o.date_due"/></t>
+                            till <t t-if="o._bank_account()">bankgiro/konto <strong t-esc="o._bank_account()"/></t>
                             och ange fakturanummer som meddelande. Har du redan betalat kan du bortse från
-                            den här påminnelsen. Kontakta oss om något är oklart.
+                            det här brevet. Anser du att kravet är felaktigt, kontakta oss inom samma tid.
                         </p>
                         <p>
                             <span t-field="o.company_id.name"/><br/>
-                            <span t-field="o.company_id.email"/>
+                            <span t-field="o.company_id.email"/><t t-if="o.company_id.phone"> · <span t-field="o.company_id.phone"/></t>
                         </p>
                     </div>
                 </t>

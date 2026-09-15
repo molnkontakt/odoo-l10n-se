@@ -40,6 +40,17 @@ per customer and level with invoices, overdue amount, fee, e-mail and channel;
 rows can be deselected. *Create and send* or *Only prepare*. There is no cron:
 nothing leaves the system without a click.
 
+## Debt collection demands (inkassokrav) without an agency
+
+Collecting your own claims needs no permit in Sweden (inkassolagen only licenses
+collection on behalf of others), but the demand must meet 5 § inkassolagen. The
+level settings and the document cover the formal requirements: creditor with
+registration number, the claim's basis (invoice, date, *Avser*), principal and
+each fee separately (fees from earlier reminders on the same invoices are carried
+over as their own lines), a *pay by* date (`days_to_pay`, at least 8 days for a
+demand), the consequences in the level text, and *Kräver brev* so the default
+channel is a letter. Interest is not handled.
+
 ## Swedish defaults
 
 The shipped level text and mail template reference *lag (1981:739) om ersättning

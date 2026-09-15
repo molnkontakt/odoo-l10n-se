@@ -8,6 +8,8 @@
                 <field name="sequence" widget="handle"/>
                 <field name="name"/>
                 <field name="days"/>
+                <field name="days_to_pay"/>
+                <field name="require_letter"/>
                 <field name="fee_amount"/>
                 <field name="fee_account_id"/>
                 <field name="mail_template_id"/>
@@ -28,6 +30,8 @@
                             <field name="name"/>
                             <field name="sequence"/>
                             <field name="days"/>
+                            <field name="days_to_pay"/>
+                            <field name="require_letter"/>
                             <field name="company_id" groups="base.group_multi_company"/>
                             <field name="active"/>
                         </group>

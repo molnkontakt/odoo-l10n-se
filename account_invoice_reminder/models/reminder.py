@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from markupsafe import Markup
 
 from odoo import Command, _, api, fields, models
@@ -17,10 +19,14 @@ class AccountReminder(models.Model):
     partner_id = fields.Many2one("res.partner", string="Kund", required=True, readonly=True, index=True)
     level_id = fields.Many2one("account.reminder.level", string="Nivå", required=True, readonly=True)
     date = fields.Date(default=fields.Date.context_today, readonly=True)
+    date_due = fields.Date(string="Betala senast", readonly=True, help="Påminnelsens datum + nivåns betalningsfrist.")
     move_ids = fields.Many2many("account.move", "account_reminder_move_rel", "reminder_id", "move_id",
                                 string="Fakturor", readonly=True)
     fee_amount = fields.Monetary(string="Påminnelseavgift", currency_field="currency_id", readonly=True,
                                  help="Avgiften enligt nivån när påminnelsen skapades. Står på påminnelsen och bokförs först när den betalas.")
+    previous_fee_amount = fields.Monetary(
+        string="Tidigare avgifter", currency_field="currency_id", readonly=True,
+        help="Obetalda avgifter från tidigare skickade påminnelser på samma fakturor (fakturan är fortfarande obetald, så avgiften antas obetald).")
     fee_move_id = fields.Many2one("account.move", string="Avgiftsfaktura (äldre)", readonly=True, copy=False,
                                   help="Före 1.2.0 fakturerades avgiften separat; fältet finns kvar för de påminnelserna.")
     amount_overdue = fields.Monetary(string="Förfallet belopp", compute="_compute_amounts", currency_field="currency_id")
@@ -40,12 +46,25 @@ class AccountReminder(models.Model):
         for rec in self:
             rec.name = f"{rec.level_id.name or _('Påminnelse')} {rec.date or ''} – {rec.partner_id.name or ''}"
 
-    @api.depends("move_ids.amount_residual", "fee_amount", "fee_move_id.amount_residual")
+    @api.depends("move_ids.amount_residual", "fee_amount", "previous_fee_amount", "fee_move_id.amount_residual")
     def _compute_amounts(self):
         for rec in self:
             rec.amount_overdue = sum(rec.move_ids.mapped("amount_residual"))
             fee = rec.fee_move_id.amount_residual if rec.fee_move_id else rec.fee_amount
-            rec.amount_total = rec.amount_overdue + fee
+            rec.amount_total = rec.amount_overdue + rec.previous_fee_amount + fee
+
+    def _previous_fee_reminders(self):
+        """Tidigare skickade påminnelser (med avgift, utan separat avgiftsfaktura) på någon av samma fakturor."""
+        self.ensure_one()
+        return self.search([("id", "!=", self.id), ("state", "=", "sent"), ("company_id", "=", self.company_id.id),
+                            ("partner_id", "=", self.partner_id.id), ("move_ids", "in", self.move_ids.ids),
+                            ("fee_amount", ">", 0), ("fee_move_id", "=", False)], order="date, id")
+
+    @api.model
+    def _previous_fee_amount_for(self, partner, moves):
+        prev = self.search([("state", "=", "sent"), ("partner_id", "=", partner.id), ("move_ids", "in", moves.ids),
+                            ("fee_amount", ">", 0), ("fee_move_id", "=", False)])
+        return sum(prev.mapped("fee_amount"))
 
     # ------------------------------------------------------------------ hjälpare för mallar/rapport
 
@@ -66,8 +85,11 @@ class AccountReminder(models.Model):
     # ------------------------------------------------------------------ skapande
 
     @api.model
-    def _default_channel(self, partner):
-        """Förvalt sätt för en kund – e-post om det finns, annars manuellt. Utökas av andra moduler."""
+    def _default_channel(self, partner, level=None):
+        """Förvalt sätt för en kund – e-post om det finns, annars manuellt (utskrivet brev). Nivåer som kräver
+        brev får manuellt; brevmoduler (Ekopost) byter till sitt sätt. Utökas av andra moduler."""
+        if level and level.require_letter:
+            return "manual"
         return "email" if partner.email else "manual"
 
     @api.model
@@ -76,9 +98,12 @@ class AccountReminder(models.Model):
         moves = moves.filtered(lambda m: m.partner_id == partner and m.company_id == level.company_id)
         if not moves:
             raise UserError(_("Inga fakturor att påminna om för %s.", partner.name))
+        today = fields.Date.context_today(self)
         return self.create({"company_id": level.company_id.id, "partner_id": partner.id, "level_id": level.id,
                             "move_ids": [Command.set(moves.ids)], "fee_amount": level.fee_amount,
-                            "channel": channel or self._default_channel(partner)})
+                            "previous_fee_amount": self._previous_fee_amount_for(partner, moves),
+                            "date": today, "date_due": today + timedelta(days=level.days_to_pay or 0),
+                            "channel": channel or self._default_channel(partner, level)})
 
     # ------------------------------------------------------------------ utskick
 
@@ -146,7 +171,9 @@ class AccountReminder(models.Model):
     def _mark_sent(self):
         """Uppdaterar fakturorna och loggar. Separat så att andra kanaler (SMS, brev) kan återanvända den."""
         self.ensure_one()
-        self.write({"state": "sent", "user_id": self.env.user.id, "date": fields.Date.context_today(self)})
+        today = fields.Date.context_today(self)
+        self.write({"state": "sent", "user_id": self.env.user.id, "date": today,
+                    "date_due": today + timedelta(days=self.level_id.days_to_pay or 0)})
         for move in self.move_ids:
             move.write({"reminder_level_id": self.level_id.id, "reminder_date": self.date,
                         "reminder_count": move.reminder_count + 1})

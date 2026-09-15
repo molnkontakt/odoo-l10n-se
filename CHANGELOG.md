@@ -19,6 +19,14 @@ one section per module. The format follows
 
 ## account_invoice_reminder
 
+### [19.0.1.3.0] — 2026-09-15
+
+- Levels: *Betalningsfrist (dagar)* → `date_due` ("betala senast") on the reminder, and
+  *Kräver brev* (default channel letter). Fees from earlier sent reminders on the same
+  invoices are carried over (`previous_fee_amount`) and listed separately. PDF and
+  mail show the creditor's registration number and what each invoice concerns, to
+  satisfy 5 § inkassolagen for self-issued debt collection demands.
+
 ### [19.0.1.2.0] — 2026-09-15
 
 - **Fee is no longer a separate invoice.** The level has a fee amount and an income

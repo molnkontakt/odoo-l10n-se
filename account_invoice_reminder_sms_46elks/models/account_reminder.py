@@ -8,11 +8,11 @@ class AccountReminder(models.Model):
     channel = fields.Selection(selection_add=[("sms", "SMS via 46elks")], ondelete={"sms": "set default"})
 
     @api.model
-    def _default_channel(self, partner):
+    def _default_channel(self, partner, level=None):
         Send = self.env["account.move.send"]
-        if not partner.email and Send._sms_configured() and Send._sms_number(partner):
+        if not (level and level.require_letter) and not partner.email and Send._sms_configured() and Send._sms_number(partner):
             return "sms"
-        return super()._default_channel(partner)
+        return super()._default_channel(partner, level)
 
     def _sms_reminder_text(self):
         self.ensure_one()
@@ -21,7 +21,8 @@ class AccountReminder(models.Model):
         return Send._sms_param("reminder_text").format(
             company=self.company_id.name, level=self.level_id.name.upper(), partner=self.partner_id.name,
             names=", ".join(self.move_ids.mapped("name")), overdue=f"{self.amount_overdue:.0f}", due=oldest.invoice_date_due,
-            fee=f"{self.fee_amount:.0f}", fee_name=self.fee_move_id.name or "", total=f"{self.amount_total:.0f}",
+            fee=f"{self.fee_amount + self.previous_fee_amount:.0f}", fee_name=self.fee_move_id.name or "", total=f"{self.amount_total:.0f}",
+            pay_by=self.date_due or "",
             bank=self._bank_account() or "?", url=Send._sms_portal_url(oldest))
 
     def _send_sms(self):

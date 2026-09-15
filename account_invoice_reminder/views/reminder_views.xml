@@ -38,11 +38,13 @@
                             <field name="level_id"/>
                             <field name="channel" readonly="state != 'draft'"/>
                             <field name="date"/>
+                            <field name="date_due"/>
                             <field name="user_id"/>
                             <field name="pdf_attachment_id" invisible="not pdf_attachment_id"/>
                         </group>
                         <group>
                             <field name="amount_overdue"/>
+                            <field name="previous_fee_amount" invisible="not previous_fee_amount"/>
                             <field name="fee_amount"/>
                             <field name="fee_move_id" invisible="not fee_move_id"/>
                             <field name="amount_total"/>
