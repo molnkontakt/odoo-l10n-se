@@ -29,6 +29,12 @@ one section per module. The format follows
 
 ## account_statement_import_bankgirot_xlsx
 
+### [19.0.1.3.1] — 2026-09-15
+
+- Match the invoice number literally as printed ("INV/2026/0011") before trying digit
+  variants, and restrict year-prefixed variants to invoices of that year. A reference
+  "INV/2026/0011" previously matched a 2024 entry via "001" → "/0001".
+
 ### [19.0.1.3.0] — 2026-09-15
 
 - Initial public release. Parses Bankgirot's text-formatted amounts, matches on

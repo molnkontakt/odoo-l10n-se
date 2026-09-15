@@ -122,14 +122,15 @@ class BankgirotImportWizard(models.TransientModel):
         digits = re.sub(r"[^0-9]", "", ref)
         if not digits:
             return
-        yield digits
+        yield digits, None
         if len(digits) > 1:
-            yield digits[:-1]
+            yield digits[:-1], None
         if len(digits) > 2:
-            yield digits[:-2]
-        # Year-prefixed: 2026XXXXY → strip 2026 + check
-        if digits.startswith("2026") and len(digits) > 5:
-            yield digits[4:-1]
+            yield digits[:-2], None
+        # Year-prefixed: 2026XXXXY → strip the year + check digit; only invoices from that year
+        # (2026-09-15: "INV/2026/0011" → "001" → "/0001" träffade MISC/2024/0001)
+        if re.match(r"20\d\d", digits) and len(digits) > 5:
+            yield digits[4:-1], digits[:4]
             yield digits[4:-2]
             rest = digits[4:].lstrip("0")
             if rest and len(rest) > 1:
@@ -169,12 +170,19 @@ class BankgirotImportWizard(models.TransientModel):
                 same_amount = [inv for inv in hits if abs(inv.amount_residual - amount) < 0.01]
                 if len(same_amount) == 1:
                     return same_amount[0]
-        cands = list(self._candidates_from_ref(ref))
-        for c in cands:
+        # 3) fakturanumret skrivet som det står på fakturan ("INV/2026/0011", "1010")
+        utext = text.upper()
+        for inv in all_invs:
+            if inv.name and len(inv.name) >= 4 and re.search(r"(?<![\w/])" + re.escape(inv.name.upper()) + r"(?![\w/])", utext):
+                return inv
+        # 4) siffervarianter av referensen (OCR utan kontrollsiffra, årsprefix …)
+        for c, year in self._candidates_from_ref(ref):
             if not c:
                 continue
             for inv in all_invs:
-                if inv.name == c or inv.name.endswith("/" + c) or inv.name.endswith("/" + c.zfill(4)):
+                if year and year not in inv.name:
+                    continue
+                if inv.name == c or inv.name.endswith("/" + c) or (len(c) >= 3 and inv.name.endswith("/" + c.zfill(4))):
                     return inv
             for inv in all_invs:
                 r = inv.ref or ""
