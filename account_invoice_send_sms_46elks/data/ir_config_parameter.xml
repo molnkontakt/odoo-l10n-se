@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="param_username" model="ir.config_parameter"><field name="key">sms_46elks.username</field><field name="value"></field></record>
+    <record id="param_password" model="ir.config_parameter"><field name="key">sms_46elks.password</field><field name="value"></field></record>
+    <record id="param_sender" model="ir.config_parameter"><field name="key">sms_46elks.sender</field><field name="value">Odoo</field></record>
+    <record id="param_dryrun" model="ir.config_parameter"><field name="key">sms_46elks.dryrun</field><field name="value">0</field></record>
+    <record id="param_base_url" model="ir.config_parameter"><field name="key">sms_46elks.public_base_url</field><field name="value"></field></record>
+    <!-- Platshållare: {company} {name} {partner} {amount} {due} {bank} {url} -->
+    <record id="param_invoice_text" model="ir.config_parameter">
+        <field name="key">sms_46elks.invoice_text</field>
+        <field name="value">{company}: faktura {name}, {amount} kr, förfaller {due}. Betala till {bank} och ange fakturanumret. Faktura: {url}</field>
+    </record>
+</odoo>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Värdena sätts efter installation (Inställningar → Tekniskt → Systemparametrar), aldrig här. -->
+    <record id="param_user" model="ir.config_parameter"><field name="key">ekopost.user</field><field name="value"></field></record>
+    <record id="param_password" model="ir.config_parameter"><field name="key">ekopost.password</field><field name="value"></field></record>
+    <record id="param_api_key" model="ir.config_parameter"><field name="key">ekopost.api_key</field><field name="value"></field></record>
+    <record id="param_url" model="ir.config_parameter"><field name="key">ekopost.url</field><field name="value">https://api.ekopost.se</field></record>
+    <record id="param_color" model="ir.config_parameter"><field name="key">ekopost.color</field><field name="value">1</field></record>
+    <record id="param_postage" model="ir.config_parameter"><field name="key">ekopost.postage</field><field name="value">economy</field></record>
+    <record id="param_close" model="ir.config_parameter"><field name="key">ekopost.close</field><field name="value">1</field></record>
+</odoo>

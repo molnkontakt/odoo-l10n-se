@@ -13,7 +13,12 @@ holds the Skatteverket-facing modules (VAT return / eSKD).
 | [`account_statement_import_swedbank_csv`](account_statement_import_swedbank_csv/) | Swedbank CSV statement export in the OCA import wizard; balance-based dedupe; automatic Swish matching on the payer's mobile number |
 | [`account_statement_import_bankgirot_xlsx`](account_statement_import_bankgirot_xlsx/) | Bankgirot *Insättningsuppgifter → Detaljer* (XLSX): splits a lump-sum Bankgiro deposit into payer details, matches invoices by OCR/name/amount and reconciles automatically |
 | [`l10n_se_ocr`](l10n_se_ocr/) | OCR payment reference (Luhn check digit, length digit) on customer invoices |
+| [`account_invoice_send_ekopost`](account_invoice_send_ekopost/) | *Brev via Ekopost* in the invoice Send dialog: the PDF is posted as a letter through Ekopost's API |
+| [`account_invoice_send_sms_46elks`](account_invoice_send_sms_46elks/) | *SMS via 46elks*: payment info and a portal link as a text message |
+| [`account_invoice_send_hand_delivered`](account_invoice_send_hand_delivered/) | *Lämnad för hand*: mark invoices delivered by hand (dialog checkbox + list action) |
 | [`account_invoice_reminder`](account_invoice_reminder/) | Payment reminders: levels per company (days after due date, statutory fee as a separate posted invoice), PDF, e-mail, history, review dialog. Follow-up is Enterprise-only and the OCA modules are not on 19 |
+
+| [`account_invoice_reminder_ekopost`](account_invoice_reminder_ekopost/), [`account_invoice_reminder_sms_46elks`](account_invoice_reminder_sms_46elks/) | Glue (auto-installed): payment reminders by letter / SMS |
 
 Each module installs independently. `account_statement_import_swedbank_csv`
 requires OCA `account_statement_import_file`; the automatic reconciliation in

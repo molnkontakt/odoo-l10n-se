@@ -5,6 +5,18 @@ one section per module. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions use Odoo's
 `<odoo-version>.<major>.<minor>.<patch>` scheme.
 
+## account_invoice_send_ekopost, account_invoice_send_sms_46elks, account_invoice_send_hand_delivered
+
+### [19.0.1.0.0] — 2026-09-15
+
+- Initial public release (extracted from an association-specific module).
+
+## account_invoice_reminder_ekopost, account_invoice_reminder_sms_46elks
+
+### [19.0.1.0.0] — 2026-09-15
+
+- Initial public release.
+
 ## account_invoice_reminder
 
 ### [19.0.1.1.1] — 2026-09-15
