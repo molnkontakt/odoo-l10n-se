@@ -7,6 +7,14 @@ one section per module. The format follows
 
 ## account_statement_import_online_enable_banking
 
+### [19.0.1.1.0] — 2026-09-17
+
+- Consent renewal warning: a daily cron schedules a to-do for the provider's
+  renewal user (and notifies them in the chatter) *N* days before the bank
+  consent expires (default 14); renewing closes the to-do.
+- Swish: the `Swish +46…` suffix is not added when the bank's text already
+  contains the number.
+
 ### [19.0.1.0.1] — 2026-09-17
 
 - Account binding and own-account detection accept a domestic account number on

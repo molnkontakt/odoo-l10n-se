@@ -32,7 +32,10 @@ more.
 3. *Authorise with the bank* opens the bank's consent screen (BankID in
    Sweden). Back in Odoo the session is bound to the journal; the account is
    selected by the journal's IBAN (or the only account when the journal has
-   none). Consents run for at most 180 days; the chatter tells when to renew.
+   none). Consents run for at most 180 days. A daily cron creates a to-do for the
+   *renewal user* (default: whoever created the provider) *Warn before consent
+   expires* days ahead (default 14) and notifies them in the chatter; renewing
+   closes the to-do.
 4. Pull manually with *Pull Online Bank Statement* or let the scheduled pull
    run.
 

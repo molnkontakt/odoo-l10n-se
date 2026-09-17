@@ -160,6 +160,31 @@ class TestEnableBanking(TransactionCase):
         self.assertFalse(self.provider.eb_account_uid)
         self.assertIn("none matches", self.provider.message_ids[0].body)
 
+    def test_phone_already_in_text_is_not_repeated(self):
+        raw = dict(SWISH, remittance_information=["+46700000000 1832520068070127 swish +46700000000"])
+        lines, _ = self._pull([raw])
+        self.assertEqual(lines[0]["payment_ref"], "+46700000000 1832520068070127 swish +46700000000")
+        self.assertEqual(lines[0]["partner_id"], self.payer.id)
+
+    def test_consent_warning_activity(self):
+        Provider = self.env["online.bank.statement.provider"]
+        self.provider.eb_session_valid_until = fields.Datetime.now() + timedelta(days=30)
+        Provider._enable_banking_check_consents()
+        self.assertFalse(self.provider.activity_ids, "30 days left, 14-day warning: nothing yet")
+        self.provider.eb_session_valid_until = fields.Datetime.now() + timedelta(days=10)
+        Provider._enable_banking_check_consents()
+        Provider._enable_banking_check_consents()
+        activities = self.provider.activity_ids
+        self.assertEqual(len(activities), 1, "one to-do, not one per day")
+        self.assertEqual(activities.user_id, self.env.user)
+        self.assertIn("expires in 10 days", activities.summary)
+        self.assertIn("Authorise with the bank", activities.note)
+        session = {"session_id": "renewed", "access": {"valid_until": "2027-03-16T10:00:00+00:00"},
+                   "accounts": [{"uid": "mine", "account_id": {"iban": "SE0000000000000000000001"}}]}
+        with mock.patch(f"{PROVIDER}._eb_request", return_value=session):
+            self.provider._enable_banking_finish_authorization("code")
+        self.assertFalse(self.provider.activity_ids, "renewal closes the to-do")
+
     def test_pagination(self):
         pages = [{"transactions": [SWISH], "continuation_key": "k2"}, {"transactions": [BANKGIRO], "continuation_key": None}]
         calls = []

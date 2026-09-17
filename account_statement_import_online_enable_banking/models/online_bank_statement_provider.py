@@ -43,7 +43,8 @@ SWISH_RE = re.compile(r"Swish\s+(\+?\d[\d \-]{6,})", re.I)
 
 
 class OnlineBankStatementProvider(models.Model):
-    _inherit = "online.bank.statement.provider"
+    _name = "online.bank.statement.provider"
+    _inherit = ["online.bank.statement.provider", "mail.activity.mixin"]
 
     # `username` (base field) holds the application id and
     # `certificate_private_key` (base field) the PEM private key.
@@ -54,6 +55,14 @@ class OnlineBankStatementProvider(models.Model):
     )
     eb_date_type = fields.Selection(
         [("booking_date", "Booking date"), ("value_date", "Value date")], string="Statement line date", default="booking_date"
+    )
+    eb_renewal_warn_days = fields.Integer(
+        string="Warn before consent expires (days)", default=14,
+        help="A to-do is scheduled for the renewal user this many days before the bank consent expires.",
+    )
+    eb_renewal_user_id = fields.Many2one(
+        "res.users", string="Renewal user", default=lambda self: self.env.user,
+        help="Gets the renewal to-do and the chatter notification. Must be able to authorise with the bank.",
     )
     eb_auth_state = fields.Char(readonly=True, copy=False)
     eb_session_id = fields.Char(readonly=True, copy=False)
@@ -194,6 +203,7 @@ class OnlineBankStatementProvider(models.Model):
             vals.update({"eb_account_uid": chosen["uid"], "eb_account_iban": (chosen.get("account_id") or {}).get("iban")})
             self.write(vals)
             self.message_post(body=self.env._("Enable Banking: connected to account %s.", vals["eb_account_iban"] or chosen["uid"]))
+            self._enable_banking_renewal_activities().action_feedback(feedback=self.env._("Consent renewed."))
         else:
             vals.update({"eb_account_uid": False, "eb_account_iban": False})
             self.write(vals)
@@ -205,6 +215,41 @@ class OnlineBankStatementProvider(models.Model):
                 )
             )
         return chosen is not None
+
+    # -------------------------------------------------------------- renewal
+    def _enable_banking_renewal_activities(self):
+        return self.activity_ids.filtered(lambda a: a.summary and a.summary.startswith("Enable Banking"))
+
+    @api.model
+    def _enable_banking_check_consents(self):
+        """Daily cron: schedule a to-do for the renewal user when a consent is about to expire.
+
+        The scheduled pull only complains once the consent *has* expired, and a
+        180-day consent is easy to forget; this gives the human a head start."""
+        now = fields.Datetime.now()
+        providers = self.search([("service", "=", "enable_banking"), ("eb_session_valid_until", "!=", False)])
+        for provider in providers:
+            days_left = (provider.eb_session_valid_until - now).days
+            if days_left > (provider.eb_renewal_warn_days or 0):
+                continue
+            if provider._enable_banking_renewal_activities():
+                continue
+            user = provider.eb_renewal_user_id or provider.create_uid
+            if days_left >= 0:
+                summary = self.env._("Enable Banking: renew the bank consent (expires in %s days)", days_left)
+            else:
+                summary = self.env._("Enable Banking: bank consent expired, authorise again")
+            note = self.env._(
+                "The consent for %(journal)s expires %(when)s. Open the provider and click "
+                "<i>Authorise with the bank</i> (BankID as the account's signatory).",
+                journal=provider.journal_id.display_name, when=fields.Datetime.to_string(provider.eb_session_valid_until),
+            )
+            provider.activity_schedule(
+                "mail.mail_activity_data_todo", summary=summary, note=note, user_id=user.id,
+                date_deadline=max(provider.eb_session_valid_until.date(), now.date()),
+            )
+            provider.message_post(body=summary + ". " + note, partner_ids=user.partner_id.ids)
+        return True
 
     def action_enable_banking_reset(self):
         self.write({"eb_auth_state": False, "eb_session_id": False, "eb_session_valid_until": False, "eb_account_uid": False, "eb_account_iban": False})
@@ -304,7 +349,8 @@ class OnlineBankStatementProvider(models.Model):
         if description.lower() == "swish" and other_id.startswith("+"):
             phone = other_id
         payment_ref = remittance or partner_name or description or "/"
-        if phone:
+        if phone and phone not in payment_ref:
+            # Some banks put the raw "swish +46…" text in the remittance already.
             payment_ref = f"{payment_ref} Swish {phone}"
         elif description and description.lower() not in payment_ref.lower():
             payment_ref = f"{description} {payment_ref}".strip()

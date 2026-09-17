@@ -14,6 +14,8 @@
                     <field name="eb_aspsp_country" required="service == 'enable_banking'"/>
                     <field name="eb_psu_type" required="service == 'enable_banking'"/>
                     <field name="eb_date_type" required="service == 'enable_banking'"/>
+                    <field name="eb_renewal_warn_days"/>
+                    <field name="eb_renewal_user_id"/>
                     <field name="eb_account_iban" invisible="not eb_session_id"/>
                     <field name="eb_session_valid_until" invisible="not eb_session_id"/>
                     <field name="eb_session_id" invisible="not eb_session_id" groups="base.group_no_one"/>
