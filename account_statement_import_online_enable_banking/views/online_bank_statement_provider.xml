@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record model="ir.ui.view" id="online_bank_statement_provider_form">
+        <field name="name">online.bank.statement.provider.form.enable_banking</field>
+        <field name="model">online.bank.statement.provider</field>
+        <field name="inherit_id" ref="account_statement_import_online.online_bank_statement_provider_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='main']" position="inside">
+                <group name="enable_banking" string="Enable Banking" invisible="service != 'enable_banking'">
+                    <field name="username" string="Application ID" required="service == 'enable_banking'"/>
+                    <field name="certificate_private_key" string="Private key (PEM)" password="True"
+                           required="service == 'enable_banking'" groups="base.group_system"/>
+                    <field name="eb_aspsp_name" required="service == 'enable_banking'"/>
+                    <field name="eb_aspsp_country" required="service == 'enable_banking'"/>
+                    <field name="eb_psu_type" required="service == 'enable_banking'"/>
+                    <field name="eb_date_type" required="service == 'enable_banking'"/>
+                    <field name="eb_account_iban" invisible="not eb_session_id"/>
+                    <field name="eb_session_valid_until" invisible="not eb_session_id"/>
+                    <field name="eb_session_id" invisible="not eb_session_id" groups="base.group_no_one"/>
+                    <field name="eb_account_uid" invisible="not eb_session_id" groups="base.group_no_one"/>
+                    <button name="action_enable_banking_check_aspsp" type="object" string="Check bank name"
+                            colspan="2" invisible="not username or not eb_aspsp_name"/>
+                    <button name="action_enable_banking_authorize" type="object" string="Authorise with the bank"
+                            class="btn-primary" colspan="2" invisible="not username or not eb_aspsp_name"
+                            help="Opens the bank's consent screen; you are sent back here afterwards."/>
+                    <button name="action_enable_banking_reset" type="object" string="Disconnect"
+                            colspan="2" invisible="not eb_session_id" confirm="Forget the bank session for this journal?"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

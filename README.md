@@ -1,7 +1,7 @@
 # odoo-l10n-se
 
 Odoo 19 Community modules for Swedish accounting: bank statement imports
-(Swedbank, Bankgirot), OCR payment references and payment reminders with
+(Swedbank CSV, Enable Banking PSD2 feed, Bankgirot), OCR payment references and payment reminders with
 the statutory reminder fee. Sister repository of
 [odoo-l10n-se-skv](https://github.com/molnkontakt/odoo-l10n-se-skv), which
 holds the Skatteverket-facing modules (VAT return / eSKD).
@@ -11,6 +11,7 @@ holds the Skatteverket-facing modules (VAT return / eSKD).
 | Module | Description |
 |--------|-------------|
 | [`account_statement_import_swedbank_csv`](account_statement_import_swedbank_csv/) | Swedbank CSV statement export in the OCA import wizard; balance-based dedupe; automatic Swish matching on the payer's mobile number |
+| [`account_statement_import_online_enable_banking`](account_statement_import_online_enable_banking/) | Enable Banking (PSD2) as an OCA online statement provider: scheduled pull of booked transactions and closing balance, Swish payer matching; needs `account_statement_import_online` |
 | [`account_statement_import_bankgirot_xlsx`](account_statement_import_bankgirot_xlsx/) | Bankgirot *Insättningsuppgifter → Detaljer* (XLSX): splits a lump-sum Bankgiro deposit into payer details, matches invoices by OCR/name/amount and reconciles automatically |
 | [`l10n_se_ocr`](l10n_se_ocr/) | OCR payment reference (Luhn check digit, length digit) on customer invoices |
 | [`account_invoice_send_ekopost`](account_invoice_send_ekopost/) | *Brev via Ekopost* in the invoice Send dialog: the PDF is posted as a letter through Ekopost's API |
