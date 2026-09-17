@@ -155,6 +155,22 @@ class OnlineBankStatementProvider(models.Model):
         self.write({"eb_auth_state": state})
         return {"type": "ir.actions.act_url", "url": response["url"], "target": "self"}
 
+    @staticmethod
+    def _enable_banking_same_account(iban, own_number):
+        """Does the bank's IBAN denote the journal's bank account?
+
+        Journals often carry the domestic number (Swedish `8305-5 004 537 3453`)
+        rather than the IBAN; the IBAN's account part is that number zero-padded,
+        so a digit-suffix match is the reliable comparison."""
+        iban = re.sub(r"\s", "", iban or "").upper()
+        own = re.sub(r"\s", "", own_number or "").upper()
+        if not iban or not own:
+            return False
+        if iban == own:
+            return True
+        own_digits = re.sub(r"\D", "", own)
+        return len(own_digits) >= 8 and re.sub(r"\D", "", iban).endswith(own_digits)
+
     def _enable_banking_finish_authorization(self, code):
         """Exchange the callback code for a session and bind the right account."""
         self.ensure_one()
@@ -164,7 +180,7 @@ class OnlineBankStatementProvider(models.Model):
         chosen = None
         if own_iban:
             for acc in accounts:
-                if (acc.get("account_id") or {}).get("iban", "").replace(" ", "").upper() == own_iban.upper():
+                if self._enable_banking_same_account((acc.get("account_id") or {}).get("iban"), own_iban):
                     chosen = acc
                     break
         elif len(accounts) == 1:
@@ -240,7 +256,7 @@ class OnlineBankStatementProvider(models.Model):
             self.sudo().message_post(body=self.env._("Enable Banking: the bank consent has expired. Authorise with the bank again."))
             return [], {}
         transactions = self._enable_banking_request_transactions(date_since, date_until)
-        own_iban = (self.journal_id.bank_account_id.sanitized_acc_number or "").upper()
+        own_iban = self.journal_id.bank_account_id.sanitized_acc_number or ""
         lines = []
         seen = {}
         for sequence, tr in enumerate(transactions, start=1):
@@ -279,7 +295,7 @@ class OnlineBankStatementProvider(models.Model):
         other_account = other_account or {}
         partner_name = (other.get("name") or "").strip() or False
         account_number = (other_account.get("iban") or "").replace(" ", "") or False
-        if account_number and account_number.upper() == own_iban:
+        if account_number and self._enable_banking_same_account(account_number, own_iban):
             account_number = False
         description = ((tr.get("bank_transaction_code") or {}).get("description") or "").strip()
         remittance = " ".join(part.strip() for part in (tr.get("remittance_information") or []) if part and part.strip())

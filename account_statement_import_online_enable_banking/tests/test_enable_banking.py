@@ -139,6 +139,20 @@ class TestEnableBanking(TransactionCase):
         self.assertEqual(self.provider.eb_session_id, "new-sess")
         self.assertEqual(self.provider.eb_session_valid_until, datetime(2026, 12, 15, 10, 0))
 
+    def test_domestic_account_number_matches_iban(self):
+        same = self.provider._enable_banking_same_account
+        self.assertTrue(same("SE38 8000 0830 5500 4537 3453", "8305-5 004 537 3453"))
+        self.assertTrue(same("SE3880000830550045373453", "SE3880000830550045373453"))
+        self.assertFalse(same("SE3880000830550045373453", "8305-5 004 509 2582"))
+        self.assertFalse(same("SE3880000830550045373453", "3453"), "too short to be an account number")
+        self.bank_account.acc_number = "8305-5 004 537 3453"
+        # IBAN in the test data is all zeros; a domestic number that is its suffix must bind.
+        session = {"session_id": "s", "access": {}, "accounts": [{"uid": "mine", "account_id": {"iban": "SE00 0000 0000 0000 4537 3453"}}]}
+        self.bank_account.acc_number = "0000 4537 3453"
+        with mock.patch(f"{PROVIDER}._eb_request", return_value=session):
+            self.assertTrue(self.provider._enable_banking_finish_authorization("code"))
+        self.assertEqual(self.provider.eb_account_uid, "mine")
+
     def test_finish_authorization_without_match_leaves_account_empty(self):
         session = {"session_id": "s", "access": {}, "accounts": [{"uid": "x", "account_id": {"iban": "SE0000000000000000000009"}}]}
         with mock.patch(f"{PROVIDER}._eb_request", return_value=session):

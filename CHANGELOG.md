@@ -7,6 +7,12 @@ one section per module. The format follows
 
 ## account_statement_import_online_enable_banking
 
+### [19.0.1.0.1] — 2026-09-17
+
+- Account binding and own-account detection accept a domestic account number on
+  the journal (Swedish `8305-5 …`): the IBAN's account part is that number
+  zero-padded, so a digit-suffix match is used.
+
 ### [19.0.1.0.0] — 2026-09-17
 
 - Initial release: Enable Banking as an `account_statement_import_online`
