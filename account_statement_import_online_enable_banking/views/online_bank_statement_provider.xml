@@ -16,6 +16,8 @@
                     <field name="eb_date_type" required="service == 'enable_banking'"/>
                     <field name="eb_renewal_warn_days"/>
                     <field name="eb_renewal_user_id"/>
+                    <field name="eb_last_pull" invisible="not eb_last_pull"/>
+                    <field name="eb_last_pull_summary" invisible="not eb_last_pull"/>
                     <field name="eb_account_iban" invisible="not eb_session_id"/>
                     <field name="eb_session_valid_until" invisible="not eb_session_id"/>
                     <field name="eb_session_id" invisible="not eb_session_id" groups="base.group_no_one"/>

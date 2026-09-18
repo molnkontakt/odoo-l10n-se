@@ -185,6 +185,30 @@ class TestEnableBanking(TransactionCase):
             self.provider._enable_banking_finish_authorization("code")
         self.assertFalse(self.provider.activity_ids, "renewal closes the to-do")
 
+    def test_pull_leaves_a_trace(self):
+        self._pull([])
+        self.assertTrue(self.provider.eb_last_pull)
+        self.assertIn("0 booked transaction", self.provider.eb_last_pull_summary)
+        before = len(self.provider.message_ids)
+        self._pull([SWISH, DEBIT])
+        self.assertIn("2 booked transaction", self.provider.eb_last_pull_summary)
+        self.assertEqual(len(self.provider.message_ids), before + 1, "chatter note only when something came in")
+        self.assertIn("-43445.0", self.provider.message_ids[0].body)
+
+    def test_failed_pull_is_recorded(self):
+        def boom(provider, method, path, params=None, body=None):
+            raise RuntimeError("bank down")
+        # Odoo's assertRaises rolls back to a savepoint, which would also undo the trace.
+        raised = False
+        with mock.patch(f"{PROVIDER}._eb_request", new=boom):
+            try:
+                self.provider._obtain_statement_data(datetime(2026, 9, 1), datetime(2026, 9, 2))
+            except RuntimeError:
+                raised = True
+        self.assertTrue(raised)
+        self.assertIn("FAILED", self.provider.eb_last_pull_summary)
+        self.assertIn("bank down", self.provider.message_ids[0].body)
+
     def test_pagination(self):
         pages = [{"transactions": [SWISH], "continuation_key": "k2"}, {"transactions": [BANKGIRO], "continuation_key": None}]
         calls = []

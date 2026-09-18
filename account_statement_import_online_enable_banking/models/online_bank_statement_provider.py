@@ -64,6 +64,8 @@ class OnlineBankStatementProvider(models.Model):
         "res.users", string="Renewal user", default=lambda self: self.env.user,
         help="Gets the renewal to-do and the chatter notification. Must be able to authorise with the bank.",
     )
+    eb_last_pull = fields.Datetime(string="Last pull", readonly=True, copy=False)
+    eb_last_pull_summary = fields.Char(string="Last pull result", readonly=True, copy=False)
     eb_auth_state = fields.Char(readonly=True, copy=False)
     eb_session_id = fields.Char(readonly=True, copy=False)
     eb_session_valid_until = fields.Datetime(readonly=True, copy=False)
@@ -300,7 +302,13 @@ class OnlineBankStatementProvider(models.Model):
         if self.eb_session_valid_until and self.eb_session_valid_until <= fields.Datetime.now():
             self.sudo().message_post(body=self.env._("Enable Banking: the bank consent has expired. Authorise with the bank again."))
             return [], {}
-        transactions = self._enable_banking_request_transactions(date_since, date_until)
+        try:
+            transactions = self._enable_banking_request_transactions(date_since, date_until)
+        except Exception as err:
+            self.sudo().write({"eb_last_pull": fields.Datetime.now(), "eb_last_pull_summary": self.env._("FAILED: %s", err)[:250]})
+            self.sudo().message_post(body=self.env._("Enable Banking: pull for %(since)s – %(until)s failed: %(err)s",
+                                                     since=date_since.date(), until=(date_until - timedelta(days=1)).date(), err=err))
+            raise
         own_iban = self.journal_id.bank_account_id.sanitized_acc_number or ""
         lines = []
         seen = {}
@@ -329,7 +337,23 @@ class OnlineBankStatementProvider(models.Model):
                     statement_values["balance_end_real"] = float((bal.get("balance_amount") or {}).get("amount") or 0)
                     break
         self._enable_banking_match_swish_partners(lines)
+        self._enable_banking_record_pull(date_since, date_until, transactions, lines)
         return lines, statement_values
+
+    def _enable_banking_record_pull(self, date_since, date_until, transactions, lines):
+        """Leave a trace of every pull on the provider; chatter only when something came in.
+
+        `lines` is what the bank returned as booked for the period; the OCA base
+        then skips the ones already imported (unique_import_id)."""
+        period = f"{date_since.date()} – {(date_until - timedelta(days=1)).date()}"
+        summary = self.env._("%(when)s — %(period)s: %(n)s booked transaction(s) from the bank",
+                             when=fields.Datetime.context_timestamp(self, fields.Datetime.now()).strftime("%Y-%m-%d %H:%M"),
+                             period=period, n=len(lines))
+        self.sudo().write({"eb_last_pull": fields.Datetime.now(), "eb_last_pull_summary": summary[:250]})
+        if lines:
+            self.sudo().message_post(body=self.env._("Enable Banking: %(period)s — %(n)s booked transaction(s) received (%(amount)s %(cur)s net).",
+                                                     period=period, n=len(lines), amount=round(sum(v["amount"] for v in lines), 2),
+                                                     cur=self.journal_id.currency_id.name or self.journal_id.company_id.currency_id.name))
 
     def _enable_banking_line_vals(self, tr, own_iban):
         amount = float((tr.get("transaction_amount") or {}).get("amount") or 0)

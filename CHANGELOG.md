@@ -7,6 +7,12 @@ one section per module. The format follows
 
 ## account_statement_import_online_enable_banking
 
+### [19.0.1.2.0] — 2026-09-18
+
+- Every pull is recorded on the provider (*Last pull* / *Last pull result*: period and
+  number of booked transactions the bank returned); the chatter gets a note when
+  transactions came in or the pull failed.
+
 ### [19.0.1.1.0] — 2026-09-17
 
 - Consent renewal warning: a daily cron schedules a to-do for the provider's

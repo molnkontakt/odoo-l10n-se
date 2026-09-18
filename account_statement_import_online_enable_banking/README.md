@@ -41,6 +41,9 @@ more.
 
 ## Behaviour
 
+- Every pull writes *Last pull* and *Last pull result* on the provider (period and
+  how many booked transactions the bank returned). The chatter gets a note only when
+  transactions came in or the pull failed, so a quiet day leaves no noise.
 - Only booked transactions are imported; pending ones wait for the next pull.
 - `unique_import_id` is the bank's `entry_reference`/`transaction_id` when
   present. Swedbank sends neither, so the id is a hash of the stable fields

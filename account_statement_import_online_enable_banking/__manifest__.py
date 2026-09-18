@@ -1,6 +1,6 @@
 {
     "name": "Online Bank Statements: Enable Banking",
-    "version": "19.0.1.1.0",
+    "version": "19.0.1.2.0",
     "category": "Accounting",
     "summary": "Pull bank transactions through Enable Banking (PSD2 account information) into the OCA online statement framework",
     "depends": ["account_statement_import_online", "mail"],
