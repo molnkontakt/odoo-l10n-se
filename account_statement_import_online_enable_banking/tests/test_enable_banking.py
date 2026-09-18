@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from unittest import mock
 
 from odoo import fields
+from odoo.exceptions import UserError
 from odoo.tests import tagged
 from odoo.tests.common import TransactionCase
 
@@ -194,6 +195,20 @@ class TestEnableBanking(TransactionCase):
         self.assertIn("2 booked transaction", self.provider.eb_last_pull_summary)
         self.assertEqual(len(self.provider.message_ids), before + 1, "chatter note only when something came in")
         self.assertIn("-43445.0", self.provider.message_ids[0].body)
+
+    def test_balance_failure_keeps_transactions(self):
+        now = fields.Datetime.now()
+
+        def fake_request(provider, method, path, params=None, body=None):
+            if path.endswith("/transactions"):
+                return {"transactions": [SWISH], "continuation_key": None}
+            raise UserError("Enable Banking answered 429: rate limit")
+
+        with mock.patch(f"{PROVIDER}._eb_request", new=fake_request):
+            lines, values = self.provider._obtain_statement_data(now - timedelta(days=1), now + timedelta(days=1))
+        self.assertEqual(len(lines), 1)
+        self.assertNotIn("balance_end_real", values)
+        self.assertIn("balance unavailable", self.provider.eb_last_pull_summary)
 
     def test_failed_pull_is_recorded(self):
         def boom(provider, method, path, params=None, body=None):

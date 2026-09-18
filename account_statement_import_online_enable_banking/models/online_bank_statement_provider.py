@@ -330,17 +330,24 @@ class OnlineBankStatementProvider(models.Model):
                 vals["unique_import_id"] = f"{key}-{seen[key]}"
             lines.append(vals)
         statement_values = {}
+        note = ""
         # Balances are "now"; they only describe the period end when the period covers today.
+        # PSD2 allows 4 unattended calls per day and account per service, so a failed
+        # balance call (typically 429 after manual pulls) must not lose the transactions.
         if date_until > fields.Datetime.now() >= date_since:
-            for bal in self._enable_banking_request_balances():
-                if bal.get("balance_type") in ("CLBD", "ITBD") or "booked" in (bal.get("name") or "").lower():
-                    statement_values["balance_end_real"] = float((bal.get("balance_amount") or {}).get("amount") or 0)
-                    break
+            try:
+                for bal in self._enable_banking_request_balances():
+                    if bal.get("balance_type") in ("CLBD", "ITBD") or "booked" in (bal.get("name") or "").lower():
+                        statement_values["balance_end_real"] = float((bal.get("balance_amount") or {}).get("amount") or 0)
+                        break
+            except Exception as err:  # noqa: BLE001 - transactions are already in hand
+                _logger.warning("Enable Banking: balance call failed, statement imported without closing balance: %s", err)
+                note = self.env._("; balance unavailable (%s)", str(err)[:80])
         self._enable_banking_match_swish_partners(lines)
-        self._enable_banking_record_pull(date_since, date_until, transactions, lines)
+        self._enable_banking_record_pull(date_since, date_until, transactions, lines, note)
         return lines, statement_values
 
-    def _enable_banking_record_pull(self, date_since, date_until, transactions, lines):
+    def _enable_banking_record_pull(self, date_since, date_until, transactions, lines, note=""):
         """Leave a trace of every pull on the provider; chatter only when something came in.
 
         `lines` is what the bank returned as booked for the period; the OCA base
@@ -349,7 +356,7 @@ class OnlineBankStatementProvider(models.Model):
         summary = self.env._("%(when)s — %(period)s: %(n)s booked transaction(s) from the bank",
                              when=fields.Datetime.context_timestamp(self, fields.Datetime.now()).strftime("%Y-%m-%d %H:%M"),
                              period=period, n=len(lines))
-        self.sudo().write({"eb_last_pull": fields.Datetime.now(), "eb_last_pull_summary": summary[:250]})
+        self.sudo().write({"eb_last_pull": fields.Datetime.now(), "eb_last_pull_summary": (summary + note)[:250]})
         if lines:
             self.sudo().message_post(body=self.env._("Enable Banking: %(period)s — %(n)s booked transaction(s) received (%(amount)s %(cur)s net).",
                                                      period=period, n=len(lines), amount=round(sum(v["amount"] for v in lines), 2),

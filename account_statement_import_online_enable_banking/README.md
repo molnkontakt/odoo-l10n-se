@@ -58,6 +58,10 @@ more.
   as well.
 - The closing balance (`balance_end_real`) is set only when the pulled period
   includes today, because the balances endpoint knows only the current balance.
+  A failed balance call does not lose the transactions; the result field says so.
+- **PSD2 rate limit**: banks allow 4 unattended calls per day, account and service
+  (transactions, balances). Keep the scheduled pull at once per day; each manual
+  pull eats into the same budget and the bank answers 429 beyond it.
 - The private key is stored on the provider (system administrators only,
   masked in the form). Anyone with database access can read it; treat the
   database as you would the key.

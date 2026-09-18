@@ -7,6 +7,11 @@ one section per module. The format follows
 
 ## account_statement_import_online_enable_banking
 
+### [19.0.1.2.1] — 2026-09-18
+
+- A failed balance call (PSD2 daily limit of 4 unattended calls, 429) no longer
+  discards the transactions already fetched; noted in *Last pull result*.
+
 ### [19.0.1.2.0] — 2026-09-18
 
 - Every pull is recorded on the provider (*Last pull* / *Last pull result*: period and
