@@ -237,3 +237,37 @@ class TestEnableBanking(TransactionCase):
         self.assertEqual(len(rows), 2)
         self.assertEqual(calls[1]["continuation_key"], "k2")
         self.assertEqual(calls[0]["date_to"], "2026-09-01", "date_to is inclusive, date_until exclusive")
+
+
+    def test_open_statement_keeps_computed_end_when_bank_balance_lags(self):
+        """Swedbank: a line booked today while the booked balance still excludes it must not
+        leave the statement "incomplete" for good."""
+        today = fields.Date.context_today(self.provider)
+        stmt = self.env["account.bank.statement"].create({
+            "name": "EBB/OPEN", "journal_id": self.journal.id, "balance_start": 1000.0,
+            "line_ids": [(0, 0, {"date": today, "payment_ref": "utlägg", "amount": -807.0})],
+        })
+        stmt.write({"balance_end_real": 1000.0})  # what the bank said: without the -807
+        self.assertFalse(stmt.is_complete)
+        base = "odoo.addons.account_statement_import_online.models.online_bank_statement_provider.OnlineBankStatementProvider"
+        before = len(self.provider.message_ids)
+        with mock.patch(f"{base}._statement_create_or_write", return_value=stmt):
+            out = self.provider._statement_create_or_write({"name": "EBB/OPEN", "balance_end_real": 1000.0})
+        self.assertEqual(out, stmt)
+        self.assertAlmostEqual(stmt.balance_end_real, 193.0, places=2)
+        self.assertTrue(stmt.is_complete)
+        self.assertEqual(len(self.provider.message_ids), before + 1)
+        self.assertIn("807.00", self.provider.message_ids[0].body)
+
+    def test_past_statement_keeps_the_banks_balance(self):
+        """A mismatch on a closed day is real and must stay visible."""
+        stmt = self.env["account.bank.statement"].create({
+            "name": "EBB/PAST", "journal_id": self.journal.id, "balance_start": 1000.0,
+            "line_ids": [(0, 0, {"date": "2026-09-01", "payment_ref": "x", "amount": -10.0})],
+        })
+        stmt.write({"balance_end_real": 1000.0})
+        base = "odoo.addons.account_statement_import_online.models.online_bank_statement_provider.OnlineBankStatementProvider"
+        with mock.patch(f"{base}._statement_create_or_write", return_value=stmt):
+            self.provider._statement_create_or_write({"name": "EBB/PAST", "balance_end_real": 1000.0})
+        self.assertAlmostEqual(stmt.balance_end_real, 1000.0, places=2)
+        self.assertFalse(stmt.is_complete)

@@ -347,6 +347,33 @@ class OnlineBankStatementProvider(models.Model):
         self._enable_banking_record_pull(date_since, date_until, transactions, lines, note)
         return lines, statement_values
 
+    def _statement_create_or_write(self, statement_values):
+        """The bank's booked balance can lag its own booked transactions within the day.
+
+        Swedbank delivers an outgoing transfer as BOOK with today's booking date while
+        "Current booked balance" (ITBD) still excludes it until the nightly run (seen
+        2026-09-21: line -807 delivered, balance 807 too high). Odoo then shows the
+        statement as incomplete for good, because tomorrow's pull is a new statement.
+        For a statement that is still open (dated today) the bank's figure is therefore
+        only kept when it agrees with start + lines; otherwise Odoo's computed end is
+        used and the discrepancy goes to the provider's chatter. Past statements keep
+        the bank's figure — there a mismatch is real and must stay visible."""
+        statement = super()._statement_create_or_write(statement_values)
+        if self.service != "enable_banking" or not statement or "balance_end_real" not in statement_values:
+            return statement
+        stmt = statement.sudo()
+        today = fields.Date.context_today(self)
+        if stmt.date and stmt.date >= today and stmt.currency_id.compare_amounts(stmt.balance_end, stmt.balance_end_real) != 0:
+            diff = stmt.balance_end_real - stmt.balance_end
+            stmt.write({"balance_end_real": stmt.balance_end})
+            self.sudo().message_post(body=self.env._(
+                "Enable Banking: the bank's booked balance (%(bank).2f) differs by %(diff).2f from start + lines "
+                "(%(calc).2f) on the open statement %(name)s — probably a transaction booked today that the bank's "
+                "balance does not include yet. Closing balance left at the computed value; tomorrow's opening "
+                "balance is the check against the bank.",
+                bank=stmt.balance_end + diff, diff=diff, calc=stmt.balance_end, name=stmt.name))
+        return statement
+
     def _enable_banking_record_pull(self, date_since, date_until, transactions, lines, note=""):
         """Leave a trace of every pull on the provider; chatter only when something came in.
 
