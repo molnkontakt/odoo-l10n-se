@@ -12,7 +12,8 @@ holds the Skatteverket-facing modules (VAT return / eSKD).
 |--------|-------------|
 | [`account_statement_import_swedbank_csv`](account_statement_import_swedbank_csv/) | Swedbank CSV statement export in the OCA import wizard; balance-based dedupe; automatic Swish matching on the payer's mobile number |
 | [`account_statement_import_online_enable_banking`](account_statement_import_online_enable_banking/) | Enable Banking (PSD2) as an OCA online statement provider: scheduled pull of booked transactions and closing balance, Swish payer matching; needs `account_statement_import_online` |
-| [`account_statement_import_bankgirot_xlsx`](account_statement_import_bankgirot_xlsx/) | Bankgirot *Insättningsuppgifter → Detaljer* (XLSX): splits a lump-sum Bankgiro deposit into payer details, matches invoices by OCR/name/amount and reconciles automatically |
+| [`account_statement_import_bankgirot_xlsx`](account_statement_import_bankgirot_xlsx/) | Bankgiro deposit details from Bankgirot *Insättningsuppgifter* (XLSX) or the bank's ISO 20022 **camt.054**: splits a lump-sum Bankgiro deposit into payer details, matches invoices by OCR/name/amount and reconciles automatically |
+| [`l10n_se_account_banking_pain`](l10n_se_account_banking_pain/) | Swedish domestic supplier payments in ISO 20022 **pain.001** (Bankgiro, Plusgiro, bank account, IBAN, OCR) on top of OCA `account_banking_sepa_credit_transfer`; bank profile SEB |
 | [`l10n_se_ocr`](l10n_se_ocr/) | OCR payment reference (Luhn check digit, length digit) on customer invoices |
 | [`account_invoice_send_ekopost`](account_invoice_send_ekopost/) | *Brev via Ekopost* in the invoice Send dialog: the PDF is posted as a letter through Ekopost's API |
 | [`account_invoice_send_sms_46elks`](account_invoice_send_sms_46elks/) | *SMS via 46elks*: payment info and a portal link as a text message |

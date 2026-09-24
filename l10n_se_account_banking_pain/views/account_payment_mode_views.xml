@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="account_payment_mode_form_l10n_se" model="ir.ui.view">
+        <field name="name">account.payment.mode.form.l10n_se</field>
+        <field name="model">account.payment.mode</field>
+        <field name="inherit_id" ref="account_banking_pain_base.account_payment_mode_form"/>
+        <field name="arch" type="xml">
+            <field name="default_batch_booking" position="after">
+                <field name="l10n_se_bank_profile"/>
+                <field name="l10n_se_customer_id" invisible="not l10n_se_bank_profile"
+                       required="l10n_se_bank_profile"/>
+            </field>
+        </field>
+    </record>
+</odoo>
