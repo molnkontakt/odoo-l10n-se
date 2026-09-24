@@ -1,5 +1,6 @@
-"""Wizard to import Bankgirot Insättningsuppgifter (XLSX) and enrich
-existing bank statement lines with payer details + invoice matches.
+"""Wizard to import deposit details — Bankgirot Insättningsuppgifter (XLSX) or the bank's
+ISO 20022 camt.054 notification — and enrich existing bank statement lines with payer
+details + invoice matches.
 
 The Swedbank CSV import creates one bank line per Bankgiro deposit (a daily
 sum). Bankgirot's "Insättningsuppgifter" XLSX has the detailed breakdown
@@ -13,6 +14,8 @@ import base64
 import io
 import logging
 import re
+
+from lxml import etree
 
 from odoo import _, fields, models
 from odoo.exceptions import UserError
@@ -99,6 +102,93 @@ def _looks_like_count(value):
     return isinstance(value, str) and value.strip().isdigit() and len(value.strip()) <= 3
 
 
+# ── camt.054 (ISO 20022 Bank-to-Customer Debit/Credit Notification) ──────
+
+def _ln(el):
+    return etree.QName(el).localname
+
+
+def _child(el, *path):
+    """Namnrymdsoberoende sökväg: _child(tx, "RltdPties", "Dbtr", "Nm")."""
+    for name in path:
+        if el is None:
+            return None
+        el = next((c for c in el if isinstance(c.tag, str) and _ln(c) == name), None)
+    return el
+
+
+def _children(el, name):
+    return [c for c in (el if el is not None else []) if isinstance(c.tag, str) and _ln(c) == name]
+
+
+def _text(el, *path):
+    found = _child(el, *path)
+    return (found.text or "").strip() if found is not None and found.text else ""
+
+
+def _bgnr(acct):
+    """Bankgironummer ur ett <...Acct>-block med SchmeNm/Prtry = BGNR, formaterat 123-4567/1234-5678."""
+    other = _child(acct, "Id", "Othr")
+    if other is None or _text(other, "SchmeNm", "Prtry") != "BGNR":
+        return ""
+    digits = re.sub(r"\D", "", _text(other, "Id"))
+    return f"{digits[:-4]}-{digits[-4:]}" if len(digits) >= 7 else digits
+
+
+def parse_camt054(file_bytes):
+    """Tolkar en camt.054 (.001.02 eller senare) till samma struktur som XLSX-tolken, en post per
+    kreditnotering (Ntry) med detaljer per betalare (TxDtls). En TxDtls med flera strukturerade
+    referenser (CINV/SCOR med eget belopp) blir en detaljrad per referens."""
+    root = etree.fromstring(file_bytes)
+    result = []
+    for ntfctn in root.iter("{*}Ntfctn"):
+        for ntry in _children(ntfctn, "Ntry"):
+            if _text(ntry, "CdtDbtInd") != "CRDT" or _text(ntry, "Sts") not in ("BOOK", ""):
+                continue
+            date = _text(ntry, "BookgDt", "Dt") or _text(ntry, "BookgDt", "DtTm")[:10]
+            amount = _to_number(_text(ntry, "Amt"))
+            receiver_bg = ""
+            details = []
+            for tx in ntry.iter("{*}TxDtls"):
+                receiver_bg = receiver_bg or _bgnr(_child(tx, "RltdPties", "CdtrAcct"))
+                sender = _text(tx, "RltdPties", "Dbtr", "Nm") or _text(tx, "RltdPties", "Dbtr", "Pty", "Nm")
+                sender_bg = _bgnr(_child(tx, "RltdPties", "DbtrAcct"))
+                tx_amount = _to_number(_text(tx, "AmtDtls", "TxAmt", "Amt")) or _to_number(_text(tx, "Amt"))
+                rmt = _child(tx, "RmtInf")
+                message = " ".join(u.text.strip() for u in _children(rmt, "Ustrd") if u.text)
+                refs = []
+                for strd in _children(rmt, "Strd"):
+                    ref = _text(strd, "CdtrRefInf", "Ref") or _text(strd, "RfrdDocInf", "Nb")
+                    ref_amount = _to_number(_text(strd, "RfrdDocAmt", "RmtdAmt"))
+                    if ref:
+                        refs.append((ref, ref_amount))
+                split = len(refs) > 1 and all(a for _r, a in refs) and \
+                    abs(sum(a for _r, a in refs) - (tx_amount or 0)) < 0.01
+                if split:
+                    for ref, ref_amount in refs:
+                        details.append({"sender": sender, "ref": ref, "bg": sender_bg,
+                                        "amount": ref_amount, "message": message})
+                elif tx_amount:
+                    details.append({"sender": sender, "ref": " ".join(r for r, _a in refs), "bg": sender_bg,
+                                    "amount": tx_amount, "message": message})
+            if not receiver_bg:
+                m = re.match(r"BG\s*(\d{7,8})", _text(ntry, "NtryRef"))
+                if m:
+                    receiver_bg = f"{m.group(1)[:-4]}-{m.group(1)[-4:]}"
+            if date and amount:
+                result.append({"date": date, "total": amount, "details": details,
+                               "receiver_bg": receiver_bg or None})
+    return result
+
+
+def parse_deposit_file(file_bytes):
+    """XLSX (Bankgirot) eller camt.054 (XML) → lista av insättningar."""
+    head = file_bytes[:512].lstrip()
+    if head.startswith(b"<") or b"camt.054" in head:
+        return parse_camt054(file_bytes)
+    return [parse_bankgirot_xlsx(file_bytes)]
+
+
 # ── Wizard ───────────────────────────────────────────────────────────────
 
 class BankgirotImportWizard(models.TransientModel):
@@ -106,8 +196,8 @@ class BankgirotImportWizard(models.TransientModel):
     _description = "Importera Bankgirot insättningsuppgifter"
 
     file_ids = fields.Many2many(
-        "ir.attachment", string="Bankgirot XLSX-filer", required=True,
-        help="Välj en eller flera .xlsx-filer från Bankgirots Insättningsuppgifter.",
+        "ir.attachment", string="Filer (XLSX eller camt.054)", required=True,
+        help="Bankgirots Insättningsuppgifter (.xlsx) eller bankens camt.054-avisering (.xml).",
     )
     result_html = fields.Html(string="Resultat", readonly=True)
 
@@ -207,8 +297,13 @@ class BankgirotImportWizard(models.TransientModel):
         """Find a Swedbank 'Bankgiro inbetalning' line on the given date with matching amount.
         Swedbanks etikett är "<bankgironr utan bindestreck> — Bankgiro inbetalning"; matcha som
         delsträng (inte prefix) och föredra raden med rätt bankgironummer när flera bolag delar databas."""
+        Line = self.env["account.bank.statement.line"]
         domain = [("date", "=", date), ("amount", "=", total), ("payment_ref", "ilike", "Bankgiro inbetalning")]
-        lines = self.env["account.bank.statement.line"].search(domain)
+        lines = Line.search(domain)
+        if not lines:
+            # Andra banker (t.ex. SEB via Enable Banking) märker inte raden "Bankgiro inbetalning":
+            # samma dag och belopp, ännu oavstämd
+            lines = Line.search([("date", "=", date), ("amount", "=", total), ("is_reconciled", "=", False)])
         if receiver_bg and len(lines) > 1:
             digits = receiver_bg.replace("-", "")
             lines = lines.filtered(lambda ln: digits in (ln.payment_ref or "")) or lines
@@ -254,111 +349,117 @@ class BankgirotImportWizard(models.TransientModel):
             stl.clean_reconcile()
             return " · <i>inget förslag: fel, se loggen</i>"
 
+    def _import_deposit(self, att, bg_data, all_invs, counters):
+        """En insättning (datum, total, detaljer) → berikad bankrad. Returnerar en resultatrad (HTML)."""
+        if not bg_data.get("date") or not bg_data.get("total"):
+            return (
+                f"<tr><td>{att.name}</td><td colspan='4' style='color:orange'>"
+                f"Saknar datum eller totalbelopp</td></tr>")
+
+        stl = self._find_statement_line(bg_data["date"], bg_data["total"], bg_data.get("receiver_bg"))
+        if not stl:
+            return (
+                f"<tr><td>{att.name}</td><td>{bg_data['date']}</td>"
+                f"<td>{bg_data['total']:.2f} kr</td>"
+                f"<td colspan='2' style='color:orange'>Ingen matchande bankrad</td></tr>")
+
+        # Resolve each detail
+        enriched = []
+        for x in bg_data["details"]:
+            counters["details"] += 1
+            inv = self._find_invoice(x["ref"], x["amount"], all_invs, x.get("message", ""))
+            pid = inv.partner_id.id if inv and inv.partner_id else None
+            if not pid:
+                pid = self._find_partner_by_bg(x["bg"])
+            pname = self.env["res.partner"].browse(pid).name if pid else None
+            enriched.append({
+                **x, "pid": pid, "pname": pname,
+                "inv_name": inv.name if inv else None, "inv": inv,
+            })
+            if pid:
+                counters["matched"] += 1
+
+        # Set partner on bank line if all details point to same partner
+        distinct_pids = {x["pid"] for x in enriched if x["pid"]}
+        if len(distinct_pids) == 1:
+            stl.partner_id = list(distinct_pids)[0]
+            counters["partner_set"] += 1
+
+        # Remove any previous Bankgirot chatter on this move
+        old_msgs = self.env["mail.message"].search([
+            ("model", "=", "account.move"),
+            ("res_id", "=", stl.move_id.id),
+            ("body", "ilike", "%Bankgirot insättningsuppgifter%"),
+        ])
+        old_msgs.unlink()
+
+        # Post fresh chatter with detail breakdown
+        body_parts = ["<p><b>Bankgirot insättningsuppgifter</b></p><ul>"]
+        for x in enriched:
+            inv_str = f" → <code>{x['inv_name']}</code>" if x.get("inv_name") else ""
+            pname_str = x["pname"] or "—"
+            body_parts.append(
+                f"<li><b>{x['amount']:.2f} kr</b> — {x['sender']} "
+                f"— ref <code>{x['ref'] or x.get('message', '').strip() or '—'}</code>{inv_str}"
+                f" → match: <i>{pname_str}</i></li>"
+            )
+        body_parts.append("</ul>")
+        self.env["mail.message"].create({
+            "model": "account.move",
+            "res_id": stl.move_id.id,
+            "body": "".join(body_parts),
+            "subject": "Bankgirot detaljer",
+            "message_type": "comment",
+            "author_id": self.env.user.partner_id.id,
+        })
+
+        # Automatisk avstämning (journalval): alla detaljer → varsin öppen faktura, summan = bankraden
+        auto_status = ""
+        if not stl.is_reconciled:
+            auto_status = self._propose_reconcile(stl, enriched, stl.journal_id.bankgirot_auto_reconcile)
+
+        matched_count = sum(1 for x in enriched if x["pid"])
+        partner_status = ""
+        if len(distinct_pids) == 1:
+            partner_status = f"<i>partner satt: {self.env['res.partner'].browse(list(distinct_pids)[0]).name}</i>"
+        else:
+            partner_status = "<i>flera avsändare</i>"
+        return (
+            f"<tr><td>{att.name}</td><td>{bg_data['date']}</td>"
+            f"<td>{bg_data['total']:.2f} kr</td>"
+            f"<td>{matched_count}/{len(enriched)}</td>"
+            f"<td>{partner_status}{auto_status}</td></tr>")
+
     # ── Main action ─────────────────────────────────────────────────────
 
     def action_import(self):
         self.ensure_one()
         if not self.file_ids:
-            raise UserError(_("Välj minst en Bankgirot-XLSX-fil."))
+            raise UserError(_("Välj minst en fil (Bankgirot-XLSX eller camt.054)."))
 
         all_invs = self._build_invoice_index()
         result_rows = []
-        total_matched = 0
-        total_details = 0
+        counters = {"details": 0, "matched": 0, "partner_set": 0}
         total_files = 0
-        total_partner_set = 0
 
         for att in self.file_ids:
             total_files += 1
             try:
-                file_bytes = base64.b64decode(att.datas)
-                bg_data = parse_bankgirot_xlsx(file_bytes)
+                deposits = parse_deposit_file(base64.b64decode(att.datas))
             except Exception as e:
                 result_rows.append(
                     f"<tr><td>{att.name}</td><td colspan='4' style='color:red'>"
                     f"Kunde inte läsa fil: {e}</td></tr>")
                 continue
-
-            if not bg_data.get("date") or not bg_data.get("total"):
+            if not deposits:
                 result_rows.append(
                     f"<tr><td>{att.name}</td><td colspan='4' style='color:orange'>"
-                    f"Saknar datum eller totalbelopp</td></tr>")
-                continue
+                    f"Inga insättningar i filen</td></tr>")
+            for bg_data in deposits:
+                result_rows.append(self._import_deposit(att, bg_data, all_invs, counters))
 
-            stl = self._find_statement_line(bg_data["date"], bg_data["total"], bg_data.get("receiver_bg"))
-            if not stl:
-                result_rows.append(
-                    f"<tr><td>{att.name}</td><td>{bg_data['date']}</td>"
-                    f"<td>{bg_data['total']:.2f} kr</td>"
-                    f"<td colspan='2' style='color:orange'>Ingen matchande bankrad</td></tr>")
-                continue
-
-            # Resolve each detail
-            enriched = []
-            for x in bg_data["details"]:
-                total_details += 1
-                inv = self._find_invoice(x["ref"], x["amount"], all_invs, x.get("message", ""))
-                pid = inv.partner_id.id if inv and inv.partner_id else None
-                if not pid:
-                    pid = self._find_partner_by_bg(x["bg"])
-                pname = self.env["res.partner"].browse(pid).name if pid else None
-                enriched.append({
-                    **x, "pid": pid, "pname": pname,
-                    "inv_name": inv.name if inv else None, "inv": inv,
-                })
-                if pid:
-                    total_matched += 1
-
-            # Set partner on bank line if all details point to same partner
-            distinct_pids = {x["pid"] for x in enriched if x["pid"]}
-            if len(distinct_pids) == 1:
-                stl.partner_id = list(distinct_pids)[0]
-                total_partner_set += 1
-
-            # Remove any previous Bankgirot chatter on this move
-            old_msgs = self.env["mail.message"].search([
-                ("model", "=", "account.move"),
-                ("res_id", "=", stl.move_id.id),
-                ("body", "ilike", "%Bankgirot insättningsuppgifter%"),
-            ])
-            old_msgs.unlink()
-
-            # Post fresh chatter with detail breakdown
-            body_parts = ["<p><b>Bankgirot insättningsuppgifter</b></p><ul>"]
-            for x in enriched:
-                inv_str = f" → <code>{x['inv_name']}</code>" if x.get("inv_name") else ""
-                pname_str = x["pname"] or "—"
-                body_parts.append(
-                    f"<li><b>{x['amount']:.2f} kr</b> — {x['sender']} "
-                    f"— ref <code>{x['ref'] or x.get('message', '').strip() or '—'}</code>{inv_str}"
-                    f" → match: <i>{pname_str}</i></li>"
-                )
-            body_parts.append("</ul>")
-            self.env["mail.message"].create({
-                "model": "account.move",
-                "res_id": stl.move_id.id,
-                "body": "".join(body_parts),
-                "subject": "Bankgirot detaljer",
-                "message_type": "comment",
-                "author_id": self.env.user.partner_id.id,
-            })
-
-            # Automatisk avstämning (journalval): alla detaljer → varsin öppen faktura, summan = bankraden
-            auto_status = ""
-            if not stl.is_reconciled:
-                auto_status = self._propose_reconcile(stl, enriched, stl.journal_id.bankgirot_auto_reconcile)
-
-            matched_count = sum(1 for x in enriched if x["pid"])
-            partner_status = ""
-            if len(distinct_pids) == 1:
-                partner_status = f"<i>partner satt: {self.env['res.partner'].browse(list(distinct_pids)[0]).name}</i>"
-            else:
-                partner_status = "<i>flera avsändare</i>"
-            result_rows.append(
-                f"<tr><td>{att.name}</td><td>{bg_data['date']}</td>"
-                f"<td>{bg_data['total']:.2f} kr</td>"
-                f"<td>{matched_count}/{len(enriched)}</td>"
-                f"<td>{partner_status}{auto_status}</td></tr>")
+        total_details, total_matched, total_partner_set = (
+            counters["details"], counters["matched"], counters["partner_set"])
 
         # Build summary HTML
         html = (

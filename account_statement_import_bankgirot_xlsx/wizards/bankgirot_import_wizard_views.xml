@@ -9,8 +9,9 @@
                     <div class="oe_title">
                         <h1>Bankgirot insättningsuppgifter</h1>
                         <p class="text-muted">
-                            Ladda upp en eller flera <code>.xlsx</code>-filer från Bankgirots Insättningsuppgifter.
-                            Verktyget matchar varje detaljrad mot befintliga bankrader (Swedbank-import) och kundfakturor,
+                            Ladda upp en eller flera filer: <code>.xlsx</code> från Bankgirots Insättningsuppgifter
+                            eller <code>.xml</code> (camt.054, ISO 20022) från banken.
+                            Verktyget matchar varje detaljrad mot befintliga bankrader och kundfakturor,
                             sätter partner på bankraden om alla detaljer pekar på samma kund, och postar en chatter-anteckning
                             med per-faktura uppdelning.
                         </p>

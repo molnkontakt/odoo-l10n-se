@@ -1,8 +1,8 @@
 {
     "name": "Bankgirot Insättningsuppgifter Import",
-    "version": "19.0.1.4.0",
+    "version": "19.0.1.5.0",
     "category": "Accounting",
-    "summary": "Berika Swedbank-bankrader med detaljerade insättningsuppgifter från Bankgirot (XLSX)",
+    "summary": "Berika bankrader med insättningsuppgifter per betalare: Bankgirot (XLSX) eller bankens camt.054 (ISO 20022)",
     "depends": ["account"],
     "external_dependencies": {"python": ["openpyxl"]},
     "author": "Molnkontakt AB",
