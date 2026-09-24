@@ -121,10 +121,14 @@ class AccountPaymentOrder(models.Model):
 
     @api.model
     def generate_address_block(self, parent_node, partner, gen_args):
-        # Swedish domestic payments need no postal address for either party
-        if self._l10n_se_profile():
-            return True
-        return super().generate_address_block(parent_node, partner, gen_args)
+        if not self._l10n_se_profile():
+            return super().generate_address_block(parent_node, partner, gen_args)
+        # Swedish domestic payments need no street address, but SEB uses the creditor's country
+        # for regulatory reporting (warning 32065 "RgltryRptg mandatory in Sweden" without it)
+        if etree.QName(parent_node).localname == "Cdtr":
+            address = etree.SubElement(parent_node, "PstlAdr")
+            etree.SubElement(address, "Ctry").text = (partner.country_id.code or "SE").upper()
+        return True
 
     @api.model
     def generate_party_agent(
@@ -190,6 +194,9 @@ class AccountPaymentOrder(models.Model):
         remittance = etree.SubElement(parent_node, "RmtInf")
         if payment_line.communication_type == "ocr" and acc_type in ("bankgiro", "plusgiro"):
             structured = etree.SubElement(remittance, "Strd")
+            # SEB error 32565/AM09: RfrdDocAmt is required with structured remittance
+            doc_amount = etree.SubElement(structured, "RfrdDocAmt")
+            etree.SubElement(doc_amount, "RmtdAmt", Ccy=line.currency_id.name).text = f"{line.amount:.2f}"
             creditor_ref = etree.SubElement(structured, "CdtrRefInf")
             ref_type = etree.SubElement(creditor_ref, "Tp")
             code_or = etree.SubElement(ref_type, "CdOrPrtry")

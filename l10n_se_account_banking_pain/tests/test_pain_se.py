@@ -109,6 +109,9 @@ class TestPainSE(TransactionCase):
         self.assertEqual(bg.findtext(".//p:CdtrAcct//p:Othr/p:Id", namespaces=NS), "8436008")
         self.assertEqual(bg.findtext(".//p:CdtrRefInf/p:Ref", namespaces=NS), "1234567897")
         self.assertEqual(bg.findtext(".//p:CdtrRefInf//p:Cd", namespaces=NS), "SCOR")
+        self.assertEqual(bg.findtext(".//p:Strd/p:RfrdDocAmt/p:RmtdAmt", namespaces=NS), "100.00")
+        self.assertEqual(bg.findtext(".//p:Cdtr/p:PstlAdr/p:Ctry", namespaces=NS), "SE")
+        self.assertIsNone(root.find(".//p:Dbtr/p:PstlAdr", NS))
         self.assertEqual(txs["BG text"].findtext(".//p:Ustrd", namespaces=NS), "Faktura 4711")
         pg = txs["PG"]
         self.assertEqual(pg.findtext(".//p:CdtrAgt//p:MmbId", namespaces=NS), "9960")

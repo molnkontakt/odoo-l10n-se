@@ -1,6 +1,6 @@
 {
     "name": "Sweden - ISO 20022 supplier payments (pain.001)",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.0.1",
     "category": "Accounting/Localizations",
     "summary": "Swedish domestic payments (Bankgiro, Plusgiro, bank account, OCR) in OCA pain.001 payment files",
     "description": """
