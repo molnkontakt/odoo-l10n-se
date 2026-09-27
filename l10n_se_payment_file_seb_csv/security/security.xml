@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="rule_l10n_se_payment_export_company" model="ir.rule">
+        <field name="name">SEB payment file: multi-company</field>
+        <field name="model_id" ref="model_l10n_se_payment_export"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+    <record id="rule_l10n_se_payment_export_line_company" model="ir.rule">
+        <field name="name">SEB payment file line: multi-company</field>
+        <field name="model_id" ref="model_l10n_se_payment_export_line"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+</odoo>

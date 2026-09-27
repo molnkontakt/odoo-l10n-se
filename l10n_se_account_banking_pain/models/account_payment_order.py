@@ -24,7 +24,8 @@ class AccountPaymentOrder(models.Model):
         if not (self.payment_mode_id.l10n_se_customer_id or "").strip():
             raise UserError(
                 self.env._(
-                    "Betalningssättet %(mode)s saknar kund-id i banken (krävs i svenska betalfiler).",
+                    "Payment mode %(mode)s has no customer id at the bank (required in Swedish "
+                    "payment files).",
                     mode=self.payment_mode_id.display_name,
                 )
             )
@@ -32,19 +33,30 @@ class AccountPaymentOrder(models.Model):
             if payment.currency_id.name != "SEK":
                 raise UserError(
                     self.env._(
-                        "Svenska inrikes betalningar måste vara i SEK: %(partner)s (%(ccy)s).",
+                        "Swedish domestic payments must be in SEK: %(partner)s (%(ccy)s).",
                         partner=payment.partner_id.display_name,
                         ccy=payment.currency_id.name,
                     )
                 )
             bank = payment.partner_bank_id
-            if bank and bank.l10n_se_account_type == "other":
+            if not bank:
+                continue
+            if bank.l10n_se_account_type == "other":
                 raise UserError(
                     self.env._(
-                        "Kontot %(acc)s för %(partner)s har ingen känd svensk kontotyp. "
-                        "Ange bankgiro, plusgiro, bankkonto eller IBAN på kontot.",
+                        "Account %(acc)s of %(partner)s has no known Swedish account type. Set "
+                        "Bankgiro, Plusgiro, bank account or IBAN on the account.",
                         acc=bank.acc_number,
                         partner=payment.partner_id.display_name,
+                    )
+                )
+            problem = bank._l10n_se_account_problem_message()
+            if problem:
+                raise UserError(
+                    self.env._(
+                        "%(partner)s: %(problem)s",
+                        partner=payment.partner_id.display_name,
+                        problem=problem,
                     )
                 )
 
@@ -142,8 +154,9 @@ class AccountPaymentOrder(models.Model):
         clearing = {"bankgiro": SE_CLEARING_BANKGIRO, "plusgiro": SE_CLEARING_PLUSGIRO}.get(acc_type)
         if acc_type == "bban":
             # Optional per the MIG (the full BBAN identifies the bank); the sample gives the
-            # first four digits of the clearing number
-            clearing = partner_bank._l10n_se_account_digits()[:4]
+            # first four digits of the clearing number. Taken from the stored number, also for
+            # banks whose BBAN leaves the clearing number out (Handelsbanken, Danske 918x)
+            clearing = partner_bank._l10n_se_bban().clearing[:4]
         if clearing:
             agent = etree.SubElement(parent_node, "CdtrAgt")
             inst = etree.SubElement(agent, "FinInstnId")
@@ -175,7 +188,8 @@ class AccountPaymentOrder(models.Model):
         account = etree.SubElement(parent_node, "CdtrAcct")
         ident = etree.SubElement(account, "Id")
         other = etree.SubElement(ident, "Othr")
-        etree.SubElement(other, "Id").text = partner_bank._l10n_se_account_digits()
+        # Bankgiro/Plusgiro digits, or the bank account as MIG Annex 5 prescribes
+        etree.SubElement(other, "Id").text = partner_bank._l10n_se_payment_account()
         scheme = etree.SubElement(other, "SchmeNm")
         if acc_type == "bankgiro":
             etree.SubElement(scheme, "Prtry").text = "BGNR"

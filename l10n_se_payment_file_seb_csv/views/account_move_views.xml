@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_move_form_l10n_se_seb_csv" model="ir.ui.view">
+        <field name="name">account.move.form.l10n_se_seb_csv</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@id='alerts']" position="after">
+                <div class="alert alert-info" role="alert"
+                     groups="account.group_account_invoice,account.group_account_readonly"
+                     invisible="not l10n_se_payment_export_id">
+                    Exported to SEB payment file
+                    <field name="l10n_se_payment_export_id" class="oe_inline" readonly="1"/>.
+                    The bill stays unpaid until the bank statement line is reconciled.
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_account_invoice_filter_l10n_se_seb_csv" model="ir.ui.view">
+        <field name="name">account.move.search.l10n_se_seb_csv</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_account_invoice_filter"/>
+        <field name="arch" type="xml">
+            <filter name="late" position="after">
+                <filter name="l10n_se_seb_to_pay" string="To pay via SEB"
+                        groups="account.group_account_invoice,account.group_account_readonly"
+                        domain="[('move_type', '=', 'in_invoice'), ('state', '=', 'posted'),
+                                 ('payment_state', 'in', ('not_paid', 'partial')),
+                                 ('currency_id.name', '=', 'SEK'), ('l10n_se_payment_exported', '=', False)]"/>
+                <filter name="l10n_se_seb_exported" string="In SEB payment file"
+                        groups="account.group_account_invoice,account.group_account_readonly"
+                        domain="[('l10n_se_payment_exported', '=', True)]"/>
+            </filter>
+        </field>
+    </record>
+
+    <record id="action_l10n_se_payment_export_wizard" model="ir.actions.act_window">
+        <field name="name">Export to SEB (CSV)</field>
+        <field name="res_model">l10n_se.payment.export.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="binding_model_id" ref="account.model_account_move"/>
+        <field name="binding_view_types">list</field>
+        <field name="group_ids" eval="[(4, ref('account.group_account_invoice'))]"/>
+    </record>
+</odoo>

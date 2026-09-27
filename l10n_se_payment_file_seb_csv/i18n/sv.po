@@ -1,0 +1,1458 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* l10n_se_payment_file_seb_csv
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-27 08:01+0000\n"
+"PO-Revision-Date: 2026-09-27 08:01+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: sv\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/l10n_se_payment_export.py:0
+msgid "%(batch)s has no payments."
+msgstr "%(batch)s har inga betalningar."
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/l10n_se_payment_export.py:0
+msgid "%(batch)s is done or cancelled and cannot be cancelled."
+msgstr "%(batch)s är klar eller avbruten och kan inte avbrytas."
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/account_move.py:0
+msgid ""
+"%(bills)s is in SEB payment file %(batch)s. Cancel its payment there before "
+"resetting the bill to draft."
+msgstr ""
+"%(bills)s finns i SEB-betalfilen %(batch)s. Avbryt betalningen där innan "
+"fakturan återställs till utkast."
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/account_move.py:0
+msgid "%(problem)s Set the Swedish account type on the bank account."
+msgstr "%(problem)s Ange svensk kontotyp på bankkontot."
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,help:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_line__sender_reference
+msgid ""
+"'Avsändarens referens' as written to the file: file name and line number."
+msgstr ""
+"'Avsändarens referens' så som den skrivs i filen: betalfilens namn och "
+"radnummer."
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,help:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_line__own_note
+msgid "'Egen anteckning' as written to the file: the bill number."
+msgstr ""
+"'Egen anteckning' så som den skrivs i filen: leverantörsfakturans nummer."
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,help:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_line__payee_name
+msgid "'Mottagarens namn' as written to the file."
+msgstr "'Mottagarens namn' så som det skrivs i filen."
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,help:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_line__to_account_format
+msgid "'Till konto - format' as written."
+msgstr "'Till konto - format' så som det skrivs i filen."
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,help:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_line__to_account
+msgid "'Till konto' as written to the file."
+msgstr "'Till konto' så som det skrivs i filen."
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/account_move.py:0
+msgid "(empty)"
+msgstr "(tom)"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model_terms:ir.ui.view,arch_db:l10n_se_payment_file_seb_csv.view_move_form_l10n_se_seb_csv
+msgid ""
+".\n"
+"                    The bill stays unpaid until the bank statement line is reconciled."
+msgstr ""
+".\n"
+"                    Fakturan förblir obetald tills bankkontoutdragets rad har stämts av mot den."
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.constraint,message:l10n_se_payment_file_seb_csv.constraint_l10n_se_payment_export_line_move_active_uniq
+msgid "A vendor bill can be in only one active SEB payment file."
+msgstr "En leverantörsfaktura kan bara finnas i en aktiv SEB-betalfil."
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/l10n_se_payment_export.py:0
+msgid "A vendor bill can only be once in a payment file."
+msgstr "En leverantörsfaktura kan bara finnas en gång i en betalfil."
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_line__to_account_format
+msgid "Account format"
+msgstr "Kontoformat"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_line__to_account_type
+msgid "Account type"
+msgstr "Kontotyp"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export__message_needaction
+msgid "Action Needed"
+msgstr "Åtgärd krävs"
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/account_move.py:0
+msgid ""
+"Already in SEB payment file %(batch)s. Cancel the bill's line or that file "
+"to export the bill again."
+msgstr ""
+"Finns redan i SEB-betalfilen %(batch)s. Avbryt fakturans rad eller den filen"
+" för att exportera fakturan igen."
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/l10n_se_payment_export.py:0
+msgid ""
+"Already in an active SEB payment file: %(bills)s. Cancel the line or the "
+"file there first."
+msgstr ""
+"Finns redan i en aktiv SEB-betalfil: %(bills)s. Avbryt raden eller filen där"
+" först."
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_line__amount
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard_line__amount
+msgid "Amount"
+msgstr "Belopp"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard_line__amount_residual
+msgid "Amount due"
+msgstr "Att betala"
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/account_move.py:0
+msgid "An OCR number can only be sent to a Bankgiro or Plusgiro number."
+msgstr ""
+"Ett OCR-nummer kan bara skickas till ett bankgiro- eller plusgironummer."
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export__message_attachment_count
+msgid "Attachment Count"
+msgstr "Antal bilagor"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model,name:l10n_se_payment_file_seb_csv.model_res_partner_bank
+msgid "Bank Accounts"
+msgstr "Bankkonton"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_line__partner_bank_id
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard_line__partner_bank_id
+msgid "Bank account"
+msgstr "Bankkonto"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard_line__bank_from_partner
+msgid "Bank account from supplier"
+msgstr "Bankkonto från leverantören"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_line__move_id
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard_line__move_id
+#: model_terms:ir.ui.view,arch_db:l10n_se_payment_file_seb_csv.view_l10n_se_payment_export_search
+msgid "Bill"
+msgstr "Faktura"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard_line__move_ref
+msgid "Bill reference"
+msgstr "Fakturareferens"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard__line_ids
+msgid "Bills"
+msgstr "Fakturor"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard__ready_count
+msgid "Bills to pay"
+msgstr "Fakturor att betala"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields.selection,name:l10n_se_payment_file_seb_csv.selection__l10n_se_payment_export_wizard_line__status__blocked
+msgid "Blocked"
+msgstr "Spärrad"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard__blocked_count
+msgid "Blocked bills"
+msgstr "Spärrade fakturor"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model_terms:ir.ui.view,arch_db:l10n_se_payment_file_seb_csv.view_l10n_se_payment_export_wizard_form
+msgid "Cancel"
+msgstr "Avbryt"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model_terms:ir.ui.view,arch_db:l10n_se_payment_file_seb_csv.view_l10n_se_payment_export_form
+msgid "Cancel file"
+msgstr "Avbryt fil"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model_terms:ir.ui.view,arch_db:l10n_se_payment_file_seb_csv.view_l10n_se_payment_export_form
+msgid "Cancel payment"
+msgstr "Avbryt betalning"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model_terms:ir.ui.view,arch_db:l10n_se_payment_file_seb_csv.view_l10n_se_payment_export_form
+msgid ""
+"Cancel the file only if none of its payments was signed in the internet "
+"bank. Its bills can then be exported again."
+msgstr ""
+"Avbryt filen bara om ingen av dess betalningar har signerats i "
+"internetbanken. Dess fakturor kan då exporteras igen."
+
+#. module: l10n_se_payment_file_seb_csv
+#: model_terms:ir.ui.view,arch_db:l10n_se_payment_file_seb_csv.view_l10n_se_payment_export_form
+msgid ""
+"Cancel this payment only if it was not signed in the internet bank (or the "
+"bank rejected it). The bill can then be exported again."
+msgstr ""
+"Avbryt betalningen bara om den inte har signerats i internetbanken (eller om"
+" banken avvisade den). Fakturan kan då exporteras igen."
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields.selection,name:l10n_se_payment_file_seb_csv.selection__l10n_se_payment_export__state__cancelled
+#: model:ir.model.fields.selection,name:l10n_se_payment_file_seb_csv.selection__l10n_se_payment_export_line__state__cancelled
+#: model_terms:ir.ui.view,arch_db:l10n_se_payment_file_seb_csv.view_l10n_se_payment_export_search
+msgid "Cancelled"
+msgstr "Avbruten"
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/wizard/payment_export_wizard.py:0
+msgid ""
+"Choose the SEB account to pay from. Flag a bank journal with 'SEB CSV "
+"export' if there is none."
+msgstr ""
+"Välj SEB-kontot att betala från. Markera en bankjournal med 'SEB CSV-export'"
+" om det inte finns någon."
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/account_move.py:0
+msgid ""
+"Choose what the payee sees: OCR number, RF reference, invoice number or "
+"message."
+msgstr ""
+"Välj vad mottagaren ser: OCR-nummer, RF-referens, fakturanummer eller "
+"meddelande."
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export__company_id
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_line__company_id
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard__company_id
+msgid "Company"
+msgstr "Bolag"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export__create_uid
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_line__create_uid
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard__create_uid
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard_line__create_uid
+msgid "Created by"
+msgstr "Skapad av"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export__create_date
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_line__create_date
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard__create_date
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard_line__create_date
+msgid "Created on"
+msgstr "Skapad den"
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/account_move.py:0
+msgid ""
+"Credit note: credit notes are not exported. Reconcile it against the "
+"supplier's bill (outstanding credits on the bill), then export the bill's "
+"remaining amount."
+msgstr ""
+"Kreditfaktura: kreditfakturor exporteras inte. Stäm av den mot leverantörens"
+" faktura (utestående krediter på fakturan) och exportera sedan fakturans "
+"återstående belopp."
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export__currency_id
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_line__currency_id
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard__currency_id
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard_line__currency_id
+msgid "Currency"
+msgstr "Valuta"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard__payment_date
+msgid "Date"
+msgstr "Datum"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_account_journal__display_name
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_account_move__display_name
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_account_payment_register__display_name
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export__display_name
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_line__display_name
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard__display_name
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard_line__display_name
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_res_partner_bank__display_name
+msgid "Display Name"
+msgstr "Visningsnamn"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields.selection,name:l10n_se_payment_file_seb_csv.selection__l10n_se_payment_export__state__done
+#: model:ir.model.fields.selection,name:l10n_se_payment_file_seb_csv.selection__l10n_se_payment_export_line__state__done
+#: model_terms:ir.ui.view,arch_db:l10n_se_payment_file_seb_csv.view_l10n_se_payment_export_search
+msgid "Done"
+msgstr "Klar"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model_terms:ir.ui.view,arch_db:l10n_se_payment_file_seb_csv.view_l10n_se_payment_export_form
+msgid "Download file"
+msgstr "Ladda ner fil"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields.selection,name:l10n_se_payment_file_seb_csv.selection__l10n_se_payment_export__state__draft
+#: model:ir.model.fields.selection,name:l10n_se_payment_file_seb_csv.selection__l10n_se_payment_export_line__state__draft
+#: model_terms:ir.ui.view,arch_db:l10n_se_payment_file_seb_csv.view_l10n_se_payment_export_search
+msgid "Draft"
+msgstr "Utkast"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_line__residual_at_export
+msgid "Due at export"
+msgstr "Att betala vid export"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard_line__invoice_date_due
+msgid "Due date"
+msgstr "Förfallodatum"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields.selection,name:l10n_se_payment_file_seb_csv.selection__l10n_se_payment_export_wizard__date_mode__due
+msgid "Due date (today at the earliest)"
+msgstr "Förfallodatum (tidigast i dag)"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.actions.act_window,name:l10n_se_payment_file_seb_csv.action_l10n_se_payment_export_wizard
+msgid "Export to SEB (CSV)"
+msgstr "Exportera till SEB (CSV)"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model,name:l10n_se_payment_file_seb_csv.model_l10n_se_payment_export_wizard
+msgid "Export vendor bills to an SEB payment file"
+msgstr "Exportera leverantörsfakturor till en SEB-betalfil"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields.selection,name:l10n_se_payment_file_seb_csv.selection__l10n_se_payment_export__state__exported
+#: model:ir.model.fields.selection,name:l10n_se_payment_file_seb_csv.selection__l10n_se_payment_export_line__state__exported
+#: model_terms:ir.ui.view,arch_db:l10n_se_payment_file_seb_csv.view_l10n_se_payment_export_search
+msgid "Exported"
+msgstr "Exporterad"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model_terms:ir.ui.view,arch_db:l10n_se_payment_file_seb_csv.view_move_form_l10n_se_seb_csv
+msgid "Exported to SEB payment file"
+msgstr "Exporterad till SEB-betalfilen"
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/l10n_se_payment_export.py:0
+msgid ""
+"Exported to SEB payment file %(batch)s: %(amount)s to %(format)s "
+"%(account)s, payment date %(date)s, %(reference_type)s %(reference)s, "
+"sender's reference %(sender_reference)s. The bill stays unpaid until the "
+"bank statement line is reconciled."
+msgstr ""
+"Exporterad till SEB-betalfilen %(batch)s: %(amount)s till %(format)s "
+"%(account)s, betaldag %(date)s, %(reference_type)s %(reference)s, "
+"avsändarens referens %(sender_reference)s. Fakturan förblir obetald tills "
+"bankkontoutdragets rad har stämts av."
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export__file_name
+msgid "File name"
+msgstr "Filnamn"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export__message_follower_ids
+msgid "Followers"
+msgstr "Följare"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "Följare (kontakter)"
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/account_move.py:0
+msgid ""
+"Foreign IBAN %(account)s: the SEB domestic file only pays Swedish accounts."
+msgstr ""
+"Utländskt IBAN %(account)s: SEB:s inrikesfil betalar bara till svenska "
+"konton."
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/account_move.py:0
+msgid ""
+"Foreign currency (%(currency)s): the SEB domestic file only pays SEK. Pay "
+"the bill as a foreign payment in the internet bank."
+msgstr ""
+"Utländsk valuta (%(currency)s): SEB:s inrikesfil betalar bara SEK. Betala "
+"fakturan som en utlandsbetalning i internetbanken."
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export__from_account
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard__from_account
+msgid "From account"
+msgstr "Från konto"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_account_journal__l10n_se_seb_csv_from_account
+msgid "From account (SEB CSV)"
+msgstr "Från konto (SEB CSV)"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model_terms:ir.ui.view,arch_db:l10n_se_payment_file_seb_csv.view_l10n_se_payment_export_form
+#: model_terms:ir.ui.view,arch_db:l10n_se_payment_file_seb_csv.view_l10n_se_payment_export_wizard_form
+msgid "Generate file"
+msgstr "Skapa fil"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export__export_user_id
+msgid "Generated by"
+msgstr "Filen skapad av"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export__export_date
+msgid "Generated on"
+msgstr "Filen skapad"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export__has_message
+msgid "Has Message"
+msgstr "Har meddelande"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard__has_warnings
+msgid "Has warnings"
+msgstr "Har varningar"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard__warnings_acknowledged
+msgid "I have read the warnings"
+msgstr "Jag har läst varningarna"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_account_journal__id
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_account_move__id
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_account_payment_register__id
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export__id
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_line__id
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard__id
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard_line__id
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_res_partner_bank__id
+msgid "ID"
+msgstr "ID"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,help:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "Om markerad kräver nya meddelanden din uppmärksamhet."
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,help:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export__message_has_error
+msgid "If checked, some messages have a delivery error."
+msgstr "Om markerad har några meddelanden ett leveransfel."
+
+#. module: l10n_se_payment_file_seb_csv
+#: model_terms:ir.ui.view,arch_db:l10n_se_payment_file_seb_csv.view_account_invoice_filter_l10n_se_seb_csv
+msgid "In SEB payment file"
+msgstr "I SEB-betalfil"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_account_bank_statement_line__l10n_se_payment_exported
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_account_move__l10n_se_payment_exported
+msgid "In an SEB payment file"
+msgstr "I en SEB-betalfil"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields.selection,name:l10n_se_payment_file_seb_csv.selection__l10n_se_payment_export_line__reference_type__invoice
+#: model:ir.model.fields.selection,name:l10n_se_payment_file_seb_csv.selection__l10n_se_payment_export_wizard_line__reference_type__invoice
+msgid "Invoice number"
+msgstr "Fakturanummer"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export__message_is_follower
+msgid "Is Follower"
+msgstr "Är följare"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model,name:l10n_se_payment_file_seb_csv.model_account_journal
+msgid "Journal"
+msgstr "Journal"
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/account_journal.py:0
+msgid "Journal %(journal)s has no bank account number."
+msgstr "Journalen %(journal)s har inget bankkontonummer."
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/account_journal.py:0
+msgid ""
+"Journal %(journal)s is in %(currency)s; the SEB CSV file pays from a SEK "
+"account."
+msgstr ""
+"Journalen %(journal)s är i %(currency)s; SEB:s CSV-fil betalar från ett "
+"konto i SEK."
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model,name:l10n_se_payment_file_seb_csv.model_account_move
+msgid "Journal Entry"
+msgstr "Verifikat"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export__write_uid
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_line__write_uid
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard__write_uid
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard_line__write_uid
+msgid "Last Updated by"
+msgstr "Senast uppdaterad av"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export__write_date
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_line__write_date
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard__write_date
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard_line__write_date
+msgid "Last Updated on"
+msgstr "Senast uppdaterad den"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_line__sequence
+msgid "Line"
+msgstr "Rad"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model_terms:ir.ui.view,arch_db:l10n_se_payment_file_seb_csv.view_l10n_se_payment_export_form
+msgid "Mark as done"
+msgstr "Markera som klar"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model_terms:ir.ui.view,arch_db:l10n_se_payment_file_seb_csv.view_l10n_se_payment_export_form
+msgid ""
+"Mark the file as done only when its payments were signed and made in the "
+"internet bank."
+msgstr ""
+"Markera filen som klar först när dess betalningar har signerats och "
+"genomförts i internetbanken."
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields.selection,name:l10n_se_payment_file_seb_csv.selection__l10n_se_payment_export_line__reference_type__message
+#: model:ir.model.fields.selection,name:l10n_se_payment_file_seb_csv.selection__l10n_se_payment_export_wizard_line__reference_type__message
+msgid "Message"
+msgstr "Meddelande"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export__message_has_error
+msgid "Message Delivery error"
+msgstr "Leveransfel för meddelande"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export__message_ids
+msgid "Messages"
+msgstr "Meddelanden"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export__name
+msgid "Name"
+msgstr "Namn"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model_terms:ir.actions.act_window,help:l10n_se_payment_file_seb_csv.action_l10n_se_payment_export
+msgid "No SEB payment files yet"
+msgstr "Inga SEB-betalfiler ännu"
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/account_move.py:0
+msgid ""
+"No bank account: set the supplier's bank account on the bill (Recipient "
+"Bank) or choose it on this line."
+msgstr ""
+"Bankkonto saknas: ange leverantörens bankkonto på fakturan (Mottagarens "
+"bank) eller välj det på den här raden."
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/wizard/payment_export_wizard.py:0
+msgid "No bill to export. The reason is shown on each bill's line."
+msgstr "Ingen faktura att exportera. Orsaken visas på varje fakturas rad."
+
+#. module: l10n_se_payment_file_seb_csv
+#: model_terms:ir.ui.view,arch_db:l10n_se_payment_file_seb_csv.view_l10n_se_payment_export_wizard_form
+msgid ""
+"No payment is registered: the bills stay unpaid until SEB's bank statement line is reconciled\n"
+"                    against them. Credit notes are not netted: reconcile them against the bill first."
+msgstr ""
+"Ingen betalning registreras: fakturorna förblir obetalda tills SEB:s kontoutdragsrad har stämts av\n"
+"                    mot dem. Kreditfakturor kvittas inte: stäm av dem mot fakturan först."
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/account_move.py:0
+msgid "Not a vendor bill."
+msgstr "Inte en leverantörsfaktura."
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/account_move.py:0
+msgid "Nothing to pay: the payment status is %(status)s."
+msgstr "Inget att betala: betalningsstatus är %(status)s."
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export__message_needaction_counter
+msgid "Number of Actions"
+msgstr "Antal åtgärder"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export__message_has_error_counter
+msgid "Number of errors"
+msgstr "Antal fel"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,help:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "Antal meddelanden som kräver åtgärd"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,help:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "Antal meddelanden med leveransfel"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields.selection,name:l10n_se_payment_file_seb_csv.selection__l10n_se_payment_export_line__reference_type__ocr
+#: model:ir.model.fields.selection,name:l10n_se_payment_file_seb_csv.selection__l10n_se_payment_export_wizard_line__reference_type__ocr
+msgid "OCR number"
+msgstr "OCR-nummer"
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/account_move.py:0
+msgid ""
+"OCR number %(reference)s is not valid: an OCR number has 2-25 digits and a "
+"correct check digit."
+msgstr ""
+"OCR-numret %(reference)s är ogiltigt: ett OCR-nummer har 2–25 siffror och en"
+" korrekt kontrollsiffra."
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/l10n_se_payment_export.py:0
+msgid ""
+"Only an exported file can be marked as done; %(batch)s is not exported."
+msgstr ""
+"Bara en exporterad fil kan markeras som klar; %(batch)s är inte exporterad."
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/account_journal.py:0
+msgid "Only bank journals can pay with the SEB CSV file."
+msgstr "Bara bankjournaler kan betala med SEB:s CSV-fil."
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/l10n_se_payment_export.py:0
+msgid "Only draft or cancelled SEB payment files can be deleted."
+msgstr "Bara SEB-betalfiler som är utkast eller avbrutna kan tas bort."
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_line__own_note
+msgid "Own note"
+msgstr "Egen anteckning"
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/account_move.py:0
+msgid "Partial payment: %(amount)s of %(residual)s due."
+msgstr "Delbetalning: %(amount)s av %(residual)s att betala."
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model,name:l10n_se_payment_file_seb_csv.model_account_payment_register
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard_line__include
+msgid "Pay"
+msgstr "Betala"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export__journal_id
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard__journal_id
+#: model_terms:ir.ui.view,arch_db:l10n_se_payment_file_seb_csv.view_l10n_se_payment_export_search
+msgid "Pay from"
+msgstr "Betala från"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_line__payee_name
+msgid "Payee name"
+msgstr "Mottagarens namn"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_account_setup_bank_manual_config__l10n_se_ocr_required
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_res_partner_bank__l10n_se_ocr_required
+msgid "Payee requires OCR"
+msgstr "Mottagaren kräver OCR"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export__payment_date
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_line__payment_date
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard__date_mode
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard_line__payment_date
+msgid "Payment date"
+msgstr "Betaldatum"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export__attachment_id
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_line__export_id
+msgid "Payment file"
+msgstr "Betalfil"
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/l10n_se_payment_export.py:0
+msgid "Payment file cancelled; its bills can be exported again."
+msgstr "Betalfilen avbruten; dess fakturor kan exporteras igen."
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/l10n_se_payment_export.py:0
+msgid ""
+"Payment file generated: %(count)s payments, %(total)s from account "
+"%(account)s. Upload it in SEB's internet bank and sign the payments there."
+msgstr ""
+"Betalfilen skapad: %(count)s betalningar, %(total)s från konto %(account)s. "
+"Ladda upp den i SEB:s internetbank och signera betalningarna där."
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/l10n_se_payment_export.py:0
+msgid "Payment file marked as done."
+msgstr "Betalfilen markerad som klar."
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/l10n_se_payment_export.py:0
+msgid "Payment of %(bill)s cancelled; the bill can be exported again."
+msgstr "Betalningen av %(bill)s avbruten; fakturan kan exporteras igen."
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export__line_ids
+#: model_terms:ir.ui.view,arch_db:l10n_se_payment_file_seb_csv.view_l10n_se_payment_export_form
+msgid "Payments"
+msgstr "Betalningar"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export__line_count
+msgid "Payments count"
+msgstr "Antal betalningar"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields.selection,name:l10n_se_payment_file_seb_csv.selection__l10n_se_payment_export_line__reference_type__rf
+#: model:ir.model.fields.selection,name:l10n_se_payment_file_seb_csv.selection__l10n_se_payment_export_wizard_line__reference_type__rf
+msgid "RF reference"
+msgstr "RF-referens"
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/account_move.py:0
+msgid "RF reference %(reference)s is not valid."
+msgstr "RF-referensen %(reference)s är ogiltig."
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields.selection,name:l10n_se_payment_file_seb_csv.selection__l10n_se_payment_export_wizard_line__status__ok
+msgid "Ready"
+msgstr "Redo"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_line__reference
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard_line__reference
+msgid "Reference"
+msgstr "Referens"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_line__reference_type
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard_line__reference_type
+msgid "Reference type"
+msgstr "Referenstyp"
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/l10n_se_payment_export.py:0
+msgid ""
+"Removed from SEB payment file %(batch)s (%(reason)s); the bill can be "
+"exported again."
+msgstr ""
+"Borttagen ur SEB-betalfilen %(batch)s (%(reason)s); fakturan kan exporteras "
+"igen."
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_account_journal__l10n_se_seb_csv_problem
+msgid "SEB CSV check"
+msgstr "Kontroll för SEB CSV"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_account_journal__l10n_se_seb_csv_export
+msgid "SEB CSV export"
+msgstr "SEB CSV-export"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model,name:l10n_se_payment_file_seb_csv.model_l10n_se_payment_export
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_account_bank_statement_line__l10n_se_payment_export_id
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_account_move__l10n_se_payment_export_id
+msgid "SEB payment file"
+msgstr "SEB-betalfil"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model,name:l10n_se_payment_file_seb_csv.model_l10n_se_payment_export_line
+msgid "SEB payment file line"
+msgstr "Rad i SEB-betalfil"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_account_bank_statement_line__l10n_se_payment_export_line_ids
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_account_move__l10n_se_payment_export_line_ids
+msgid "SEB payment file lines"
+msgstr "Rader i SEB-betalfiler"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.actions.act_window,name:l10n_se_payment_file_seb_csv.action_l10n_se_payment_export
+#: model:ir.ui.menu,name:l10n_se_payment_file_seb_csv.menu_l10n_se_payment_export
+msgid "SEB payment files"
+msgstr "SEB-betalfiler"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields.selection,name:l10n_se_payment_file_seb_csv.selection__l10n_se_payment_export_wizard__date_mode__fixed
+msgid "Same date for all"
+msgstr "Samma datum för alla"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model_terms:ir.ui.view,arch_db:l10n_se_payment_file_seb_csv.view_l10n_se_payment_export_wizard_form
+msgid "Save as draft"
+msgstr "Spara som utkast"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model_terms:ir.actions.act_window,help:l10n_se_payment_file_seb_csv.action_l10n_se_payment_export
+msgid ""
+"Select vendor bills in the bill list and choose Actions &gt; Export to SEB "
+"(CSV)."
+msgstr ""
+"Markera leverantörsfakturor i fakturalistan och välj Åtgärder &gt; Exportera"
+" till SEB (CSV)."
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_line__sender_reference
+msgid "Sender's reference"
+msgstr "Avsändarens referens"
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/wizard/payment_export_wizard.py:0
+msgid ""
+"Some bills have warnings. Read them and tick 'I have read the warnings'."
+msgstr ""
+"Några fakturor har varningar. Läs dem och bocka i 'Jag har läst "
+"varningarna'."
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export__state
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_line__state
+msgid "State"
+msgstr "Status"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard_line__status
+#: model_terms:ir.ui.view,arch_db:l10n_se_payment_file_seb_csv.view_l10n_se_payment_export_search
+msgid "Status"
+msgstr "Status"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_line__partner_id
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard_line__partner_id
+msgid "Supplier"
+msgstr "Leverantör"
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/account_journal.py:0
+msgid ""
+"The SEB CSV file pays from an SEB account (clearing number and account "
+"number, 11 digits). The bank account of journal %(journal)s is %(number)s."
+msgstr ""
+"SEB:s CSV-fil betalar från ett SEB-konto (clearingnummer och kontonummer, 11"
+" siffror). Journalen %(journal)s har bankkontot %(number)s."
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/l10n_se_payment_export.py:0
+msgid ""
+"The SEB payment file %(batch)s cannot be generated:\n"
+"%(problems)s"
+msgstr ""
+"SEB-betalfilen %(batch)s kan inte skapas:\n"
+"%(problems)s"
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/l10n_se_payment_export.py:0
+msgid "The SEB payment file could not be written: %(error)s"
+msgstr "SEB-betalfilen kunde inte skrivas: %(error)s"
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/account_move.py:0
+msgid "The amount %(amount)s is more than the amount due %(residual)s."
+msgstr ""
+"Beloppet %(amount)s är större än det som återstår att betala (%(residual)s)."
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/account_move.py:0
+msgid "The amount must be positive."
+msgstr "Beloppet måste vara positivt."
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/account_move.py:0
+msgid ""
+"The bank account %(account)s belongs to %(holder)s, not to the supplier "
+"%(supplier)s."
+msgstr ""
+"Bankkontot %(account)s tillhör %(holder)s, inte leverantören %(supplier)s."
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/account_move.py:0
+msgid ""
+"The bank account %(account)s belongs to your own company, not to the "
+"supplier."
+msgstr "Bankkontot %(account)s tillhör ert eget bolag, inte leverantören."
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/account_move.py:0
+msgid ""
+"The bank account %(account)s is not trusted: mark it as trusted (Send Money)"
+" before paying to it."
+msgstr ""
+"Bankkontot %(account)s är inte betrott: markera det som betrott (Skicka "
+"pengar) innan du betalar till det."
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,help:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export__journal_id
+msgid ""
+"The bank journal of the SEB account the payments are drawn from ('Från "
+"konto')."
+msgstr ""
+"Bankjournalen för SEB-kontot som betalningarna dras från ('Från konto')."
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/account_move.py:0
+msgid "The bill belongs to %(company)s, the SEB account to %(other)s."
+msgstr "Fakturan tillhör %(company)s, SEB-kontot tillhör %(other)s."
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/wizard/payment_export_wizard.py:0
+msgid ""
+"The bill has no bank account; the supplier's only trusted account "
+"%(account)s is used."
+msgstr ""
+"Fakturan saknar bankkonto; leverantörens enda betrodda konto %(account)s "
+"används."
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/account_move.py:0
+msgid "The bill is not posted."
+msgstr "Fakturan är inte bokförd."
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,help:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_line__residual_at_export
+msgid "The bill's amount due when the file was generated."
+msgstr "Fakturans återstående belopp när filen skapades."
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,help:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export__payment_date
+msgid ""
+"The earliest payment date of the payments; each payment has its own date."
+msgstr ""
+"Det tidigaste betaldatumet bland betalningarna; varje betalning har sitt "
+"eget datum."
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/l10n_se_payment_export.py:0
+msgid "The file has not been generated yet."
+msgstr "Filen har inte skapats än."
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/l10n_se_payment_export.py:0
+msgid "The file of %(batch)s has already been generated."
+msgstr "Filen för %(batch)s har redan skapats."
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/account_move.py:0
+msgid ""
+"The invoice number has more than %(max)s characters; send it as a message "
+"instead."
+msgstr ""
+"Fakturanumret har fler än %(max)s tecken; skicka det som meddelande i "
+"stället."
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/account_move.py:0
+msgid "The invoice number is empty."
+msgstr "Fakturanumret är tomt."
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,help:l10n_se_payment_file_seb_csv.field_account_journal__l10n_se_seb_csv_from_account
+#: model:ir.model.fields,help:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard__from_account
+msgid ""
+"The journal's own SEB account as the SEB CSV file writes it in 'Från konto'."
+msgstr ""
+"Journalens eget SEB-konto så som SEB:s CSV-fil skriver det i 'Från konto'."
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/account_move.py:0
+msgid "The message has more than %(max)s characters."
+msgstr "Meddelandet har fler än %(max)s tecken."
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/account_move.py:0
+msgid "The message is empty."
+msgstr "Meddelandet är tomt."
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,help:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export__from_account
+msgid "The own account as written in the file's 'Från konto'."
+msgstr "Det egna kontot så som det skrivs i filens 'Från konto'."
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/account_move.py:0
+msgid ""
+"The payee requires an OCR reference, but the bill's payment reference "
+"%(reference)s is not a valid OCR number."
+msgstr ""
+"Mottagaren kräver OCR, men fakturans betalningsreferens %(reference)s är "
+"inte ett giltigt OCR-nummer."
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/account_move.py:0
+msgid "The payment date %(date)s is in the past."
+msgstr "Betaldatumet %(date)s har redan passerat."
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/account_move.py:0
+msgid "The payment date is missing."
+msgstr "Betaldatum saknas."
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/l10n_se_payment_export.py:0
+msgid "The payment of %(bill)s is done or cancelled and cannot be cancelled."
+msgstr "Betalningen av %(bill)s är klar eller avbruten och kan inte avbrytas."
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/account_move.py:0
+msgid ""
+"The payment reference %(reference)s looks like an OCR number but its check "
+"digit is wrong, so it is not sent as OCR. If the payee requires OCR, the "
+"bank will reject the payment."
+msgstr ""
+"Betalningsreferensen %(reference)s ser ut som ett OCR-nummer men har fel "
+"kontrollsiffra och skickas därför inte som OCR. Om mottagaren kräver OCR "
+"avvisar banken betalningen."
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.constraint,message:l10n_se_payment_file_seb_csv.constraint_l10n_se_payment_export_line_sender_reference_uniq
+msgid "The sender's reference of an SEB payment must be unique."
+msgstr "Avsändarens referens för en SEB-betalning måste vara unik."
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/account_move.py:0
+msgid ""
+"The supplier has open credit notes: %(credit_notes)s. Credit notes are not "
+"netted in the file: reconcile them against this bill first, then export the "
+"remaining amount."
+msgstr ""
+"Leverantören har öppna kreditfakturor: %(credit_notes)s. Kreditfakturor "
+"kvittas inte i filen: stäm av dem mot den här fakturan först och exportera "
+"sedan det återstående beloppet."
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/wizard/payment_export_wizard.py:0
+msgid ""
+"These bills cannot be exported:\n"
+"%(problems)s\n"
+"\n"
+"Untick them, or fix them and open the export again."
+msgstr ""
+"De här fakturorna kan inte exporteras:\n"
+"%(problems)s\n"
+"\n"
+"Bocka ur dem, eller rätta dem och öppna exporten igen."
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,help:l10n_se_payment_file_seb_csv.field_account_setup_bank_manual_config__l10n_se_ocr_required
+#: model:ir.model.fields,help:l10n_se_payment_file_seb_csv.field_res_partner_bank__l10n_se_ocr_required
+msgid ""
+"This Bankgiro or Plusgiro number only accepts payments with a valid OCR "
+"reference. The SEB CSV export refuses bills to it that have no valid OCR "
+"number in their payment reference."
+msgstr ""
+"Det här bankgiro- eller plusgironumret tar bara emot betalningar med giltigt"
+" OCR-nummer. SEB CSV-exporten vägrar fakturor till det som saknar ett "
+"giltigt OCR-nummer i betalningsreferensen."
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/account_move.py:0
+msgid "This bill might be a duplicate of %(bills)s."
+msgstr "Fakturan kan vara en dubblett av %(bills)s."
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_line__to_account
+msgid "To account"
+msgstr "Till konto"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model_terms:ir.ui.view,arch_db:l10n_se_payment_file_seb_csv.view_account_invoice_filter_l10n_se_seb_csv
+msgid "To pay via SEB"
+msgstr "Att betala via SEB"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export__amount_total
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard__amount_total
+#: model_terms:ir.ui.view,arch_db:l10n_se_payment_file_seb_csv.view_l10n_se_payment_export_form
+#: model_terms:ir.ui.view,arch_db:l10n_se_payment_file_seb_csv.view_l10n_se_payment_export_list
+msgid "Total"
+msgstr "Totalt"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model_terms:ir.ui.view,arch_db:l10n_se_payment_file_seb_csv.view_l10n_se_payment_export_form
+msgid ""
+"Upload the file in SEB's internet bank and sign the payments there. No payment is registered in\n"
+"                        Odoo: the bills stay unpaid until the bank statement line is reconciled against them."
+msgstr ""
+"Ladda upp filen i SEB:s internetbank och signera betalningarna där. Ingen betalning registreras i\n"
+"                        Odoo: fakturorna förblir obetalda tills bankkontoutdragets rad har stämts av mot dem."
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model,name:l10n_se_payment_file_seb_csv.model_l10n_se_payment_export_wizard_line
+msgid "Vendor bill in an SEB payment file export"
+msgstr "Leverantörsfaktura i en export till SEB-betalfil"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,help:l10n_se_payment_file_seb_csv.field_account_journal__l10n_se_seb_csv_export
+msgid ""
+"Vendor bills can be paid from this bank journal with SEB's CSV payment "
+"upload (Export to SEB (CSV) on the vendor bill list). The journal's bank "
+"account must be an SEB account in SEK."
+msgstr ""
+"Leverantörsfakturor kan betalas från den här bankjournalen med SEB:s CSV-"
+"uppladdning av betalningar (Exportera till SEB (CSV) i listan över "
+"leverantörsfakturor). Journalens bankkonto måste vara ett SEB-konto i SEK."
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields.selection,name:l10n_se_payment_file_seb_csv.selection__l10n_se_payment_export_wizard_line__status__warning
+msgid "Warning"
+msgstr "Varning"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard_line__warnings
+msgid "Warnings"
+msgstr "Varningar"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export__website_message_ids
+msgid "Website Messages"
+msgstr "Webbplatsmeddelanden"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,help:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export__website_message_ids
+msgid "Website communication history"
+msgstr "Kommunikationshistorik för webbplats"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,help:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard_line__reference_type
+msgid ""
+"What the payee sees. OCR only with a valid OCR number to a Bankgiro or "
+"Plusgiro number; never both OCR and invoice number."
+msgstr ""
+"Vad mottagaren ser. OCR bara med ett giltigt OCR-nummer till ett bankgiro- "
+"eller plusgironummer; aldrig både OCR och fakturanummer."
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,help:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_line__reference
+msgid ""
+"What the payee sees: the OCR number, RF reference, invoice number or "
+"message, as written to the file."
+msgstr ""
+"Vad mottagaren ser: OCR-nummer, RF-referens, fakturanummer eller meddelande,"
+" så som det skrivs i filen."
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard_line__problems
+msgid "Why blocked"
+msgstr "Orsak till spärr"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard_line__wizard_id
+msgid "Wizard"
+msgstr "Guide"
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/l10n_se_payment_export.py:0
+msgid "the file %(batch)s was cancelled"
+msgstr "filen %(batch)s avbröts"
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/l10n_se_payment_export.py:0
+msgid "the line was cancelled"
+msgstr "raden avbröts"
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/wizard/account_payment_register.py:0
+msgid ""
+"%(bills)s is in SEB payment file %(batch)s, which may still be signed in the"
+" internet bank. If SEB has paid it, mark the file as done first; if the "
+"payment will not be signed, cancel its line in the file."
+msgstr ""
+"%(bills)s finns i SEB-betalfilen %(batch)s, som fortfarande kan signeras i "
+"internetbanken. Om SEB har betalat, markera först filen som klar; om "
+"betalningen inte ska signeras, avbryt dess rad i filen."
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,help:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export__has_residual_short
+msgid ""
+"A bill in the file was paid or credited another way after it was put in the "
+"file."
+msgstr ""
+"En faktura i filen har betalats eller krediterats på annat sätt efter att "
+"den lades i filen."
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard__acknowledged_warnings
+msgid "Acknowledged Warnings"
+msgstr "Lästa varningar"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard_line__clearing_bank
+msgid "Bank (from clearing number)"
+msgstr "Bank (enligt clearingnummer)"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,help:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard__journal_id
+msgid ""
+"Bank journals flagged 'SEB CSV export' (Journal Entries tab of the journal)."
+msgstr ""
+"Bankjournaler markerade med 'SEB CSV-export' (fliken Verifikat på "
+"journalen)."
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export__has_residual_short
+msgid "Bills paid otherwise"
+msgstr "Fakturor betalda på annat sätt"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,help:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard_line__include
+msgid ""
+"Bills that are not blocked when the export is opened are paid; untick to "
+"leave a bill out. A bill that becomes blocked while it is ticked stops the "
+"export until it is unticked or fixed."
+msgstr ""
+"Fakturor som inte är spärrade när exporten öppnas betalas; bocka ur för att "
+"utelämna en faktura. En ibockad faktura som blir spärrad stoppar exporten "
+"tills den bockas ur eller rättas."
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_line__move_residual
+msgid "Due now"
+msgstr "Att betala nu"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_line__holds_bill
+msgid "Holds the bill"
+msgstr "Håller fakturan"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_line__residual_short
+msgid "Paid otherwise"
+msgstr "Betald på annat sätt"
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/l10n_se_payment_export.py:0
+msgid "Payments can only be added to a draft SEB payment file."
+msgstr "Betalningar kan bara läggas till i en SEB-betalfil som är utkast."
+
+#. module: l10n_se_payment_file_seb_csv
+#: model_terms:ir.ui.view,arch_db:l10n_se_payment_file_seb_csv.view_l10n_se_payment_export_form
+msgid ""
+"Some bills were paid or credited another way after they were put in this file: their amount due\n"
+"                        is now less than the amount in the file (marked in red below). Remove those payments in the\n"
+"                        internet bank before signing, and cancel their lines here."
+msgstr ""
+"Några fakturor har betalats eller krediterats på annat sätt efter att de "
+"lades i den här filen: deras belopp att betala är nu lägre än beloppet i "
+"filen (rödmarkerade nedan). Ta bort de betalningarna i internetbanken innan "
+"du signerar, och avbryt deras rader här."
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/account_move.py:0
+msgid ""
+"The OCR number %(reference)s is the same as the supplier's invoice number. "
+"Check on the invoice that it is the OCR reference; a payee that checks OCR "
+"numbers rejects a wrong one."
+msgstr ""
+"OCR-numret %(reference)s är samma som leverantörens fakturanummer. "
+"Kontrollera på fakturan att det är OCR-referensen; en mottagare som "
+"kontrollerar OCR-nummer avvisar ett felaktigt."
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,help:l10n_se_payment_file_seb_csv.field_account_bank_statement_line__l10n_se_payment_export_id
+#: model:ir.model.fields,help:l10n_se_payment_file_seb_csv.field_account_move__l10n_se_payment_export_id
+msgid ""
+"The SEB payment file that holds this bill: a draft or exported file, or a "
+"done file whose payment has not yet reached the bill."
+msgstr ""
+"SEB-betalfilen som håller fakturan: ett utkast eller en exporterad fil, "
+"eller en klar fil vars betalning ännu inte nått fakturan."
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/l10n_se_payment_export.py:0
+msgid "The account to pay from can only be changed on a draft file."
+msgstr "Kontot att betala från kan bara ändras i en fil som är utkast."
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/account_move.py:0
+msgid ""
+"The bank account %(account)s is registered at %(registered)s, but its "
+"clearing number belongs to %(bank)s. Check the account number."
+msgstr ""
+"Bankkontot %(account)s är registrerat hos %(registered)s, men dess "
+"clearingnummer hör till %(bank)s. Kontrollera kontonumret."
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,help:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_line__holds_bill
+msgid ""
+"The bill cannot be exported again while this is set: the line is in a draft "
+"or exported file, or in a done file whose payment has not yet reached the "
+"bill (its amount due has not dropped by the amount paid)."
+msgstr ""
+"Fakturan kan inte exporteras igen så länge detta är satt: raden finns i ett "
+"utkast eller en exporterad fil, eller i en klar fil vars betalning ännu inte"
+" nått fakturan (beloppet att betala har inte minskat med det betalda "
+"beloppet)."
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,help:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_line__residual_short
+msgid ""
+"The bill's amount due is now less than the amount in the file: it was paid "
+"or credited another way. Remove this payment in the internet bank before "
+"signing."
+msgstr ""
+"Fakturans belopp att betala är nu lägre än beloppet i filen: den har "
+"betalats eller krediterats på annat sätt. Ta bort betalningen i "
+"internetbanken innan du signerar."
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/account_move.py:0
+msgid ""
+"The payment date %(date)s is not a bank day (weekend or Swedish public "
+"holiday). Check the date the internet bank shows after the upload."
+msgstr ""
+"Betaldagen %(date)s är ingen bankdag (helg eller svensk helgdag). "
+"Kontrollera vilket datum internetbanken visar efter uppladdningen."
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,help:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard__acknowledged_warnings
+msgid ""
+"The warnings as they were when 'I have read the warnings' was ticked. A "
+"warning that appears or changes afterwards needs a new acknowledgement."
+msgstr ""
+"Varningarna som de var när 'Jag har läst varningarna' bockades i. En varning"
+" som tillkommer eller ändras därefter måste bekräftas på nytt."
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/wizard/payment_export_wizard.py:0
+msgid ""
+"The warnings changed after 'I have read the warnings' was ticked. Read them "
+"again, then untick and tick it."
+msgstr ""
+"Varningarna har ändrats sedan 'Jag har läst varningarna' bockades i. Läs dem"
+" igen och bocka sedan ur och i rutan."
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/l10n_se_payment_export.py:0
+msgid ""
+"These fields of an SEB payment file are set by its buttons only: %(fields)s."
+msgstr ""
+"De här fälten i en SEB-betalfil sätts bara av dess knappar: %(fields)s."
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/account_move.py:0
+msgid ""
+"Paid by direct debit: the supplier collects this bill from your account. Do "
+"not pay it; reconcile it against the bank line instead."
+msgstr ""
+"Dras automatiskt: leverantören drar fakturan från ert konto. Betala den inte; "
+"stäm av den mot bankraden i stället."

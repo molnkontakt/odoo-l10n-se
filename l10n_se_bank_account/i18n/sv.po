@@ -1,0 +1,280 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* l10n_se_bank_account
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-27 07:30+0000\n"
+"PO-Revision-Date: 2026-09-27 07:30+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: sv\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. module: l10n_se_bank_account
+#. odoo-python
+#: code:addons/l10n_se_bank_account/models/res_partner_bank.py:0
+msgid "%(number)s is not a Swedish IBAN."
+msgstr "%(number)s är inte ett svenskt IBAN."
+
+#. module: l10n_se_bank_account
+#. odoo-python
+#: code:addons/l10n_se_bank_account/models/res_partner_bank.py:0
+msgid "%(number)s is not a valid IBAN."
+msgstr "%(number)s är inte ett giltigt IBAN."
+
+#. module: l10n_se_bank_account
+#. odoo-python
+#: code:addons/l10n_se_bank_account/models/res_partner_bank.py:0
+msgid ""
+"Account %(number)s has no known Swedish account type (Bankgiro, Plusgiro, "
+"bank account or IBAN)."
+msgstr ""
+"Kontot %(number)s har ingen känd svensk kontotyp (bankgiro, plusgiro, "
+"bankkonto eller IBAN)."
+
+#. module: l10n_se_bank_account
+#: model:ir.model.fields,field_description:l10n_se_bank_account.field_account_setup_bank_manual_config__l10n_se_clearing_bank
+#: model:ir.model.fields,field_description:l10n_se_bank_account.field_res_partner_bank__l10n_se_clearing_bank
+msgid "Bank (from clearing number)"
+msgstr "Bank (enligt clearingnummer)"
+
+#. module: l10n_se_bank_account
+#: model:ir.model,name:l10n_se_bank_account.model_res_partner_bank
+msgid "Bank Accounts"
+msgstr "Bankkonton"
+
+#. module: l10n_se_bank_account
+#. odoo-python
+#: code:addons/l10n_se_bank_account/models/res_partner_bank.py:0
+msgid ""
+"Bank account %(number)s is too short to hold a clearing number and an "
+"account number."
+msgstr ""
+"Bankkontot %(number)s är för kort för att rymma både clearingnummer och "
+"kontonummer."
+
+#. module: l10n_se_bank_account
+#. odoo-python
+#: code:addons/l10n_se_bank_account/models/res_partner_bank.py:0
+msgid ""
+"Bank account %(number)s: cannot tell where the Swedbank clearing number "
+"ends. Write it with its check digit and a separator, e.g. 8xxx-x followed by"
+" the account number."
+msgstr ""
+"Bankkontot %(number)s: det går inte att avgöra var Swedbanks clearingnummer "
+"slutar. Skriv det med kontrollsiffra och avgränsare, t.ex. 8xxx-x följt av "
+"kontonumret."
+
+#. module: l10n_se_bank_account
+#. odoo-python
+#: code:addons/l10n_se_bank_account/models/res_partner_bank.py:0
+msgid ""
+"Bank account %(number)s: clearing number %(clearing)s%(bank)s expects "
+"%(expected)s digits after the clearing number, found %(length)s."
+msgstr ""
+"Bankkontot %(number)s: clearingnummer %(clearing)s%(bank)s ska ha "
+"%(expected)s siffror efter clearingnumret, men har %(length)s."
+
+#. module: l10n_se_bank_account
+#. odoo-python
+#: code:addons/l10n_se_bank_account/models/res_partner_bank.py:0
+msgid ""
+"Bank account %(number)s: the Swedbank clearing number %(clearing)s has an "
+"invalid check digit (expected %(expected)s)."
+msgstr ""
+"Bankkontot %(number)s: Swedbanks clearingnummer %(clearing)s har ogiltig "
+"kontrollsiffra (ska vara %(expected)s)."
+
+#. module: l10n_se_bank_account
+#: model:ir.model.fields.selection,name:l10n_se_bank_account.selection__res_partner_bank__l10n_se_account_type__bban
+msgid "Bank account (clearing + account)"
+msgstr "Bankkonto (clearing + konto)"
+
+#. module: l10n_se_bank_account
+#: model:ir.model.fields.selection,name:l10n_se_bank_account.selection__res_partner_bank__l10n_se_account_type__bankgiro
+msgid "Bankgiro"
+msgstr "Bankgiro"
+
+#. module: l10n_se_bank_account
+#. odoo-python
+#: code:addons/l10n_se_bank_account/models/res_partner_bank.py:0
+msgid ""
+"Bankgiro number %(number)s has %(length)s digits; a Bankgiro number has 7 or"
+" 8."
+msgstr ""
+"Bankgironumret %(number)s har %(length)s siffror; ett bankgironummer har 7 "
+"eller 8."
+
+#. module: l10n_se_bank_account
+#. odoo-python
+#: code:addons/l10n_se_bank_account/models/res_partner_bank.py:0
+msgid "Bankgiro number %(number)s has an invalid check digit."
+msgstr "Bankgironumret %(number)s har ogiltig kontrollsiffra."
+
+#. module: l10n_se_bank_account
+#: model:ir.model.fields,field_description:l10n_se_bank_account.field_res_partner_bank__display_name
+msgid "Display Name"
+msgstr "Visningsnamn"
+
+#. module: l10n_se_bank_account
+#: model:ir.model.fields.selection,name:l10n_se_bank_account.selection__res_partner_bank__l10n_se_account_type__iban
+msgid "IBAN"
+msgstr "IBAN"
+
+#. module: l10n_se_bank_account
+#: model:ir.model.fields,field_description:l10n_se_bank_account.field_res_partner_bank__id
+msgid "ID"
+msgstr "ID"
+
+#. module: l10n_se_bank_account
+#: model:ir.model.fields,field_description:l10n_se_bank_account.field_account_setup_bank_manual_config__l10n_se_payment_number
+#: model:ir.model.fields,field_description:l10n_se_bank_account.field_res_partner_bank__l10n_se_payment_number
+msgid "Number in payment files"
+msgstr "Nummer i betalfiler"
+
+#. module: l10n_se_bank_account
+#: model:ir.model.fields.selection,name:l10n_se_bank_account.selection__res_partner_bank__l10n_se_account_type__other
+msgid "Other"
+msgstr "Annat"
+
+#. module: l10n_se_bank_account
+#: model:ir.model.fields.selection,name:l10n_se_bank_account.selection__res_partner_bank__l10n_se_account_type__plusgiro
+msgid "Plusgiro"
+msgstr "Plusgiro"
+
+#. module: l10n_se_bank_account
+#. odoo-python
+#: code:addons/l10n_se_bank_account/models/res_partner_bank.py:0
+msgid ""
+"Plusgiro number %(number)s has %(length)s digits; a Plusgiro number has 2 to"
+" 8."
+msgstr ""
+"Plusgironumret %(number)s har %(length)s siffror; ett plusgironummer har 2 "
+"till 8."
+
+#. module: l10n_se_bank_account
+#. odoo-python
+#: code:addons/l10n_se_bank_account/models/res_partner_bank.py:0
+msgid "Plusgiro number %(number)s has an invalid check digit."
+msgstr "Plusgironumret %(number)s har ogiltig kontrollsiffra."
+
+#. module: l10n_se_bank_account
+#: model:ir.model.fields,field_description:l10n_se_bank_account.field_account_setup_bank_manual_config__l10n_se_account_problem
+#: model:ir.model.fields,field_description:l10n_se_bank_account.field_res_partner_bank__l10n_se_account_problem
+msgid "Swedish account check"
+msgstr "Kontroll av svenskt konto"
+
+#. module: l10n_se_bank_account
+#: model:ir.model.fields,field_description:l10n_se_bank_account.field_account_setup_bank_manual_config__l10n_se_account_type
+#: model:ir.model.fields,field_description:l10n_se_bank_account.field_res_partner_bank__l10n_se_account_type
+msgid "Swedish account type"
+msgstr "Svensk kontotyp"
+
+#. module: l10n_se_bank_account
+#: model:ir.model.fields,help:l10n_se_bank_account.field_account_setup_bank_manual_config__l10n_se_payment_number
+#: model:ir.model.fields,help:l10n_se_bank_account.field_res_partner_bank__l10n_se_payment_number
+msgid ""
+"The account number as Swedish payment files write it: Bankgiro and Plusgiro "
+"digits only, bank accounts per clearing-number range as the banks' ISO 20022"
+" guides require, IBAN without spaces."
+msgstr ""
+"Kontonumret som det skrivs i svenska betalfiler: bankgiro och plusgiro med "
+"bara siffror, bankkonton enligt clearingnummerserie som bankernas ISO "
+"20022-anvisningar kräver, IBAN utan mellanslag."
+
+#. module: l10n_se_bank_account
+#. odoo-python
+#: code:addons/l10n_se_bank_account/models/res_partner_bank.py:0
+msgid "The account number is empty."
+msgstr "Kontonumret saknas."
+
+#. module: l10n_se_bank_account
+#. odoo-python
+#: code:addons/l10n_se_bank_account/models/res_partner_bank.py:0
+msgid "The domestic account number cannot be derived from IBAN %(number)s."
+msgstr "Det svenska kontonumret kan inte härledas ur IBAN %(number)s."
+
+#. module: l10n_se_bank_account
+#. odoo-python
+#: code:addons/l10n_se_bank_account/models/res_partner_bank.py:0
+msgid "Account number %(number)s is only zeros."
+msgstr "Kontonumret %(number)s består bara av nollor."
+
+#. module: l10n_se_bank_account
+#. odoo-python
+#: code:addons/l10n_se_bank_account/models/res_partner_bank.py:0
+msgid ""
+"Bank account %(number)s has an invalid check digit for clearing number "
+"%(clearing)s%(bank)s. Check the clearing and account number with the payee."
+msgstr ""
+"Bankkontot %(number)s har fel kontrollsiffra för clearingnummer "
+"%(clearing)s%(bank)s. Kontrollera clearing- och kontonumret med "
+"betalningsmottagaren."
+
+#. module: l10n_se_bank_account
+#. odoo-python
+#: code:addons/l10n_se_bank_account/models/res_partner_bank.py:0
+msgid ""
+"Clearing number %(clearing)s is not in the Swedish banks' list, so bank "
+"account %(number)s could not be checked. Confirm the number with the payee."
+msgstr ""
+"Clearingnummer %(clearing)s finns inte i bankernas förteckning, så "
+"bankkontot %(number)s kunde inte kontrolleras. Stäm av numret med "
+"betalningsmottagaren."
+
+#. module: l10n_se_bank_account
+#: model:ir.model.fields,help:l10n_se_bank_account.field_account_setup_bank_manual_config__l10n_se_account_type
+#: model:ir.model.fields,help:l10n_se_bank_account.field_res_partner_bank__l10n_se_account_type
+msgid ""
+"How the account is written in Swedish payment files. Guessed from the "
+"account number: a BG/PG prefix, an IBAN, or a clearing number and account "
+"number. Can be changed by hand; changing the account number or the clearing "
+"number guesses it again."
+msgstr ""
+"Hur kontot skrivs i svenska betalfiler. Tolkas från kontonumret: prefix "
+"BG/PG, IBAN eller clearing- och kontonummer. Kan ändras manuellt; ändras "
+"kontonumret eller clearingnumret tolkas det på nytt."
+
+#. module: l10n_se_bank_account
+#: model:ir.model.fields,field_description:l10n_se_bank_account.field_account_setup_bank_manual_config__l10n_se_account_warning
+#: model:ir.model.fields,field_description:l10n_se_bank_account.field_res_partner_bank__l10n_se_account_warning
+msgid "Swedish account warning"
+msgstr "Varning för svenskt konto"
+
+#. module: l10n_se_bank_account
+#. odoo-python
+#: code:addons/l10n_se_bank_account/models/res_partner_bank.py:0
+msgid ""
+"The check digit of bank account %(number)s does not match. %(bank)s has a "
+"few accounts like this: confirm the number with the payee."
+msgstr ""
+"Kontrollsiffran i bankkontot %(number)s stämmer inte. %(bank)s har några "
+"sådana konton: stäm av numret med betalningsmottagaren."
+
+#. module: l10n_se_bank_account
+#: model:ir.model.fields,help:l10n_se_bank_account.field_account_setup_bank_manual_config__l10n_se_account_warning
+#: model:ir.model.fields,help:l10n_se_bank_account.field_res_partner_bank__l10n_se_account_warning
+msgid "The number can be used, but its check digit could not be confirmed."
+msgstr "Numret kan användas, men dess kontrollsiffra kunde inte bekräftas."
+
+#. module: l10n_se_bank_account
+#: model:ir.model.fields,field_description:l10n_se_bank_account.field_account_move__l10n_se_auto_debit
+msgid "Paid by direct debit"
+msgstr "Dras automatiskt (autogiro)"
+
+#. module: l10n_se_bank_account
+#: model:ir.model.fields,help:l10n_se_bank_account.field_account_move__l10n_se_auto_debit
+msgid ""
+"The supplier collects this bill from the company's account (autogiro or an "
+"agreed direct debit). Payment files never include it: reconcile the bill "
+"against the bank line instead."
+msgstr ""
+"Leverantören drar fakturan från bolagets konto (autogiro eller avtalad "
+"dragning). Den kommer aldrig med i en betalfil: stäm av fakturan mot "
+"bankraden i stället."

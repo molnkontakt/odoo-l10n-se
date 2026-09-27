@@ -6,12 +6,12 @@ class AccountPaymentMode(models.Model):
 
     l10n_se_bank_profile = fields.Selection(
         [("seb", "SEB")],
-        string="Svensk bankprofil",
-        help="Skriver svenska inrikes betalningar (bankgiro, plusgiro, bankkonto, OCR) enligt "
-        "bankens ISO 20022-anvisning. Tomt = OCA:s vanliga SEPA-fil.",
+        string="Swedish bank profile",
+        help="Writes Swedish domestic payments (Bankgiro, Plusgiro, bank account, OCR) the way "
+        "the bank's ISO 20022 guide requires. Empty = OCA's standard SEPA file.",
     )
     l10n_se_customer_id = fields.Char(
-        string="Kund-id i banken",
-        help="Kund-id enligt bankens filavtal (SEB: 14 tecken). Skrivs som initierande part och "
-        "betalare med SchmeNm/Cd = BANK.",
+        string="Customer id at the bank",
+        help="Customer id from the bank's file agreement (SEB: 14 characters). Written as "
+        "initiating party and debtor with SchmeNm/Cd = BANK.",
     )

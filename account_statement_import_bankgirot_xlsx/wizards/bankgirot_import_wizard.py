@@ -247,7 +247,7 @@ class BankgirotImportWizard(models.TransientModel):
             for inv in all_invs:
                 if (inv.payment_reference or "").strip() == token:
                     return inv
-        # 2) kundens namn i referens eller meddelande ("ÅRSAVGIFT 2026 HILDURS VÄG 11")
+        # 2) kundens namn i referens eller meddelande ("ÅRSAVGIFT 2026 EXEMPELVÄGEN 11")
         def norm(t):
             return re.sub(r"[^a-z0-9åäö]", "", (t or "").lower())
         ntext = norm(text)

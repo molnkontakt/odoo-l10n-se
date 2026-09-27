@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_account_journal_form_l10n_se_seb_csv" model="ir.ui.view">
+        <field name="name">account.journal.form.l10n_se_seb_csv</field>
+        <field name="model">account.journal</field>
+        <field name="inherit_id" ref="account.view_account_journal_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='bank_account_number']" position="inside">
+                <field name="l10n_se_seb_csv_export"/>
+                <field name="l10n_se_seb_csv_from_account"
+                       invisible="not l10n_se_seb_csv_export or not l10n_se_seb_csv_from_account"/>
+                <div colspan="2" class="text-warning" invisible="not l10n_se_seb_csv_problem">
+                    <field name="l10n_se_seb_csv_problem" nolabel="1"/>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -7,6 +7,14 @@
         <field name="arch" type="xml">
             <field name="acc_number" position="after">
                 <field name="l10n_se_account_type"/>
+                <field name="l10n_se_payment_number" invisible="not l10n_se_payment_number"/>
+                <field name="l10n_se_clearing_bank" invisible="not l10n_se_clearing_bank"/>
+                <div colspan="2" class="text-warning" invisible="not l10n_se_account_problem">
+                    <field name="l10n_se_account_problem" nolabel="1"/>
+                </div>
+                <div colspan="2" class="text-warning" invisible="not l10n_se_account_warning">
+                    <field name="l10n_se_account_warning" nolabel="1"/>
+                </div>
             </field>
         </field>
     </record>

@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_l10n_se_payment_export_readonly,l10n_se.payment.export readonly,model_l10n_se_payment_export,account.group_account_readonly,1,0,0,0
+access_l10n_se_payment_export_invoice,l10n_se.payment.export billing,model_l10n_se_payment_export,account.group_account_invoice,1,1,1,0
+access_l10n_se_payment_export_manager,l10n_se.payment.export manager,model_l10n_se_payment_export,account.group_account_manager,1,1,1,1
+access_l10n_se_payment_export_line_readonly,l10n_se.payment.export.line readonly,model_l10n_se_payment_export_line,account.group_account_readonly,1,0,0,0
+access_l10n_se_payment_export_line_invoice,l10n_se.payment.export.line billing,model_l10n_se_payment_export_line,account.group_account_invoice,1,1,1,0
+access_l10n_se_payment_export_line_manager,l10n_se.payment.export.line manager,model_l10n_se_payment_export_line,account.group_account_manager,1,1,1,1
+access_l10n_se_payment_export_wizard,l10n_se.payment.export.wizard billing,model_l10n_se_payment_export_wizard,account.group_account_invoice,1,1,1,1
+access_l10n_se_payment_export_wizard_line,l10n_se.payment.export.wizard.line billing,model_l10n_se_payment_export_wizard_line,account.group_account_invoice,1,1,1,1

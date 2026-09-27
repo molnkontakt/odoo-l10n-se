@@ -1,8 +1,10 @@
+# All account numbers are invented; they only satisfy the check digits.
 import base64
 
 from lxml import etree
 
 from odoo import fields
+from odoo.exceptions import UserError
 from odoo.tests import tagged
 from odoo.tests.common import TransactionCase
 
@@ -22,7 +24,7 @@ class TestPainSE(TransactionCase):
             {"name": "SEB test", "type": "bank", "code": "SEBT", "currency_id": cls.sek.id}
         )
         cls.journal.bank_account_id = cls.env["res.partner.bank"].create(
-            {"acc_number": "SE1150000000054401060156", "partner_id": cls.company.partner_id.id, "bank_id": bank.id}
+            {"acc_number": "SE3150000000052031234560", "partner_id": cls.company.partner_id.id, "bank_id": bank.id}
         )
         method = cls.env["account.payment.method"].search(
             [("code", "=", "sepa_credit_transfer"), ("payment_type", "=", "outbound")], limit=1
@@ -63,28 +65,17 @@ class TestPainSE(TransactionCase):
         move.action_post()
         return move, bank
 
-    def test_account_type_guess(self):
-        cases = {
-            "BG 843-6008": "bankgiro",
-            "123-4567": "bankgiro",
-            "PG 12 34 56-7": "plusgiro",
-            "8327-9 123 456 789-0": "bban",
-            "SE6780000832791234567890": "iban",
-        }
-        for acc, expected in cases.items():
-            bank = self.env["res.partner.bank"].create(
-                {"acc_number": acc, "partner_id": self.company.partner_id.id}
-            )
-            self.assertEqual(bank.l10n_se_account_type, expected, acc)
-
     def test_payment_file(self):
         moves = self.env["account.move"]
         for name, acc, ref in [
-            ("BG OCR", "BG 843-6008", "1234567897"),
-            ("BG text", "BG 123-4567", "Faktura 4711"),
-            ("PG", "PG 12 34 56-7", "Faktura 88"),
-            ("BBAN", "8327-9 123 456 789-0", "Faktura 99"),
-            ("IBAN", "SE6780000832791234567890", "Faktura 77"),
+            ("BG OCR", "BG 555-1239", "1234567897"),
+            ("BG text", "BG 5551-2347", "Faktura 4711"),
+            ("PG", "PG 12 34 56-6", "Faktura 88"),
+            ("BBAN", "8327-9 123 456 789-7", "Faktura 99"),
+            ("Swedbank short", "8327-9, 12 345 678-2", "Faktura 98"),
+            ("Handelsbanken", "6789 123 456 789", "Faktura 97"),
+            ("Danske 918x", "9180-1234567897", "Faktura 96"),
+            ("IBAN", "SE7280000832791234567897", "Faktura 77"),
         ]:
             moves |= self._bill(name, acc, ref)[0]
         order = self.env["account.payment.order"].create(
@@ -106,7 +97,7 @@ class TestPainSE(TransactionCase):
         bg = txs["BG OCR"]
         self.assertEqual(bg.findtext(".//p:CdtrAgt//p:MmbId", namespaces=NS), "9900")
         self.assertEqual(bg.findtext(".//p:CdtrAcct//p:Prtry", namespaces=NS), "BGNR")
-        self.assertEqual(bg.findtext(".//p:CdtrAcct//p:Othr/p:Id", namespaces=NS), "8436008")
+        self.assertEqual(bg.findtext(".//p:CdtrAcct//p:Othr/p:Id", namespaces=NS), "5551239")
         self.assertEqual(bg.findtext(".//p:CdtrRefInf/p:Ref", namespaces=NS), "1234567897")
         self.assertEqual(bg.findtext(".//p:CdtrRefInf//p:Cd", namespaces=NS), "SCOR")
         self.assertEqual(bg.findtext(".//p:Strd/p:RfrdDocAmt/p:RmtdAmt", namespaces=NS), "100.00")
@@ -117,7 +108,61 @@ class TestPainSE(TransactionCase):
         self.assertEqual(pg.findtext(".//p:CdtrAgt//p:MmbId", namespaces=NS), "9960")
         self.assertEqual(pg.findtext(".//p:CdtrAcct//p:SchmeNm/p:Cd", namespaces=NS), "BBAN")
         bban = txs["BBAN"]
-        self.assertEqual(bban.findtext(".//p:CdtrAcct//p:Othr/p:Id", namespaces=NS), "832791234567890")
+        self.assertEqual(bban.findtext(".//p:CdtrAcct//p:Othr/p:Id", namespaces=NS), "832791234567897")
         self.assertEqual(bban.findtext(".//p:CdtrAgt//p:MmbId", namespaces=NS), "8327")
-        self.assertEqual(txs["IBAN"].findtext(".//p:CdtrAcct//p:IBAN", namespaces=NS), "SE6780000832791234567890")
+        # MIG Annex 5: Swedbank 8-series zero-padded to 15 digits, Handelsbanken and Danske Bank
+        # 9180-9189 without the clearing number (which still identifies the creditor agent)
+        for name, account, clearing in [
+            ("Swedbank short", "832790123456782", "8327"),
+            ("Handelsbanken", "123456789", "6789"),
+            ("Danske 918x", "1234567897", "9180"),
+        ]:
+            tx = txs[name]
+            self.assertEqual(tx.findtext(".//p:CdtrAcct//p:Othr/p:Id", namespaces=NS), account, name)
+            self.assertEqual(tx.findtext(".//p:CdtrAcct//p:SchmeNm/p:Cd", namespaces=NS), "BBAN", name)
+            self.assertEqual(tx.findtext(".//p:CdtrAgt//p:MmbId", namespaces=NS), clearing, name)
+        self.assertEqual(txs["IBAN"].findtext(".//p:CdtrAcct//p:IBAN", namespaces=NS), "SE7280000832791234567897")
         self.assertEqual(txs["IBAN"].findtext(".//p:CdtrAgt//p:BIC", namespaces=NS), "SWEDSESS")
+
+    def _order(self, moves):
+        order = self.env["account.payment.order"].create(
+            {"payment_mode_id": self.mode.id, "payment_type": "outbound"}
+        )
+        moves.line_ids.filtered(
+            lambda line: line.account_id.account_type == "liability_payable"
+        ).create_payment_line_from_move_line(order)
+        order.draft2open()
+        return order
+
+    def test_invalid_account_number_is_refused(self):
+        for acc, text in [
+            ("BG 555-1238", "invalid check digit"),
+            ("PG 12 34 56-7", "invalid check digit"),
+            ("6789 12345678", "expects 9 digits"),
+        ]:
+            with self.subTest(acc=acc):
+                order = self._order(self._bill(f"Refused {acc}", acc, "Faktura 1")[0])
+                with self.assertRaisesRegex(UserError, text):
+                    order.open2generated()
+
+    def test_unknown_account_type_is_refused(self):
+        move, bank = self._bill("Unknown type", "55512347", "Faktura 2")
+        self.assertEqual(bank.l10n_se_account_type, "other")
+        order = self._order(move)
+        with self.assertRaisesRegex(UserError, "no known Swedish account type"):
+            order.open2generated()
+        # set by hand, the same number is paid as Plusgiro
+        bank.l10n_se_account_type = "plusgiro"
+        order.open2generated()
+
+    def test_swedish_translation(self):
+        self.env["res.lang"]._activate_lang("sv_SE")
+        self.env["ir.module.module"]._load_module_terms(
+            ["l10n_se_bank_account", "l10n_se_account_banking_pain"], ["sv_SE"], overwrite=True
+        )
+        mode = self.mode.with_context(lang="sv_SE")
+        self.assertEqual(mode.fields_get(["l10n_se_bank_profile"])["l10n_se_bank_profile"]["string"], "Svensk bankprofil")
+        move = self._bill("Refused sv", "BG 555-1238", "Faktura 3")[0]
+        order = self._order(move).with_context(lang="sv_SE")
+        with self.assertRaisesRegex(UserError, "Bankgironumret BG 555-1238 har ogiltig kontrollsiffra"):
+            order.open2generated()

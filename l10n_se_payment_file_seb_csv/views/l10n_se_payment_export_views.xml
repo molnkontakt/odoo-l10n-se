@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_l10n_se_payment_export_list" model="ir.ui.view">
+        <field name="name">l10n_se.payment.export.list</field>
+        <field name="model">l10n_se.payment.export</field>
+        <field name="arch" type="xml">
+            <list create="0" decoration-muted="state == 'cancelled'" decoration-info="state == 'draft'">
+                <field name="name"/>
+                <field name="journal_id"/>
+                <field name="payment_date"/>
+                <field name="line_count"/>
+                <field name="amount_total" sum="Total"/>
+                <field name="export_date" optional="show"/>
+                <field name="export_user_id" optional="hide"/>
+                <field name="state" widget="badge" decoration-success="state == 'done'" decoration-info="state == 'exported'"/>
+                <field name="company_id" groups="base.group_multi_company" optional="show"/>
+                <field name="currency_id" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_l10n_se_payment_export_form" model="ir.ui.view">
+        <field name="name">l10n_se.payment.export.form</field>
+        <field name="model">l10n_se.payment.export</field>
+        <field name="arch" type="xml">
+            <form create="0">
+                <header>
+                    <button name="action_generate" type="object" string="Generate file" class="btn-primary"
+                            invisible="state != 'draft'" groups="account.group_account_invoice"/>
+                    <button name="action_download" type="object" string="Download file" class="btn-primary"
+                            invisible="not attachment_id"/>
+                    <button name="action_done" type="object" string="Mark as done"
+                            invisible="state != 'exported'" groups="account.group_account_invoice"
+                            confirm="Mark the file as done only when its payments were signed and made in the internet bank."/>
+                    <button name="action_cancel" type="object" string="Cancel file"
+                            invisible="state not in ('draft', 'exported')" groups="account.group_account_invoice"
+                            confirm="Cancel the file only if none of its payments was signed in the internet bank. Its bills can then be exported again."/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,exported,done"/>
+                </header>
+                <sheet>
+                    <div class="alert alert-info" role="alert" invisible="state != 'exported'">
+                        Upload the file in SEB's internet bank and sign the payments there. No payment is registered in
+                        Odoo: the bills stay unpaid until the bank statement line is reconciled against them.
+                    </div>
+                    <div class="alert alert-danger" role="alert" invisible="not has_residual_short">
+                        Some bills were paid or credited another way after they were put in this file: their amount due
+                        is now less than the amount in the file (marked in red below). Remove those payments in the
+                        internet bank before signing, and cancel their lines here.
+                    </div>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="journal_id" readonly="state != 'draft'" options="{'no_create': True}"/>
+                            <field name="from_account" invisible="not from_account"/>
+                            <field name="payment_date"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group>
+                            <field name="line_count"/>
+                            <field name="amount_total"/>
+                            <field name="file_name" invisible="not attachment_id"/>
+                            <field name="attachment_id" invisible="1"/>
+                            <field name="export_date" invisible="not export_date"/>
+                            <field name="export_user_id" invisible="not export_user_id"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="has_residual_short" invisible="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Payments" name="lines">
+                            <field name="line_ids" readonly="1">
+                                <list create="0" delete="0" decoration-muted="state == 'cancelled'"
+                                      decoration-danger="residual_short">
+                                    <field name="sequence"/>
+                                    <field name="move_id"/>
+                                    <field name="partner_id"/>
+                                    <field name="partner_bank_id" optional="hide"/>
+                                    <field name="to_account_format" optional="show"/>
+                                    <field name="to_account" optional="show"/>
+                                    <field name="payee_name" optional="hide"/>
+                                    <field name="payment_date"/>
+                                    <field name="reference_type"/>
+                                    <field name="reference"/>
+                                    <field name="sender_reference" optional="show"/>
+                                    <field name="own_note" optional="hide"/>
+                                    <field name="residual_at_export" optional="hide"/>
+                                    <field name="move_residual" optional="show"/>
+                                    <field name="residual_short" column_invisible="1"/>
+                                    <field name="amount" sum="Total"/>
+                                    <field name="state" widget="badge" decoration-success="state == 'done'"
+                                           decoration-info="state == 'exported'"/>
+                                    <button name="action_cancel" type="object" string="Cancel payment" icon="fa-times"
+                                            invisible="state not in ('draft', 'exported')" groups="account.group_account_invoice"
+                                            confirm="Cancel this payment only if it was not signed in the internet bank (or the bank rejected it). The bill can then be exported again."/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_l10n_se_payment_export_search" model="ir.ui.view">
+        <field name="name">l10n_se.payment.export.search</field>
+        <field name="model">l10n_se.payment.export</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="line_ids" string="Bill" filter_domain="[('line_ids.move_id', 'ilike', self)]"/>
+                <field name="journal_id"/>
+                <filter name="draft" string="Draft" domain="[('state', '=', 'draft')]"/>
+                <filter name="exported" string="Exported" domain="[('state', '=', 'exported')]"/>
+                <filter name="done" string="Done" domain="[('state', '=', 'done')]"/>
+                <filter name="cancelled" string="Cancelled" domain="[('state', '=', 'cancelled')]"/>
+                <group>
+                    <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_journal" string="Pay from" context="{'group_by': 'journal_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_l10n_se_payment_export" model="ir.actions.act_window">
+        <field name="name">SEB payment files</field>
+        <field name="res_model">l10n_se.payment.export</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No SEB payment files yet</p>
+            <p>Select vendor bills in the bill list and choose Actions > Export to SEB (CSV).</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_l10n_se_payment_export"
+              name="SEB payment files"
+              parent="account.menu_finance_payables"
+              action="action_l10n_se_payment_export"
+              sequence="30"
+              groups="account.group_account_invoice,account.group_account_readonly"/>
+</odoo>

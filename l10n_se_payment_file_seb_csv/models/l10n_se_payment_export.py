@@ -1,0 +1,616 @@
+import re
+
+from odoo import api, fields, models
+from odoo.exceptions import UserError
+from odoo.tools.misc import format_date, formatLang
+
+from ..lib import seb_csv
+
+STATES = [
+    ("draft", "Draft"),
+    ("exported", "Exported"),
+    ("done", "Done"),
+    ("cancelled", "Cancelled"),
+]
+
+# Fields only the module's own actions may change (see _l10n_se_check_protected_write): what was
+# sent to the bank and the state that guards against double payment.
+BATCH_PROTECTED_FIELDS = {
+    "name",
+    "company_id",
+    "state",
+    "attachment_id",
+    "from_account",
+    "export_date",
+    "export_user_id",
+}
+LINE_PROTECTED_FIELDS = {
+    "export_id",
+    "sequence",
+    "state",
+    "move_id",
+    "partner_bank_id",
+    "amount",
+    "payment_date",
+    "reference_type",
+    "reference",
+    "to_account",
+    "to_account_type",
+    "to_account_format",
+    "payee_name",
+    "sender_reference",
+    "own_note",
+    "residual_at_export",
+}
+INTERNAL_WRITE = "l10n_se_seb_csv_internal_write"
+
+
+def _l10n_se_check_protected_create(model, vals, protected):
+    """New records start as drafts: the values the actions write cannot be given on create."""
+    given = {name for name in protected.intersection(vals) if vals[name]}
+    if vals.get("state") == "draft":
+        given.discard("state")
+    if given:
+        _l10n_se_check_protected_write(model, dict.fromkeys(given), protected)
+
+
+def _l10n_se_check_protected_write(records, vals, protected):
+    """Refuse changes to protected fields outside the module's actions (e.g. by RPC or import).
+
+    The views show these fields read-only, but Invoicing users have write access to the models;
+    without this an exported file could be set back to draft and generated again, or the values
+    recorded for reconciliation could be changed after the file was sent.
+    """
+    if records.env.su or records.env.context.get(INTERNAL_WRITE):
+        return
+    changed = sorted(protected.intersection(vals))
+    if changed:
+        raise UserError(
+            records.env._(
+                "These fields of an SEB payment file are set by its buttons only: %(fields)s.",
+                fields=", ".join(records._fields[name]._description_string(records.env) for name in changed),
+            )
+        )
+
+
+REFERENCE_TYPES = [
+    (seb_csv.REFERENCE_OCR, "OCR number"),
+    (seb_csv.REFERENCE_RF, "RF reference"),
+    (seb_csv.REFERENCE_INVOICE, "Invoice number"),
+    (seb_csv.REFERENCE_MESSAGE, "Message"),
+]
+
+
+class L10nSePaymentExport(models.Model):
+    """One SEB CSV payment file: the bills in it, the file, and its state.
+
+    Exporting registers no payment: the bills stay unpaid until the bank statement line is
+    reconciled against them. The batch only records what was sent and keeps the bills out of
+    later exports until it (or the bill's line) is cancelled.
+    """
+
+    _name = "l10n_se.payment.export"
+    _description = "SEB payment file"
+    _inherit = ["mail.thread"]
+    _order = "id desc"
+    _check_company_auto = True
+
+    name = fields.Char(required=True, readonly=True, copy=False, default="/")
+    company_id = fields.Many2one(
+        "res.company", required=True, readonly=True, default=lambda self: self.env.company
+    )
+    journal_id = fields.Many2one(
+        "account.journal",
+        string="Pay from",
+        required=True,
+        check_company=True,
+        domain="[('type', '=', 'bank'), ('l10n_se_seb_csv_export', '=', True)]",
+        default=lambda self: self._default_journal(),
+        help="The bank journal of the SEB account the payments are drawn from ('Från konto').",
+    )
+    currency_id = fields.Many2one(
+        "res.currency",
+        required=True,
+        readonly=True,
+        default=lambda self: self.env.ref("base.SEK"),
+    )
+    state = fields.Selection(
+        STATES, default="draft", required=True, readonly=True, copy=False, tracking=True
+    )
+    line_ids = fields.One2many(
+        "l10n_se.payment.export.line", "export_id", string="Payments", copy=False
+    )
+    payment_date = fields.Date(
+        string="Payment date",
+        compute="_compute_totals",
+        store=True,
+        help="The earliest payment date of the payments; each payment has its own date.",
+    )
+    amount_total = fields.Monetary(string="Total", compute="_compute_totals", store=True)
+    line_count = fields.Integer(string="Payments count", compute="_compute_totals", store=True)
+    attachment_id = fields.Many2one(
+        "ir.attachment", string="Payment file", readonly=True, copy=False
+    )
+    file_name = fields.Char(related="attachment_id.name", string="File name")
+    from_account = fields.Char(
+        string="From account",
+        readonly=True,
+        copy=False,
+        help="The own account as written in the file's 'Från konto'.",
+    )
+    export_date = fields.Datetime(string="Generated on", readonly=True, copy=False)
+    export_user_id = fields.Many2one("res.users", string="Generated by", readonly=True, copy=False)
+    has_residual_short = fields.Boolean(
+        string="Bills paid otherwise",
+        compute="_compute_has_residual_short",
+        help="A bill in the file was paid or credited another way after it was put in the file.",
+    )
+
+    @api.model
+    def _default_journal(self):
+        Journal = self.env["account.journal"]
+        return Journal.search(
+            [
+                *Journal._check_company_domain(self.env.company),
+                ("type", "=", "bank"),
+                ("l10n_se_seb_csv_export", "=", True),
+            ],
+            limit=1,
+        )
+
+    @api.depends("state", "line_ids.amount", "line_ids.state", "line_ids.payment_date")
+    def _compute_totals(self):
+        for batch in self:
+            lines = batch.line_ids
+            if batch.state != "cancelled":
+                lines = lines.filtered(lambda line: line.state != "cancelled")
+            batch.amount_total = sum(lines.mapped("amount"))
+            batch.line_count = len(lines)
+            batch.payment_date = min(lines.mapped("payment_date"), default=False)
+
+    @api.depends("line_ids.residual_short")
+    def _compute_has_residual_short(self):
+        for batch in self:
+            batch.has_residual_short = any(batch.line_ids.mapped("residual_short"))
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            _l10n_se_check_protected_create(self, vals, BATCH_PROTECTED_FIELDS - {"name", "company_id"})
+            if vals.get("name", "/") == "/":
+                company = self.env["res.company"].browse(vals.get("company_id")) or self.env.company
+                vals["name"] = (
+                    self.env["ir.sequence"]
+                    .with_company(company)
+                    .next_by_code("l10n_se.payment.export")
+                    or "/"
+                )
+        return super().create(vals_list)
+
+    def write(self, vals):
+        _l10n_se_check_protected_write(self, vals, BATCH_PROTECTED_FIELDS)
+        if "journal_id" in vals and not self.env.context.get(INTERNAL_WRITE) and any(
+            batch.state != "draft" for batch in self
+        ):
+            raise UserError(self.env._("The account to pay from can only be changed on a draft file."))
+        return super().write(vals)
+
+    @api.ondelete(at_uninstall=False)
+    def _unlink_only_draft_or_cancelled(self):
+        if any(batch.state not in ("draft", "cancelled") for batch in self):
+            raise UserError(
+                self.env._("Only draft or cancelled SEB payment files can be deleted.")
+            )
+
+    # --- Actions -------------------------------------------------------------------------------
+
+    def _l10n_se_check_write_access(self):
+        """The user's own write access, checked before an action writes with INTERNAL_WRITE."""
+        self.check_access("write")
+        self.line_ids.check_access("write")
+
+    def _l10n_se_internal(self):
+        return self.with_context(**{INTERNAL_WRITE: True})
+
+    def action_generate(self):
+        """Write the CSV file of a draft batch, attach it and mark the bills as exported."""
+        self._l10n_se_check_write_access()
+        for batch in self:
+            if batch.state != "draft":
+                raise UserError(
+                    self.env._(
+                        "The file of %(batch)s has already been generated.", batch=batch.name
+                    )
+                )
+            batch._l10n_se_internal()._l10n_se_generate_file()
+        return True
+
+    def _l10n_se_sender_reference(self, sequence):
+        """'Avsändarens referens': batch name and line number, unique and traceable."""
+        return f"{re.sub(r'[^A-Za-z0-9-]', '', self.name)}-{sequence:03d}"
+
+    @api.model
+    def _l10n_se_to_account(self, bank):
+        """'Till konto': the payee account as l10n_se_bank_account writes it for payment files,
+        except a bank account when seb_csv.BBAN_FORM asks for clearing + account as given."""
+        number = bank._l10n_se_payment_account()  # validates; UserError with the reason
+        if bank.l10n_se_account_type == "bban" and seb_csv.BBAN_FORM == "clearing_account":
+            parts = bank._l10n_se_bban()
+            return parts.clearing + parts.account
+        return number
+
+    def _l10n_se_file_name(self):
+        return f"{re.sub(r'[^A-Za-z0-9-]', '-', self.name)}.csv"
+
+    def _l10n_se_generate_file(self):
+        self.ensure_one()
+        _ = self.env._
+        lines = self.line_ids.filtered(lambda line: line.state == "draft").sorted(
+            lambda line: (line.sequence, line.id)
+        )
+        if not lines:
+            raise UserError(_("%(batch)s has no payments.", batch=self.name))
+        from_account = self.journal_id._l10n_se_seb_csv_from_account()
+        problems = []
+        for line in lines:
+            blocks, _warnings = line.move_id._l10n_se_seb_check(
+                self.journal_id,
+                line.partner_bank_id,
+                line.amount,
+                line.payment_date,
+                line.reference_type,
+                line.reference,
+                export_line=line,
+            )
+            problems += [f"{line.move_id.display_name}: {block}" for block in blocks]
+        if problems:
+            raise UserError(
+                _(
+                    "The SEB payment file %(batch)s cannot be generated:\n%(problems)s",
+                    batch=self.name,
+                    problems="\n".join(problems),
+                )
+            )
+
+        payments = []
+        for sequence, line in enumerate(lines, start=1):
+            move, bank = line.move_id, line.partner_bank_id
+            line.write(
+                {
+                    "sequence": sequence,
+                    "to_account": self._l10n_se_to_account(bank),
+                    "to_account_type": bank.l10n_se_account_type,
+                    "to_account_format": seb_csv.ACCOUNT_FORMAT_CODES[bank.l10n_se_account_type],
+                    "payee_name": seb_csv.clean_name(move._l10n_se_seb_payee_name(bank)),
+                    "reference": move._l10n_se_seb_written_reference(
+                        line.reference_type, line.reference
+                    ),
+                    "sender_reference": self._l10n_se_sender_reference(sequence),
+                    "own_note": seb_csv.clean_text(move.name, seb_csv.OWN_NOTE_MAX),
+                    "residual_at_export": move.amount_residual,
+                }
+            )
+            payments.append(line._l10n_se_seb_payment(from_account))
+        try:
+            data = seb_csv.build_file(payments)
+        except seb_csv.CsvFieldError as exc:
+            raise UserError(
+                _("The SEB payment file could not be written: %(error)s", error=str(exc))
+            ) from None
+
+        attachment = self.env["ir.attachment"].create(
+            {
+                "name": self._l10n_se_file_name(),
+                "raw": data,
+                "res_model": self._name,
+                "res_id": self.id,
+                "mimetype": "text/csv",
+            }
+        )
+        self.write(
+            {
+                "state": "exported",
+                "attachment_id": attachment.id,
+                "from_account": from_account,
+                "export_date": fields.Datetime.now(),
+                "export_user_id": self.env.uid,
+            }
+        )
+        lines.write({"state": "exported"})
+        self.message_post(
+            body=_(
+                "Payment file generated: %(count)s payments, %(total)s from account %(account)s. "
+                "Upload it in SEB's internet bank and sign the payments there.",
+                count=len(lines),
+                total=formatLang(self.env, sum(lines.mapped("amount")), currency_obj=self.currency_id),
+                account=from_account,
+            ),
+            attachment_ids=attachment.ids,
+        )
+        for line in lines:
+            line.move_id.message_post(body=line._l10n_se_export_message())
+
+    def action_download(self):
+        self.ensure_one()
+        if not self.attachment_id:
+            raise UserError(self.env._("The file has not been generated yet."))
+        return {
+            "type": "ir.actions.act_url",
+            "url": f"/web/content/{self.attachment_id.id}?download=true",
+            "target": "download",
+        }
+
+    def action_cancel(self):
+        """Cancel the batch: its bills can be exported again. Only for files that were not
+        signed in the internet bank."""
+        self._l10n_se_check_write_access()
+        _ = self.env._
+        for batch in self:
+            if batch.state not in ("draft", "exported"):
+                raise UserError(
+                    _("%(batch)s is done or cancelled and cannot be cancelled.", batch=batch.name)
+                )
+            batch = batch._l10n_se_internal()
+            lines = batch.line_ids.filtered(lambda line: line.state in ("draft", "exported"))
+            lines._l10n_se_release(_("the file %(batch)s was cancelled", batch=batch.name))
+            batch.state = "cancelled"
+            batch.message_post(body=_("Payment file cancelled; its bills can be exported again."))
+        return True
+
+    def action_done(self):
+        """Mark an exported batch as done (the payments were made). Manual for now."""
+        self._l10n_se_check_write_access()
+        for batch in self:
+            if batch.state != "exported":
+                raise UserError(
+                    self.env._(
+                        "Only an exported file can be marked as done; %(batch)s is not exported.",
+                        batch=batch.name,
+                    )
+                )
+            batch = batch._l10n_se_internal()
+            batch.line_ids.filtered(lambda line: line.state == "exported").state = "done"
+            batch.state = "done"
+            batch.message_post(body=self.env._("Payment file marked as done."))
+        return True
+
+
+class L10nSePaymentExportLine(models.Model):
+    """One payment in an SEB payment file: a vendor bill, the account paid to, the amount and
+    date, and the values written to the file (kept for reconciling the bank statement line)."""
+
+    _name = "l10n_se.payment.export.line"
+    _description = "SEB payment file line"
+    _order = "export_id desc, sequence, id"
+    _check_company_auto = True
+
+    export_id = fields.Many2one(
+        "l10n_se.payment.export",
+        string="Payment file",
+        required=True,
+        ondelete="cascade",
+        index=True,
+    )
+    sequence = fields.Integer(string="Line", default=0, readonly=True)
+    company_id = fields.Many2one(related="export_id.company_id", store=True, index=True)
+    state = fields.Selection(STATES, default="draft", required=True, readonly=True, copy=False)
+    move_id = fields.Many2one(
+        "account.move",
+        string="Bill",
+        required=True,
+        readonly=True,
+        ondelete="restrict",
+        index=True,
+        check_company=True,
+    )
+    partner_id = fields.Many2one(
+        related="move_id.commercial_partner_id", string="Supplier", store=True
+    )
+    partner_bank_id = fields.Many2one(
+        "res.partner.bank", string="Bank account", required=True, readonly=True, ondelete="restrict"
+    )
+    currency_id = fields.Many2one(related="export_id.currency_id")
+    amount = fields.Monetary(required=True, readonly=True)
+    payment_date = fields.Date(string="Payment date", required=True, readonly=True)
+    reference_type = fields.Selection(
+        REFERENCE_TYPES, string="Reference type", required=True, readonly=True
+    )
+    reference = fields.Char(
+        readonly=True,
+        help="What the payee sees: the OCR number, RF reference, invoice number or message, as "
+        "written to the file.",
+    )
+    # Written when the file is generated; the bank-statement matcher will use them.
+    to_account = fields.Char(
+        string="To account", readonly=True, help="'Till konto' as written to the file."
+    )
+    to_account_type = fields.Char(string="Account type", readonly=True)
+    to_account_format = fields.Char(
+        string="Account format", readonly=True, help="'Till konto - format' as written."
+    )
+    payee_name = fields.Char(
+        string="Payee name", readonly=True, help="'Mottagarens namn' as written to the file."
+    )
+    sender_reference = fields.Char(
+        string="Sender's reference",
+        readonly=True,
+        copy=False,
+        index=True,
+        help="'Avsändarens referens' as written to the file: file name and line number.",
+    )
+    own_note = fields.Char(
+        string="Own note",
+        readonly=True,
+        help="'Egen anteckning' as written to the file: the bill number.",
+    )
+    residual_at_export = fields.Monetary(
+        string="Due at export", readonly=True, help="The bill's amount due when the file was generated."
+    )
+    move_residual = fields.Monetary(
+        related="move_id.amount_residual", string="Due now", currency_field="currency_id"
+    )
+    residual_short = fields.Boolean(
+        string="Paid otherwise",
+        compute="_compute_residual_short",
+        help="The bill's amount due is now less than the amount in the file: it was paid or "
+        "credited another way. Remove this payment in the internet bank before signing.",
+    )
+    holds_bill = fields.Boolean(
+        string="Holds the bill",
+        compute="_compute_holds_bill",
+        store=True,
+        index=True,
+        help="The bill cannot be exported again while this is set: the line is in a draft or "
+        "exported file, or in a done file whose payment has not yet reached the bill (its amount "
+        "due has not dropped by the amount paid).",
+    )
+
+    # The database backstop against two concurrent exports of the same bill. A done line that
+    # still holds its bill is guarded in Python (create, _l10n_se_seb_check): after a partial
+    # payment the remainder may be exported once the payment has reached the bill.
+    _move_active_uniq = models.UniqueIndex(
+        "(move_id) WHERE state IN ('draft', 'exported')",
+        "A vendor bill can be in only one active SEB payment file.",
+    )
+    _sender_reference_uniq = models.UniqueIndex(
+        "(sender_reference) WHERE sender_reference IS NOT NULL",
+        "The sender's reference of an SEB payment must be unique.",
+    )
+
+    @api.depends("state", "amount", "residual_at_export", "move_id.amount_residual")
+    def _compute_holds_bill(self):
+        for line in self:
+            if line.state in ("draft", "exported"):
+                line.holds_bill = True
+            elif line.state == "done":
+                # released once the bill's amount due has dropped by at least the amount paid
+                paid_down = line.residual_at_export - line.move_id.amount_residual
+                line.holds_bill = line.currency_id.compare_amounts(paid_down, line.amount) < 0
+            else:
+                line.holds_bill = False
+
+    @api.depends("state", "amount", "move_id.amount_residual")
+    def _compute_residual_short(self):
+        for line in self:
+            line.residual_short = line.state in ("draft", "exported") and (
+                line.currency_id.compare_amounts(line.move_id.amount_residual, line.amount) < 0
+            )
+
+    def write(self, vals):
+        _l10n_se_check_protected_write(self, vals, LINE_PROTECTED_FIELDS)
+        return super().write(vals)
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        """Refuse a bill that is already in an active batch (the unique index is the backstop
+        for concurrent exports)."""
+        move_ids = [
+            vals["move_id"]
+            for vals in vals_list
+            if vals.get("move_id") and vals.get("state", "draft") != "cancelled"
+        ]
+        result_fields = LINE_PROTECTED_FIELDS - {
+            "export_id", "sequence", "move_id", "partner_bank_id", "amount", "payment_date",
+            "reference_type", "reference",
+        }
+        batches = self.env["l10n_se.payment.export"].browse(
+            {vals["export_id"] for vals in vals_list if vals.get("export_id")}
+        )
+        if not (self.env.su or self.env.context.get(INTERNAL_WRITE)):
+            for vals in vals_list:
+                _l10n_se_check_protected_create(self, vals, result_fields)
+            if any(batch.state != "draft" for batch in batches.sudo()):
+                raise UserError(self.env._("Payments can only be added to a draft SEB payment file."))
+        if len(move_ids) != len(set(move_ids)):
+            raise UserError(self.env._("A vendor bill can only be once in a payment file."))
+        taken = self.sudo().search([("move_id", "in", move_ids), ("holds_bill", "=", True)])
+        if taken:
+            raise UserError(
+                self.env._(
+                    "Already in an active SEB payment file: %(bills)s. Cancel the line or the "
+                    "file there first.",
+                    bills=", ".join(
+                        f"{line.move_id.display_name} ({line.export_id.name})" for line in taken
+                    ),
+                )
+            )
+        return super().create(vals_list)
+
+    def _l10n_se_seb_payment(self, from_account):
+        """The line as a seb_csv.Payment (from the values written at generation)."""
+        self.ensure_one()
+        return seb_csv.Payment(
+            from_account=from_account,
+            to_account=self.to_account,
+            account_type=self.to_account_type,
+            payee_name=self.payee_name,
+            amount=self.currency_id.round(self.amount),
+            payment_date=self.payment_date,
+            reference_type=self.reference_type,
+            reference=self.reference,
+            own_note=self.own_note,
+            sender_reference=self.sender_reference,
+        )
+
+    def _l10n_se_reference_label(self):
+        self.ensure_one()
+        return dict(self._fields["reference_type"]._description_selection(self.env)).get(
+            self.reference_type, ""
+        )
+
+    def _l10n_se_export_message(self):
+        """Chatter text for the bill when its file is generated."""
+        self.ensure_one()
+        return self.env._(
+            "Exported to SEB payment file %(batch)s: %(amount)s to %(format)s %(account)s, "
+            "payment date %(date)s, %(reference_type)s %(reference)s, sender's reference "
+            "%(sender_reference)s. The bill stays unpaid until the bank statement line is "
+            "reconciled.",
+            batch=self.export_id._get_html_link(),
+            amount=formatLang(self.env, self.amount, currency_obj=self.currency_id),
+            format=self.to_account_format,
+            account=self.to_account,
+            date=format_date(self.env, self.payment_date),
+            reference_type=self._l10n_se_reference_label(),
+            reference=self.reference,
+            sender_reference=self.sender_reference,
+        )
+
+    def _l10n_se_release(self, reason):
+        """Cancel these lines; their bills can be exported again."""
+        for line in self:
+            line.state = "cancelled"
+            line.move_id.message_post(
+                body=self.env._(
+                    "Removed from SEB payment file %(batch)s (%(reason)s); the bill can be "
+                    "exported again.",
+                    batch=line.export_id._get_html_link(),
+                    reason=reason,
+                )
+            )
+
+    def action_cancel(self):
+        """Cancel single payments of a batch (e.g. rejected by the bank, not signed)."""
+        self.export_id._l10n_se_check_write_access()
+        _ = self.env._
+        lines = self.with_context(**{INTERNAL_WRITE: True})
+        for line in lines:
+            if line.state not in ("draft", "exported"):
+                raise UserError(
+                    _(
+                        "The payment of %(bill)s is done or cancelled and cannot be cancelled.",
+                        bill=line.move_id.display_name,
+                    )
+                )
+        for line in lines:
+            line._l10n_se_release(_("the line was cancelled"))
+            line.export_id.message_post(
+                body=_(
+                    "Payment of %(bill)s cancelled; the bill can be exported again.",
+                    bill=line.move_id._get_html_link(),
+                )
+            )
+        for batch in lines.export_id:
+            if all(line.state == "cancelled" for line in batch.line_ids):
+                batch.state = "cancelled"
+        return True

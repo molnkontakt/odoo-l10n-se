@@ -1,0 +1,128 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* l10n_se_account_banking_pain
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-27 07:34+0000\n"
+"PO-Revision-Date: 2026-09-27 07:34+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: sv\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. module: l10n_se_account_banking_pain
+#. odoo-python
+#: code:addons/l10n_se_account_banking_pain/models/account_payment_order.py:0
+msgid "%(partner)s: %(problem)s"
+msgstr "%(partner)s: %(problem)s"
+
+#. module: l10n_se_account_banking_pain
+#. odoo-python
+#: code:addons/l10n_se_account_banking_pain/models/account_payment_order.py:0
+msgid ""
+"Account %(acc)s of %(partner)s has no known Swedish account type. Set "
+"Bankgiro, Plusgiro, bank account or IBAN on the account."
+msgstr ""
+"Kontot %(acc)s för %(partner)s har ingen känd svensk kontotyp. Ange "
+"bankgiro, plusgiro, bankkonto eller IBAN på kontot."
+
+#. module: l10n_se_account_banking_pain
+#: model:ir.model.fields,field_description:l10n_se_account_banking_pain.field_account_payment_line__communication_type
+msgid "Communication Type"
+msgstr "Kommunikationstyp"
+
+#. module: l10n_se_account_banking_pain
+#: model:ir.model.fields,field_description:l10n_se_account_banking_pain.field_account_payment_mode__l10n_se_customer_id
+msgid "Customer id at the bank"
+msgstr "Kund-id i banken"
+
+#. module: l10n_se_account_banking_pain
+#: model:ir.model.fields,help:l10n_se_account_banking_pain.field_account_payment_mode__l10n_se_customer_id
+msgid ""
+"Customer id from the bank's file agreement (SEB: 14 characters). Written as "
+"initiating party and debtor with SchmeNm/Cd = BANK."
+msgstr ""
+"Kund-id enligt bankens filavtal (SEB: 14 tecken). Skrivs som initierande "
+"part och betalare med SchmeNm/Cd = BANK."
+
+#. module: l10n_se_account_banking_pain
+#: model:ir.model.fields,field_description:l10n_se_account_banking_pain.field_account_move_line__display_name
+#: model:ir.model.fields,field_description:l10n_se_account_banking_pain.field_account_payment_line__display_name
+#: model:ir.model.fields,field_description:l10n_se_account_banking_pain.field_account_payment_mode__display_name
+#: model:ir.model.fields,field_description:l10n_se_account_banking_pain.field_account_payment_order__display_name
+msgid "Display Name"
+msgstr "Visningsnamn"
+
+#. module: l10n_se_account_banking_pain
+#: model:ir.model.fields,field_description:l10n_se_account_banking_pain.field_account_move_line__id
+#: model:ir.model.fields,field_description:l10n_se_account_banking_pain.field_account_payment_line__id
+#: model:ir.model.fields,field_description:l10n_se_account_banking_pain.field_account_payment_mode__id
+#: model:ir.model.fields,field_description:l10n_se_account_banking_pain.field_account_payment_order__id
+msgid "ID"
+msgstr "ID"
+
+#. module: l10n_se_account_banking_pain
+#: model:ir.model,name:l10n_se_account_banking_pain.model_account_move_line
+msgid "Journal Item"
+msgstr "Verifikationsrad"
+
+#. module: l10n_se_account_banking_pain
+#: model:ir.model.fields.selection,name:l10n_se_account_banking_pain.selection__account_payment_line__communication_type__ocr
+msgid "OCR"
+msgstr "OCR"
+
+#. module: l10n_se_account_banking_pain
+#: model:ir.model,name:l10n_se_account_banking_pain.model_account_payment_line
+msgid "Payment Lines"
+msgstr "Betalningsrader"
+
+#. module: l10n_se_account_banking_pain
+#: model:ir.model,name:l10n_se_account_banking_pain.model_account_payment_mode
+msgid "Payment Modes"
+msgstr "Betalningssätt"
+
+#. module: l10n_se_account_banking_pain
+#: model:ir.model,name:l10n_se_account_banking_pain.model_account_payment_order
+msgid "Payment Order"
+msgstr "Betalningsorder"
+
+#. module: l10n_se_account_banking_pain
+#. odoo-python
+#: code:addons/l10n_se_account_banking_pain/models/account_payment_order.py:0
+msgid ""
+"Payment mode %(mode)s has no customer id at the bank (required in Swedish "
+"payment files)."
+msgstr ""
+"Betalningssättet %(mode)s saknar kund-id i banken (krävs i svenska "
+"betalfiler)."
+
+#. module: l10n_se_account_banking_pain
+#: model:ir.model.fields.selection,name:l10n_se_account_banking_pain.selection__account_payment_mode__l10n_se_bank_profile__seb
+msgid "SEB"
+msgstr "SEB"
+
+#. module: l10n_se_account_banking_pain
+#: model:ir.model.fields,field_description:l10n_se_account_banking_pain.field_account_payment_mode__l10n_se_bank_profile
+msgid "Swedish bank profile"
+msgstr "Svensk bankprofil"
+
+#. module: l10n_se_account_banking_pain
+#. odoo-python
+#: code:addons/l10n_se_account_banking_pain/models/account_payment_order.py:0
+msgid "Swedish domestic payments must be in SEK: %(partner)s (%(ccy)s)."
+msgstr "Svenska inrikes betalningar måste vara i SEK: %(partner)s (%(ccy)s)."
+
+#. module: l10n_se_account_banking_pain
+#: model:ir.model.fields,help:l10n_se_account_banking_pain.field_account_payment_mode__l10n_se_bank_profile
+msgid ""
+"Writes Swedish domestic payments (Bankgiro, Plusgiro, bank account, OCR) the"
+" way the bank's ISO 20022 guide requires. Empty = OCA's standard SEPA file."
+msgstr ""
+"Skriver svenska inrikes betalningar (bankgiro, plusgiro, bankkonto, OCR) "
+"enligt bankens ISO 20022-anvisning. Tomt = OCA:s vanliga SEPA-fil."
