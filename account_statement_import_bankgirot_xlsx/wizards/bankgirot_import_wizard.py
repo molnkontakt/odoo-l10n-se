@@ -17,8 +17,9 @@ import re
 
 from lxml import etree
 
-from odoo import _, fields, models
+from odoo import _, api, fields, models
 from odoo.exceptions import UserError
+from odoo.fields import Domain
 
 logger = logging.getLogger(__name__)
 
@@ -189,6 +190,15 @@ def parse_deposit_file(file_bytes):
     return [parse_bankgirot_xlsx(file_bytes)]
 
 
+def _mod10_ok(digits):
+    """Luhn/modulus 10, as l10n_se_ocr builds the check digit."""
+    total = 0
+    for i, ch in enumerate(reversed(digits)):
+        d = int(ch) * (2 if i % 2 else 1)
+        total += d - 9 if d > 9 else d
+    return total % 10 == 0
+
+
 # ── Wizard ───────────────────────────────────────────────────────────────
 
 class BankgirotImportWizard(models.TransientModel):
@@ -204,9 +214,11 @@ class BankgirotImportWizard(models.TransientModel):
     # ── Helpers ─────────────────────────────────────────────────────────
 
     def _candidates_from_ref(self, ref):
-        """Generate candidate invoice numbers from a Bankgirot reference.
-        Tries: full digits, strip 1, strip 2 (Luhn-style check), year-prefix variants.
-        """
+        """Candidate invoice numbers from a Bankgirot reference, each as (number, year or None): the
+        digits, without a check digit, without a length and check digit, and for a year-prefixed
+        reference (l10n_se_ocr: year + sequence + check digit) the sequence of that year, with and
+        without leading zeros. The sequence is never cut further: 203100425 is .../2031/0042, and
+        "004" would be .../2031/0004, another customer's invoice."""
         if not ref:
             return
         digits = re.sub(r"[^0-9]", "", ref)
@@ -217,14 +229,14 @@ class BankgirotImportWizard(models.TransientModel):
             yield digits[:-1], None
         if len(digits) > 2:
             yield digits[:-2], None
-        # Year-prefixed: 2026XXXXY → strip the year + check digit; only invoices from that year
-        # (2026-09-15: "INV/2026/0011" → "001" → "/0001" träffade MISC/2024/0001)
         if re.match(r"20\d\d", digits) and len(digits) > 5:
-            yield digits[4:-1], digits[:4]
-            yield digits[4:-2]
-            rest = digits[4:].lstrip("0")
-            if rest and len(rest) > 1:
-                yield rest[:-1]
+            year = digits[:4]
+            # with a valid check digit the last digit is it; a typed invoice number has none
+            seq = digits[4:-1] if _mod10_ok(digits) else digits[4:]
+            yield seq, year
+            short = seq.lstrip("0")
+            if short and short != seq:
+                yield short, year
 
     def _build_invoice_index(self):
         """Pre-fetch open out_invoices and SIE-imported sales entries."""
@@ -240,13 +252,49 @@ class BankgirotImportWizard(models.TransientModel):
         ])
         return list(out_invs) + list(sie_invs)
 
+    @api.model
+    def _open_invoice(self, inv):
+        return inv.amount_residual > 0
+
+    def _find_settled_invoice(self, ref, message=""):
+        """The customer invoice the reference names exactly - OCR number, invoice number as printed,
+        or the digits of the invoice number - when it is no longer open (paid, credited, a file
+        imported again). None when it names an open invoice, or none."""
+        text = " ".join(t for t in (ref, message) if t)
+        # short OCR numbers too: invoice 1020 has OCR 10207; a year alone ("ÅRSAVGIFT 2026") is not a number
+        numbers = re.findall(r"\d{4,}", text)
+        names = re.findall(r"[A-ZÅÄÖ]{1,10}/\d{4}/\d{1,6}", text.upper())
+        domains = []
+        if numbers:
+            domains.append([("payment_reference", "in", numbers)])
+            plain = [t for t in numbers if not re.fullmatch(r"(19|20)\d\d", t)]
+            if plain:
+                domains.append([("name", "in", plain)])
+        domains += [[("name", "=ilike", name)] for name in names]
+        domains += [[("name", "=like", f"%/{t[:4]}/{t[4:]}")] for t in numbers if re.fullmatch(r"20\d{4,8}", t)]
+        if not domains:
+            return None
+        found = self.env["account.move"].search(
+            Domain.AND([[("move_type", "=", "out_invoice"), ("state", "=", "posted")], Domain.OR(domains)]),
+            order="id desc",
+        )
+        if not found or any(self._open_invoice(inv) for inv in found):
+            return None
+        return found[0]
+
     def _find_invoice(self, ref, amount, all_invs, message=""):
         text = " ".join(t for t in (ref, message) if t)
-        # 1) OCR-/betalningsreferens exakt (l10n_se_ocr sätter payment_reference på fakturan)
-        for token in re.findall(r"\d{6,}", text):
+        tokens = re.findall(r"\d{6,}", text)
+        # 1) OCR-/betalningsreferens exakt (l10n_se_ocr sätter payment_reference på fakturan), eller
+        #    fakturanumrets siffror ("20260019" för .../2026/0019)
+        for token in tokens:
             for inv in all_invs:
-                if (inv.payment_reference or "").strip() == token:
+                if (inv.payment_reference or "").strip() == token or re.sub(r"\D", "", inv.name or "") == token:
                     return inv
+        # 1b) referensen pekar ut en faktura som inte längre är öppen (betald, krediterad, filen importerad
+        #     igen): gissa aldrig på en annan (OCR för en betald .../0042 hamnade förr på en öppen .../0004)
+        if self._find_settled_invoice(ref, message):
+            return None
         # 2) kundens namn i referens eller meddelande ("ÅRSAVGIFT 2026 EXEMPELVÄGEN 11")
         def norm(t):
             return re.sub(r"[^a-z0-9åäö]", "", (t or "").lower())
@@ -265,7 +313,8 @@ class BankgirotImportWizard(models.TransientModel):
         for inv in all_invs:
             if inv.name and len(inv.name) >= 4 and re.search(r"(?<![\w/])" + re.escape(inv.name.upper()) + r"(?![\w/])", utext):
                 return inv
-        # 4) siffervarianter av referensen (OCR utan kontrollsiffra, årsprefix …)
+        # 4) siffervarianter av referensen (OCR utan kontrollsiffra, årsprefix …), årsbundna varianter
+        #    bara mot fakturor och SIE-verifikat från det året
         for c, year in self._candidates_from_ref(ref):
             if not c:
                 continue
@@ -276,6 +325,8 @@ class BankgirotImportWizard(models.TransientModel):
                     return inv
             for inv in all_invs:
                 r = inv.ref or ""
+                if year and year not in r:
+                    continue
                 if re.search(rf",\s*{c}\s*$", r):
                     return inv
         # Fallback: amount-based (only if exactly one match)
@@ -283,6 +334,10 @@ class BankgirotImportWizard(models.TransientModel):
         if len(matches) == 1:
             return matches[0]
         return None
+
+    @api.model
+    def _settled_label(self, inv):
+        return "krediterad" if inv.payment_state == "reversed" else "redan betald"
 
     def _find_partner_by_bg(self, bg):
         if not bg:
@@ -368,13 +423,17 @@ class BankgirotImportWizard(models.TransientModel):
         for x in bg_data["details"]:
             counters["details"] += 1
             inv = self._find_invoice(x["ref"], x["amount"], all_invs, x.get("message", ""))
-            pid = inv.partner_id.id if inv and inv.partner_id else None
+            # en faktura som inte längre är öppen: visa den och dess medlem, men föreslå den aldrig
+            settled = None if inv else self._find_settled_invoice(x["ref"], x.get("message", ""))
+            known = inv or settled
+            pid = known.partner_id.id if known and known.partner_id else None
             if not pid:
                 pid = self._find_partner_by_bg(x["bg"])
             pname = self.env["res.partner"].browse(pid).name if pid else None
+            inv_name = inv.name if inv else f"{settled.name} ({self._settled_label(settled)})" if settled else None
             enriched.append({
                 **x, "pid": pid, "pname": pname,
-                "inv_name": inv.name if inv else None, "inv": inv,
+                "inv_name": inv_name, "inv": inv,
             })
             if pid:
                 counters["matched"] += 1

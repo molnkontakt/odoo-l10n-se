@@ -169,6 +169,18 @@ one section per module. The format follows
 
 ## account_statement_import_bankgirot_xlsx
 
+### [19.0.1.5.1] — 2026-09-28
+
+- Fixed: a reference that names an invoice exactly - its OCR number, its number as printed or the
+  number's digits - is never matched to another invoice. When that invoice is no longer open
+  (paid, credited, a file imported again) the detail shows it as *redan betald* or *krediterad*
+  with its member, and nothing is proposed; before, the digit variants could end on an open
+  invoice of the same year and a re-imported file set that member on the bank line.
+- Fixed: the year-prefixed variants yielded bare numbers and the import stopped with *too many
+  values to unpack*. The sequence of a year-prefixed reference is now everything between the year
+  and the check digit (all of it when there is no valid check digit), with and without leading
+  zeros; it is never cut further. Year-bound variants only match SIE entries of that year too.
+
 ### [19.0.1.5.0] — 2026-09-24
 
 - ISO 20022 **camt.054** (Bank-to-Customer Debit/Credit Notification) as a deposit-detail source
