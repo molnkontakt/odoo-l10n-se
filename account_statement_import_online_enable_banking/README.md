@@ -41,9 +41,12 @@ more.
 
 ## Behaviour
 
-- Every pull writes *Last pull* and *Last pull result* on the provider (period and
-  how many booked transactions the bank returned). The chatter gets a note only when
-  transactions came in or the pull failed, so a quiet day leaves no noise.
+- Every pull writes *Last pull* and *Last pull result* on the provider (period, how
+  many booked transactions the bank returned and how many of them are new). The bank
+  filters on its own date, so the same transactions often come back for neighbouring
+  periods (a weekend Swish booked on Monday); only lines dated inside the period and
+  not yet imported count as new. The chatter gets a note only when something new came
+  in or the pull failed, so a quiet day leaves no noise.
 - Only booked transactions are imported; pending ones wait for the next pull.
 - `unique_import_id` is the bank's `entry_reference`/`transaction_id` when
   present. Swedbank sends neither, so the id is a hash of the stable fields
@@ -59,6 +62,15 @@ more.
 - The closing balance (`balance_end_real`) is set only when the pulled period
   includes today, because the balances endpoint knows only the current balance.
   A failed balance call does not lose the transactions; the result field says so.
+- **Balance check.** Some banks (Swedbank) deliver same-day transactions as booked
+  while their *booked* balance still excludes them until the nightly run. An open
+  statement therefore keeps Odoo's computed closing balance, and after every pull —
+  also on days without new lines — the provider compares Odoo with the bank:
+  consistent when Odoo equals the booked or the available balance, or when the booked
+  balance only lacks some of today's lines and the available balance (if the bank
+  sends one) is not below Odoo. Anything else is a real difference: one chatter
+  warning per difference, and the result in *Balance check* on the provider.
+- Messages from scheduled pulls follow the company's language (Swedish included).
 - **PSD2 rate limit**: banks allow 4 unattended calls per day, account and service
   (transactions, balances). Keep the scheduled pull at once per day; each manual
   pull eats into the same budget and the bank answers 429 beyond it.

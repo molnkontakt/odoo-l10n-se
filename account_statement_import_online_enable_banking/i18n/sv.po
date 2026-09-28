@@ -1,0 +1,429 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* account_statement_import_online_enable_banking
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0-20260718\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-28 14:21+0000\n"
+"PO-Revision-Date: 2026-09-28 14:21+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: sv\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. module: account_statement_import_online_enable_banking
+#. odoo-python
+#: code:addons/account_statement_import_online_enable_banking/models/online_bank_statement_provider.py:0
+msgid "%(when)s — %(period)s: %(n)s booked transaction(s) from the bank, %(new)s new"
+msgstr "%(when)s — %(period)s: bokförda transaktioner från banken: %(n)s, varav nya: %(new)s"
+
+#. module: account_statement_import_online_enable_banking
+#. odoo-python
+#: code:addons/account_statement_import_online_enable_banking/models/online_bank_statement_provider.py:0
+msgid "%(when)s: DIFFERENCE – bank %(bank).2f, Odoo %(odoo).2f (%(diff).2f)"
+msgstr "%(when)s: AVVIKELSE – bank %(bank).2f, Odoo %(odoo).2f (%(diff).2f)"
+
+#. module: account_statement_import_online_enable_banking
+#. odoo-python
+#: code:addons/account_statement_import_online_enable_banking/models/online_bank_statement_provider.py:0
+msgid "%(when)s: balance agrees with the bank (%(odoo).2f)"
+msgstr "%(when)s: saldot stämmer med banken (%(odoo).2f)"
+
+#. module: account_statement_import_online_enable_banking
+#. odoo-python
+#: code:addons/account_statement_import_online_enable_banking/models/online_bank_statement_provider.py:0
+msgid "%(when)s: balance agrees with the bank's available balance (%(available).2f); the booked balance (%(bank).2f) has not caught up yet"
+msgstr "%(when)s: saldot stämmer med bankens disponibla saldo (%(available).2f); det bokförda saldot (%(bank).2f) har inte hunnit ikapp"
+
+#. module: account_statement_import_online_enable_banking
+#. odoo-python
+#: code:addons/account_statement_import_online_enable_banking/models/online_bank_statement_provider.py:0
+msgid "%(when)s: the bank's booked balance (%(bank).2f) lacks some of today's lines; Odoo %(odoo).2f"
+msgstr "%(when)s: bankens bokförda saldo (%(bank).2f) saknar några av dagens rader; Odoo %(odoo).2f"
+
+#. module: account_statement_import_online_enable_banking
+#. odoo-python
+#: code:addons/account_statement_import_online_enable_banking/models/online_bank_statement_provider.py:0
+msgid "; balance unavailable (%s)"
+msgstr "; saldo saknas (%s)"
+
+#. module: account_statement_import_online_enable_banking
+#: model:ir.model.fields,help:account_statement_import_online_enable_banking.field_online_bank_statement_provider__eb_renewal_warn_days
+msgid "A to-do is scheduled for the renewal user this many days before the bank consent expires."
+msgstr "En att göra-uppgift skapas för förnyelseansvarig så här många dagar innan banksamtycket går ut."
+
+#. module: account_statement_import_online_enable_banking
+#: model:ir.model.fields,field_description:account_statement_import_online_enable_banking.field_online_bank_statement_provider__eb_psu_type
+msgid "Account holder type"
+msgstr "Kontotyp"
+
+#. module: account_statement_import_online_enable_banking
+#: model:ir.model.fields,field_description:account_statement_import_online_enable_banking.field_online_bank_statement_provider__activity_ids
+msgid "Activities"
+msgstr "Aktiviteter"
+
+#. module: account_statement_import_online_enable_banking
+#: model:ir.model.fields,field_description:account_statement_import_online_enable_banking.field_online_bank_statement_provider__activity_exception_decoration
+msgid "Activity Exception Decoration"
+msgstr "Dekoration för aktivitetsundantag"
+
+#. module: account_statement_import_online_enable_banking
+#: model:ir.model.fields,field_description:account_statement_import_online_enable_banking.field_online_bank_statement_provider__activity_state
+msgid "Activity State"
+msgstr "Aktivitetsstatus"
+
+#. module: account_statement_import_online_enable_banking
+#: model:ir.model.fields,field_description:account_statement_import_online_enable_banking.field_online_bank_statement_provider__activity_type_icon
+msgid "Activity Type Icon"
+msgstr "Ikon för aktivitetstyp"
+
+#. module: account_statement_import_online_enable_banking
+#: model_terms:ir.ui.view,arch_db:account_statement_import_online_enable_banking.online_bank_statement_provider_form
+msgid "Application ID"
+msgstr "App-id"
+
+#. module: account_statement_import_online_enable_banking
+#: model_terms:ir.ui.view,arch_db:account_statement_import_online_enable_banking.online_bank_statement_provider_form
+msgid "Authorise with the bank"
+msgstr "Godkänn hos banken"
+
+#. module: account_statement_import_online_enable_banking
+#: model:ir.model.fields,field_description:account_statement_import_online_enable_banking.field_online_bank_statement_provider__eb_balance_check
+msgid "Balance check"
+msgstr "Saldokontroll"
+
+#. module: account_statement_import_online_enable_banking
+#. odoo-python
+#: code:addons/account_statement_import_online_enable_banking/models/online_bank_statement_provider.py:0
+msgid "Bank %(name)s found: account holder types %(types)s, max consent %(days)s days."
+msgstr "Banken %(name)s hittades: kontotyper %(types)s, samtycke högst %(days)s dagar."
+
+#. module: account_statement_import_online_enable_banking
+#: model:ir.model.fields,field_description:account_statement_import_online_enable_banking.field_online_bank_statement_provider__eb_aspsp_name
+msgid "Bank (ASPSP name)"
+msgstr "Bank (namn hos Enable Banking)"
+
+#. module: account_statement_import_online_enable_banking
+#: model:ir.model.fields,field_description:account_statement_import_online_enable_banking.field_online_bank_statement_provider__eb_bank_balance_at
+msgid "Bank balance fetched"
+msgstr "Banksaldo hämtat"
+
+#. module: account_statement_import_online_enable_banking
+#: model:ir.model.fields,field_description:account_statement_import_online_enable_banking.field_online_bank_statement_provider__eb_aspsp_country
+msgid "Bank country"
+msgstr "Bankens land"
+
+#. module: account_statement_import_online_enable_banking
+#: model:ir.model.fields,field_description:account_statement_import_online_enable_banking.field_online_bank_statement_provider__eb_bank_available_balance
+msgid "Bank: available balance"
+msgstr "Bank: disponibelt saldo"
+
+#. module: account_statement_import_online_enable_banking
+#: model:ir.model.fields,field_description:account_statement_import_online_enable_banking.field_online_bank_statement_provider__eb_bank_booked_balance
+msgid "Bank: booked balance"
+msgstr "Bank: bokfört saldo"
+
+#. module: account_statement_import_online_enable_banking
+#: model:ir.model.fields.selection,name:account_statement_import_online_enable_banking.selection__online_bank_statement_provider__eb_date_type__booking_date
+msgid "Booking date"
+msgstr "Bokföringsdag"
+
+#. module: account_statement_import_online_enable_banking
+#: model:ir.model.fields.selection,name:account_statement_import_online_enable_banking.selection__online_bank_statement_provider__eb_psu_type__business
+msgid "Business"
+msgstr "Företag"
+
+#. module: account_statement_import_online_enable_banking
+#: model_terms:ir.ui.view,arch_db:account_statement_import_online_enable_banking.online_bank_statement_provider_form
+msgid "Check bank name"
+msgstr "Kontrollera bankens namn"
+
+#. module: account_statement_import_online_enable_banking
+#. odoo-python
+#: code:addons/account_statement_import_online_enable_banking/models/online_bank_statement_provider.py:0
+msgid "Consent renewed."
+msgstr "Samtycket är förnyat."
+
+#. module: account_statement_import_online_enable_banking
+#: model_terms:ir.ui.view,arch_db:account_statement_import_online_enable_banking.online_bank_statement_provider_form
+msgid "Disconnect"
+msgstr "Koppla från"
+
+#. module: account_statement_import_online_enable_banking
+#: model:ir.model.fields,field_description:account_statement_import_online_enable_banking.field_online_bank_statement_provider__display_name
+msgid "Display Name"
+msgstr "Visningsnamn"
+
+#. module: account_statement_import_online_enable_banking
+#: model:ir.model.fields,field_description:account_statement_import_online_enable_banking.field_online_bank_statement_provider__eb_account_iban
+msgid "Eb Account Iban"
+msgstr "Kontots IBAN"
+
+#. module: account_statement_import_online_enable_banking
+#: model:ir.model.fields,field_description:account_statement_import_online_enable_banking.field_online_bank_statement_provider__eb_account_uid
+msgid "Eb Account Uid"
+msgstr "Konto-id hos Enable Banking"
+
+#. module: account_statement_import_online_enable_banking
+#: model:ir.model.fields,field_description:account_statement_import_online_enable_banking.field_online_bank_statement_provider__eb_auth_state
+msgid "Eb Auth State"
+msgstr "Godkännandestatus"
+
+#. module: account_statement_import_online_enable_banking
+#: model:ir.model.fields,field_description:account_statement_import_online_enable_banking.field_online_bank_statement_provider__eb_balance_warning_key
+msgid "Eb Balance Warning Key"
+msgstr "Senaste saldovarning"
+
+#. module: account_statement_import_online_enable_banking
+#: model:ir.model.fields,field_description:account_statement_import_online_enable_banking.field_online_bank_statement_provider__eb_bank_has_available
+msgid "Eb Bank Has Available"
+msgstr "Banken skickar disponibelt saldo"
+
+#. module: account_statement_import_online_enable_banking
+#: model:ir.model.fields,field_description:account_statement_import_online_enable_banking.field_online_bank_statement_provider__eb_session_id
+msgid "Eb Session"
+msgstr "Session"
+
+#. module: account_statement_import_online_enable_banking
+#: model:ir.model.fields,field_description:account_statement_import_online_enable_banking.field_online_bank_statement_provider__eb_session_valid_until
+msgid "Eb Session Valid Until"
+msgstr "Sessionen giltig till"
+
+#. module: account_statement_import_online_enable_banking
+#: model_terms:ir.ui.view,arch_db:account_statement_import_online_enable_banking.online_bank_statement_provider_form
+msgid "Enable Banking"
+msgstr "Enable Banking"
+
+#. module: account_statement_import_online_enable_banking
+#. odoo-python
+#: code:addons/account_statement_import_online_enable_banking/models/online_bank_statement_provider.py:0
+msgid "Enable Banking answered %(status)s: %(detail)s"
+msgstr "Enable Banking svarade %(status)s: %(detail)s"
+
+#. module: account_statement_import_online_enable_banking
+#. odoo-python
+#: code:addons/account_statement_import_online_enable_banking/controllers/main.py:0
+msgid "Enable Banking authorisation failed: %s"
+msgstr "Enable Banking: godkännandet misslyckades: %s"
+
+#. module: account_statement_import_online_enable_banking
+#. odoo-python
+#: code:addons/account_statement_import_online_enable_banking/models/online_bank_statement_provider.py:0
+msgid "Enable Banking: %(period)s — %(n)s new booked transaction(s) (%(amount).2f %(cur)s net)."
+msgstr "Enable Banking: %(period)s — nya bokförda transaktioner: %(n)s (%(amount).2f %(cur)s netto)."
+
+#. module: account_statement_import_online_enable_banking
+#. odoo-python
+#: code:addons/account_statement_import_online_enable_banking/models/online_bank_statement_provider.py:0
+msgid "Enable Banking: application id and private key are required."
+msgstr "Enable Banking: app-id och privat nyckel krävs."
+
+#. module: account_statement_import_online_enable_banking
+#. odoo-python
+#: code:addons/account_statement_import_online_enable_banking/models/online_bank_statement_provider.py:0
+msgid "Enable Banking: bank consent expired, authorise again"
+msgstr "Enable Banking: banksamtycket har gått ut, godkänn igen"
+
+#. module: account_statement_import_online_enable_banking
+#. odoo-python
+#: code:addons/account_statement_import_online_enable_banking/models/online_bank_statement_provider.py:0
+msgid "Enable Banking: connected to account %s."
+msgstr "Enable Banking: kopplad till kontot %s."
+
+#. module: account_statement_import_online_enable_banking
+#. odoo-python
+#: code:addons/account_statement_import_online_enable_banking/models/online_bank_statement_provider.py:0
+msgid "Enable Banking: no account connected. Authorise with the bank first."
+msgstr "Enable Banking: inget konto kopplat. Godkänn hos banken först."
+
+#. module: account_statement_import_online_enable_banking
+#. odoo-python
+#: code:addons/account_statement_import_online_enable_banking/models/online_bank_statement_provider.py:0
+msgid "Enable Banking: pull for %(since)s – %(until)s failed: %(err)s"
+msgstr "Enable Banking: hämtningen för %(since)s – %(until)s misslyckades: %(err)s"
+
+#. module: account_statement_import_online_enable_banking
+#. odoo-python
+#: code:addons/account_statement_import_online_enable_banking/models/online_bank_statement_provider.py:0
+msgid "Enable Banking: renew the bank consent (expires in %s days)"
+msgstr "Enable Banking: förnya banksamtycket (går ut om %s dagar)"
+
+#. module: account_statement_import_online_enable_banking
+#. odoo-python
+#: code:addons/account_statement_import_online_enable_banking/models/online_bank_statement_provider.py:0
+msgid "Enable Banking: set the bank name first."
+msgstr "Enable Banking: ange bankens namn först."
+
+#. module: account_statement_import_online_enable_banking
+#. odoo-python
+#: code:addons/account_statement_import_online_enable_banking/models/online_bank_statement_provider.py:0
+msgid "Enable Banking: the bank consent has expired. Authorise with the bank again."
+msgstr "Enable Banking: banksamtycket har gått ut. Godkänn hos banken igen."
+
+#. module: account_statement_import_online_enable_banking
+#. odoo-python
+#: code:addons/account_statement_import_online_enable_banking/models/online_bank_statement_provider.py:0
+msgid "Enable Banking: the bank's booked balance (%(bank).2f) differs by %(diff).2f from Odoo's balance (%(odoo).2f) on %(name)s, and the difference is not explained by today's transactions. Check that every transaction has been imported and that the opening balance is right."
+msgstr "Enable Banking: bankens bokförda saldo (%(bank).2f) skiljer sig med %(diff).2f från Odoos saldo (%(odoo).2f) på %(name)s, och skillnaden förklaras inte av dagens transaktioner. Kontrollera att alla transaktioner har kommit in och att ingående saldo stämmer."
+
+#. module: account_statement_import_online_enable_banking
+#. odoo-python
+#: code:addons/account_statement_import_online_enable_banking/models/online_bank_statement_provider.py:0
+msgid "Enable Banking: the session has %(n)s account(s) (%(ibans)s) but none matches the journal's bank account%(own)s. Set the IBAN on the journal and authorise again."
+msgstr "Enable Banking: sessionen har %(n)s konto(n) (%(ibans)s) men inget stämmer med journalens bankkonto%(own)s. Ange IBAN på journalen och godkänn igen."
+
+#. module: account_statement_import_online_enable_banking
+#: model:ir.actions.server,name:account_statement_import_online_enable_banking.ir_cron_enable_banking_check_consents_ir_actions_server
+msgid "Enable Banking: warn before bank consents expire"
+msgstr "Enable Banking: varna innan banksamtycken går ut"
+
+#. module: account_statement_import_online_enable_banking
+#: model:ir.model.fields,help:account_statement_import_online_enable_banking.field_online_bank_statement_provider__eb_aspsp_name
+msgid "Exactly as listed by Enable Banking, e.g. 'Swedbank'."
+msgstr "Exakt som hos Enable Banking, t.ex. 'Swedbank'."
+
+#. module: account_statement_import_online_enable_banking
+#. odoo-python
+#: code:addons/account_statement_import_online_enable_banking/models/online_bank_statement_provider.py:0
+msgid "FAILED: %s"
+msgstr "MISSLYCKADES: %s"
+
+#. module: account_statement_import_online_enable_banking
+#: model:ir.model.fields,help:account_statement_import_online_enable_banking.field_online_bank_statement_provider__activity_type_icon
+msgid "Font awesome icon e.g. fa-tasks"
+msgstr "Font Awesome-ikon, t.ex. fa-tasks"
+
+#. module: account_statement_import_online_enable_banking
+#: model_terms:ir.ui.view,arch_db:account_statement_import_online_enable_banking.online_bank_statement_provider_form
+msgid "Forget the bank session for this journal?"
+msgstr "Glömma banksessionen för den här journalen?"
+
+#. module: account_statement_import_online_enable_banking
+#: model:ir.model.fields,help:account_statement_import_online_enable_banking.field_online_bank_statement_provider__eb_renewal_user_id
+msgid "Gets the renewal to-do and the chatter notification. Must be able to authorise with the bank."
+msgstr "Får att göra-uppgiften och meddelandet om förnyelse. Måste kunna godkänna hos banken."
+
+#. module: account_statement_import_online_enable_banking
+#: model:ir.model.fields,field_description:account_statement_import_online_enable_banking.field_online_bank_statement_provider__id
+msgid "ID"
+msgstr "ID"
+
+#. module: account_statement_import_online_enable_banking
+#: model:ir.model.fields,field_description:account_statement_import_online_enable_banking.field_online_bank_statement_provider__activity_exception_icon
+msgid "Icon"
+msgstr "Ikon"
+
+#. module: account_statement_import_online_enable_banking
+#: model:ir.model.fields,help:account_statement_import_online_enable_banking.field_online_bank_statement_provider__activity_exception_icon
+msgid "Icon to indicate an exception activity."
+msgstr "Ikon som visar en undantagsaktivitet."
+
+#. module: account_statement_import_online_enable_banking
+#: model:ir.model.fields,field_description:account_statement_import_online_enable_banking.field_online_bank_statement_provider__eb_last_pull
+msgid "Last pull"
+msgstr "Senaste hämtning"
+
+#. module: account_statement_import_online_enable_banking
+#: model:ir.model.fields,field_description:account_statement_import_online_enable_banking.field_online_bank_statement_provider__eb_last_pull_summary
+msgid "Last pull result"
+msgstr "Senaste hämtningens resultat"
+
+#. module: account_statement_import_online_enable_banking
+#: model:ir.model.fields,field_description:account_statement_import_online_enable_banking.field_online_bank_statement_provider__my_activity_date_deadline
+msgid "My Activity Deadline"
+msgstr "Min aktivitets deadline"
+
+#. module: account_statement_import_online_enable_banking
+#: model:ir.model.fields,field_description:account_statement_import_online_enable_banking.field_online_bank_statement_provider__activity_date_deadline
+msgid "Next Activity Deadline"
+msgstr "Nästa aktivitets deadline"
+
+#. module: account_statement_import_online_enable_banking
+#: model:ir.model.fields,field_description:account_statement_import_online_enable_banking.field_online_bank_statement_provider__activity_summary
+msgid "Next Activity Summary"
+msgstr "Nästa aktivitets sammanfattning"
+
+#. module: account_statement_import_online_enable_banking
+#: model:ir.model.fields,field_description:account_statement_import_online_enable_banking.field_online_bank_statement_provider__activity_type_id
+msgid "Next Activity Type"
+msgstr "Nästa aktivitetstyp"
+
+#. module: account_statement_import_online_enable_banking
+#. odoo-python
+#: code:addons/account_statement_import_online_enable_banking/models/online_bank_statement_provider.py:0
+msgid "No bank named %(name)s in %(country)s. Available: %(names)s"
+msgstr "Ingen bank med namnet %(name)s i %(country)s. Tillgängliga: %(names)s"
+
+#. module: account_statement_import_online_enable_banking
+#: model:ir.model,name:account_statement_import_online_enable_banking.model_online_bank_statement_provider
+msgid "Online Bank Statement Provider"
+msgstr "Leverantör av bankutdrag online"
+
+#. module: account_statement_import_online_enable_banking
+#: model_terms:ir.ui.view,arch_db:account_statement_import_online_enable_banking.online_bank_statement_provider_form
+msgid "Opens the bank's consent screen; you are sent back here afterwards."
+msgstr "Öppnar bankens samtyckessida; du skickas tillbaka hit efteråt."
+
+#. module: account_statement_import_online_enable_banking
+#: model:ir.model.fields.selection,name:account_statement_import_online_enable_banking.selection__online_bank_statement_provider__eb_psu_type__personal
+msgid "Personal"
+msgstr "Privat"
+
+#. module: account_statement_import_online_enable_banking
+#: model_terms:ir.ui.view,arch_db:account_statement_import_online_enable_banking.online_bank_statement_provider_form
+msgid "Private key (PEM)"
+msgstr "Privat nyckel (PEM)"
+
+#. module: account_statement_import_online_enable_banking
+#: model:ir.model.fields,field_description:account_statement_import_online_enable_banking.field_online_bank_statement_provider__eb_renewal_user_id
+msgid "Renewal user"
+msgstr "Förnyelseansvarig"
+
+#. module: account_statement_import_online_enable_banking
+#: model:ir.model.fields,field_description:account_statement_import_online_enable_banking.field_online_bank_statement_provider__activity_user_id
+msgid "Responsible User"
+msgstr "Ansvarig användare"
+
+#. module: account_statement_import_online_enable_banking
+#: model:ir.model.fields,field_description:account_statement_import_online_enable_banking.field_online_bank_statement_provider__eb_date_type
+msgid "Statement line date"
+msgstr "Datum på kontoutdragsrader"
+
+#. module: account_statement_import_online_enable_banking
+#: model:ir.model.fields,help:account_statement_import_online_enable_banking.field_online_bank_statement_provider__activity_state
+msgid ""
+"Status based on activities\n"
+"Overdue: Due date is already passed\n"
+"Today: Activity date is today\n"
+"Planned: Future activities."
+msgstr ""
+"Status baserad på aktiviteter\n"
+"Försenad: förfallodagen har passerats\n"
+"Idag: aktiviteten är idag\n"
+"Planerad: framtida aktiviteter."
+
+#. module: account_statement_import_online_enable_banking
+#. odoo-python
+#: code:addons/account_statement_import_online_enable_banking/models/online_bank_statement_provider.py:0
+msgid "The consent for %(journal)s expires %(when)s. Open the provider and click <i>Authorise with the bank</i> (BankID as the account's signatory)."
+msgstr "Samtycket för %(journal)s går ut %(when)s. Öppna leverantören och klicka på <i>Godkänn hos banken</i> (BankID som kontots firmatecknare)."
+
+#. module: account_statement_import_online_enable_banking
+#: model:ir.model.fields,help:account_statement_import_online_enable_banking.field_online_bank_statement_provider__activity_exception_decoration
+msgid "Type of the exception activity on record."
+msgstr "Typ av undantagsaktivitet på posten."
+
+#. module: account_statement_import_online_enable_banking
+#: model:ir.model.fields.selection,name:account_statement_import_online_enable_banking.selection__online_bank_statement_provider__eb_date_type__value_date
+msgid "Value date"
+msgstr "Valutadag"
+
+#. module: account_statement_import_online_enable_banking
+#: model:ir.model.fields,field_description:account_statement_import_online_enable_banking.field_online_bank_statement_provider__eb_renewal_warn_days
+msgid "Warn before consent expires (days)"
+msgstr "Varna innan samtycket går ut (dagar)"

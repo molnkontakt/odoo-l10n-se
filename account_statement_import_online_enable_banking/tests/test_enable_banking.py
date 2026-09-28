@@ -65,6 +65,13 @@ class TestEnableBanking(TransactionCase):
         )
         cls.payer = cls.env["res.partner"].create({"name": "Swish Payer", "phone": "+46700000000"})
 
+    def setUp(self):
+        super().setUp()
+        # Messages follow the company language; the assertions check the source strings.
+        patcher = mock.patch(f"{PROVIDER}._enable_banking_lang", return_value=None)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
     def _pull(self, transactions, balances=None, since=None, until=None):
         since = since or datetime(2026, 9, 1)
         until = until or datetime(2026, 10, 1)
@@ -256,8 +263,7 @@ class TestEnableBanking(TransactionCase):
         self.assertEqual(out, stmt)
         self.assertAlmostEqual(stmt.balance_end_real, 193.0, places=2)
         self.assertTrue(stmt.is_complete)
-        self.assertEqual(len(self.provider.message_ids), before + 1)
-        self.assertIn("807.00", self.provider.message_ids[0].body)
+        self.assertEqual(len(self.provider.message_ids), before, "the lag itself is not news; the post-pull check decides")
 
     def test_past_statement_keeps_the_banks_balance(self):
         """A mismatch on a closed day is real and must stay visible."""
@@ -271,3 +277,110 @@ class TestEnableBanking(TransactionCase):
             self.provider._statement_create_or_write({"name": "EBB/PAST", "balance_end_real": 1000.0})
         self.assertAlmostEqual(stmt.balance_end_real, 1000.0, places=2)
         self.assertFalse(stmt.is_complete)
+
+    # --- Balance check after the pull (1.4.0) -------------------------------------------------
+
+    def test_pick_balances(self):
+        pick = self.provider._enable_banking_pick_balances
+        self.assertEqual(pick([{"balance_type": "ITBD", "balance_amount": {"amount": "1040.00"}},
+                               {"balance_type": "ITAV", "balance_amount": {"amount": "1100.00"}}]), (1040.0, 1100.0))
+        self.assertEqual(pick([{"name": "Closing booked", "balance_type": "CLBD", "balance_amount": {"amount": "1"}}]), (1.0, None))
+        self.assertEqual(pick([]), (None, None))
+
+    def test_explained_by_lag(self):
+        lag = self.provider._enable_banking_explained_by_lag
+        self.assertTrue(lag(1080.0, 1100.0, [20.0] * 5), "one of five payments not yet in the booked balance")
+        self.assertTrue(lag(1000.0, 1100.0, [20.0] * 5), "none of today's payments in the booked balance")
+        self.assertTrue(lag(1000.0, 193.0, [-807.0]), "outgoing transfer not yet in the booked balance")
+        self.assertFalse(lag(500.0, -500.0, [-500.0]), "wrong opening balance is a real difference")
+        self.assertFalse(lag(1085.0, 1100.0, [20.0] * 5), "15 is not a combination of today's lines")
+
+    def _statement_today(self, start, amounts, day=None, name=None):
+        day = day or fields.Date.context_today(self.provider)
+        return self.env["account.bank.statement"].create({
+            "name": name or f"EBB/{day}", "journal_id": self.journal.id, "balance_start": start,
+            "line_ids": [(0, 0, {"date": day, "payment_ref": f"swish {i}", "amount": a, "journal_id": self.journal.id})
+                         for i, a in enumerate(amounts)],
+        })
+
+    def _bank(self, booked, available=None):
+        self.provider.write({"eb_bank_booked_balance": booked, "eb_bank_available_balance": available or 0.0,
+                             "eb_bank_has_available": available is not None, "eb_bank_balance_at": fields.Datetime.now()})
+
+    def _check(self, booked, available=None):
+        self._bank(booked, available)
+        self.provider._enable_banking_check_balance()
+        return self.provider.eb_balance_check
+
+    def test_check_balance_outcomes(self):
+        stmt = self._statement_today(1000.0, [20.0] * 5)  # Odoo 1100
+        before = len(self.provider.message_ids)
+        self.assertIn("available balance", self._check(1040.0, 1100.0))
+        self.assertIn("lacks some of today's lines", self._check(1040.0))
+        self.assertIn("lacks some of today's lines", self._check(1040.0, 1300.0), "pending incoming payments")
+        self.assertEqual(len(self.provider.message_ids), before, "explained differences are not posted")
+        self.assertIn("DIFFERENCE", self._check(1085.0))
+        self.assertEqual(len(self.provider.message_ids), before + 1)
+        self.assertIn("-15.00", self.provider.message_ids[0].body)
+        self._check(1085.0)
+        self.assertEqual(len(self.provider.message_ids), before + 1, "the same difference is posted once")
+        stmt.write({"line_ids": [(0, 0, {"date": stmt.line_ids[0].date, "payment_ref": "swish 6", "amount": 20.0,
+                                         "journal_id": self.journal.id})]})  # Odoo 1120
+        self.assertIn("DIFFERENCE", self._check(1105.0))
+        self.assertEqual(len(self.provider.message_ids), before + 1, "both balances moved, same difference: not repeated")
+        self.assertIn("agrees with the bank", self._check(1120.0))
+        self.assertFalse(self.provider.eb_balance_warning_key)
+
+    def test_lag_does_not_hide_a_duplicate_import(self):
+        """A duplicate 20 makes Odoo exceed the bank's available balance even if today's lines could explain it."""
+        self._statement_today(1000.0, [20.0] * 5)  # Odoo 1100, but the bank only has 1080
+        before = len(self.provider.message_ids)
+        self.assertIn("DIFFERENCE", self._check(1040.0, 1080.0))
+        self.assertEqual(len(self.provider.message_ids), before + 1)
+
+    def test_check_balance_on_a_quiet_day(self):
+        """No lines today: nothing can explain a difference, so it is reported."""
+        yesterday = fields.Date.context_today(self.provider) - timedelta(days=1)
+        self._statement_today(0.0, [20.0], day=yesterday)
+        before = len(self.provider.message_ids)
+        self.assertIn("DIFFERENCE", self._check(0.0))
+        self.assertEqual(len(self.provider.message_ids), before + 1)
+
+    def test_check_ignores_undated_statements_and_statementless_providers(self):
+        self._statement_today(1000.0, [20.0])  # Odoo 1020
+        self.env["account.bank.statement"].create({"name": "EBB/EMPTY", "journal_id": self.journal.id, "balance_start": 5.0})
+        self.assertIn("agrees with the bank", self._check(1020.0), "an empty statement (no date) is not the last one")
+        self.provider.create_statement = False
+        self.provider.eb_balance_check = False
+        self._check(0.0)
+        self.assertFalse(self.provider.eb_balance_check, "without statements there is nothing to compare")
+
+    def test_pull_runs_the_check(self):
+        self._statement_today(0.0, [20.0])
+        now = fields.Datetime.now()
+        balances = [{"balance_type": "ITBD", "balance_amount": {"amount": "0.00"}},
+                    {"balance_type": "ITAV", "balance_amount": {"amount": "20.00"}}]
+
+        def fake_request(provider, method, path, params=None, body=None):
+            if path.endswith("/transactions"):
+                return {"transactions": [], "continuation_key": None}
+            if path.endswith("/balances"):
+                return {"balances": balances}
+            raise AssertionError(path)
+
+        with mock.patch(f"{PROVIDER}._eb_request", new=fake_request):
+            self.provider._pull(now - timedelta(hours=1), now + timedelta(hours=1))
+        self.assertIn("available balance", self.provider.eb_balance_check)
+
+    def test_record_pull_counts_only_new_lines_in_the_period(self):
+        since, until = datetime(2026, 9, 1), datetime(2026, 10, 1)
+        data = self._pull([SWISH, DEBIT], since=since, until=until)
+        self.provider._create_or_update_statement(data, since, until)
+        before = len(self.provider.message_ids)
+        self._pull([SWISH, DEBIT], since=since, until=until)
+        self.assertIn("2 booked transaction(s) from the bank, 0 new", self.provider.eb_last_pull_summary)
+        self.assertEqual(len(self.provider.message_ids), before, "already imported lines are not news")
+        self._pull([BANKGIRO], since=datetime(2026, 9, 20), until=datetime(2026, 9, 21))
+        self.assertIn("1 booked transaction(s) from the bank, 0 new", self.provider.eb_last_pull_summary,
+                      "a line dated outside the period is not counted for it")
+

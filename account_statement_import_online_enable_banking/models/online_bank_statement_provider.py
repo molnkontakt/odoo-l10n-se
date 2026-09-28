@@ -71,6 +71,14 @@ class OnlineBankStatementProvider(models.Model):
     eb_session_valid_until = fields.Datetime(readonly=True, copy=False)
     eb_account_uid = fields.Char(readonly=True, copy=False)
     eb_account_iban = fields.Char(readonly=True, copy=False)
+    # Last balances the bank reported (fetched with the period that covers today) and the result
+    # of comparing them with Odoo. See _enable_banking_check_balance.
+    eb_bank_booked_balance = fields.Float(string="Bank: booked balance", readonly=True, copy=False)
+    eb_bank_available_balance = fields.Float(string="Bank: available balance", readonly=True, copy=False)
+    eb_bank_has_available = fields.Boolean(readonly=True, copy=False)
+    eb_bank_balance_at = fields.Datetime(string="Bank balance fetched", readonly=True, copy=False)
+    eb_balance_check = fields.Char(string="Balance check", readonly=True, copy=False)
+    eb_balance_warning_key = fields.Char(readonly=True, copy=False)
 
     @api.model
     def _get_available_services(self):
@@ -111,7 +119,8 @@ class OnlineBankStatementProvider(models.Model):
         if response.status_code >= 400:
             detail = response.text[:500]
             _logger.warning("Enable Banking %s %s -> %s %s", method, path, response.status_code, detail)
-            raise UserError(self.env._("Enable Banking answered %(status)s: %(detail)s", status=response.status_code, detail=detail))
+            me = self if self.env.lang else self.with_context(lang=self._enable_banking_lang())  # cron: no language
+            raise UserError(me.env._("Enable Banking answered %(status)s: %(detail)s", status=response.status_code, detail=detail))
         return response.json()
 
     # ------------------------------------------------------------ authorise
@@ -170,7 +179,7 @@ class OnlineBankStatementProvider(models.Model):
     def _enable_banking_same_account(iban, own_number):
         """Does the bank's IBAN denote the journal's bank account?
 
-        Journals often carry the domestic number (Swedish `8305-5 004 537 3453`)
+        Journals often carry the domestic number (Swedish `8000-0 123 456 7890`)
         rather than the IBAN; the IBAN's account part is that number zero-padded,
         so a digit-suffix match is the reliable comparison."""
         iban = re.sub(r"\s", "", iban or "").upper()
@@ -237,11 +246,12 @@ class OnlineBankStatementProvider(models.Model):
             if provider._enable_banking_renewal_activities():
                 continue
             user = provider.eb_renewal_user_id or provider.create_uid
+            me = provider.with_context(lang=provider._enable_banking_lang())
             if days_left >= 0:
-                summary = self.env._("Enable Banking: renew the bank consent (expires in %s days)", days_left)
+                summary = me.env._("Enable Banking: renew the bank consent (expires in %s days)", days_left)
             else:
-                summary = self.env._("Enable Banking: bank consent expired, authorise again")
-            note = self.env._(
+                summary = me.env._("Enable Banking: bank consent expired, authorise again")
+            note = me.env._(
                 "The consent for %(journal)s expires %(when)s. Open the provider and click "
                 "<i>Authorise with the bank</i> (BankID as the account's signatory).",
                 journal=provider.journal_id.display_name, when=fields.Datetime.to_string(provider.eb_session_valid_until),
@@ -296,17 +306,19 @@ class OnlineBankStatementProvider(models.Model):
 
     def _enable_banking_obtain_statement_data(self, date_since, date_until):
         self.ensure_one()
+        # Scheduled pulls run with an empty context (no language); texts follow the company.
+        me = self.sudo().with_context(lang=self._enable_banking_lang(), tz=self._enable_banking_tz())
         if not self.eb_account_uid or not self.eb_session_id:
-            self.sudo().message_post(body=self.env._("Enable Banking: no account connected. Authorise with the bank first."))
+            me.message_post(body=me.env._("Enable Banking: no account connected. Authorise with the bank first."))
             return [], {}
         if self.eb_session_valid_until and self.eb_session_valid_until <= fields.Datetime.now():
-            self.sudo().message_post(body=self.env._("Enable Banking: the bank consent has expired. Authorise with the bank again."))
+            me.message_post(body=me.env._("Enable Banking: the bank consent has expired. Authorise with the bank again."))
             return [], {}
         try:
             transactions = self._enable_banking_request_transactions(date_since, date_until)
         except Exception as err:
-            self.sudo().write({"eb_last_pull": fields.Datetime.now(), "eb_last_pull_summary": self.env._("FAILED: %s", err)[:250]})
-            self.sudo().message_post(body=self.env._("Enable Banking: pull for %(since)s – %(until)s failed: %(err)s",
+            self.sudo().write({"eb_last_pull": fields.Datetime.now(), "eb_last_pull_summary": me.env._("FAILED: %s", err)[:250]})
+            me.message_post(body=me.env._("Enable Banking: pull for %(since)s – %(until)s failed: %(err)s",
                                                      since=date_since.date(), until=(date_until - timedelta(days=1)).date(), err=err))
             raise
         own_iban = self.journal_id.bank_account_id.sanitized_acc_number or ""
@@ -336,13 +348,16 @@ class OnlineBankStatementProvider(models.Model):
         # balance call (typically 429 after manual pulls) must not lose the transactions.
         if date_until > fields.Datetime.now() >= date_since:
             try:
-                for bal in self._enable_banking_request_balances():
-                    if bal.get("balance_type") in ("CLBD", "ITBD") or "booked" in (bal.get("name") or "").lower():
-                        statement_values["balance_end_real"] = float((bal.get("balance_amount") or {}).get("amount") or 0)
-                        break
+                booked, available = self._enable_banking_pick_balances(self._enable_banking_request_balances())
+                if booked is not None:
+                    statement_values["balance_end_real"] = booked
+                    self.sudo().write({
+                        "eb_bank_booked_balance": booked, "eb_bank_available_balance": available or 0.0,
+                        "eb_bank_has_available": available is not None, "eb_bank_balance_at": fields.Datetime.now(),
+                    })
             except Exception as err:  # noqa: BLE001 - transactions are already in hand
                 _logger.warning("Enable Banking: balance call failed, statement imported without closing balance: %s", err)
-                note = self.env._("; balance unavailable (%s)", str(err)[:80])
+                note = me.env._("; balance unavailable (%s)", str(err)[:80])
         self._enable_banking_match_swish_partners(lines)
         self._enable_banking_record_pull(date_since, date_until, transactions, lines, note)
         return lines, statement_values
@@ -350,44 +365,156 @@ class OnlineBankStatementProvider(models.Model):
     def _statement_create_or_write(self, statement_values):
         """The bank's booked balance can lag its own booked transactions within the day.
 
-        Swedbank delivers an outgoing transfer as BOOK with today's booking date while
-        "Current booked balance" (ITBD) still excludes it until the nightly run (seen
-        2026-09-21: line -807 delivered, balance 807 too high). Odoo then shows the
+        Swedbank delivers a transaction as BOOK with today's booking date while "Current
+        booked balance" (ITBD) still excludes it until the nightly run (an outgoing transfer
+        delivered while the booked balance was still without it; a weekend Swish payment
+        missing from the booked balance but present in the available one). Odoo would show the
         statement as incomplete for good, because tomorrow's pull is a new statement.
-        For a statement that is still open (dated today) the bank's figure is therefore
-        only kept when it agrees with start + lines; otherwise Odoo's computed end is
-        used and the discrepancy goes to the provider's chatter. Past statements keep
-        the bank's figure — there a mismatch is real and must stay visible."""
+        For a statement that is still open (dated today) the bank's figure is therefore only
+        kept when it agrees with start + lines; otherwise Odoo's computed end is used.
+        Whether the difference is such a lag or a real discrepancy is decided after the pull
+        by _enable_banking_check_balance, which also runs on days without new lines.
+        Past statements keep the bank's figure — there a mismatch is real and must stay visible."""
         statement = super()._statement_create_or_write(statement_values)
         if self.service != "enable_banking" or not statement or "balance_end_real" not in statement_values:
             return statement
         stmt = statement.sudo()
         today = fields.Date.context_today(self)
         if stmt.date and stmt.date >= today and stmt.currency_id.compare_amounts(stmt.balance_end, stmt.balance_end_real) != 0:
-            diff = stmt.balance_end_real - stmt.balance_end
             stmt.write({"balance_end_real": stmt.balance_end})
-            self.sudo().message_post(body=self.env._(
-                "Enable Banking: the bank's booked balance (%(bank).2f) differs by %(diff).2f from start + lines "
-                "(%(calc).2f) on the open statement %(name)s — probably a transaction booked today that the bank's "
-                "balance does not include yet. Closing balance left at the computed value; tomorrow's opening "
-                "balance is the check against the bank.",
-                bank=stmt.balance_end + diff, diff=diff, calc=stmt.balance_end, name=stmt.name))
         return statement
 
-    def _enable_banking_record_pull(self, date_since, date_until, transactions, lines, note=""):
-        """Leave a trace of every pull on the provider; chatter only when something came in.
+    @staticmethod
+    def _enable_banking_pick_balances(balances):
+        """(booked, available) from the bank's balance list; None when the bank did not send one."""
+        booked = available = None
+        for bal in balances:
+            kind = bal.get("balance_type") or ""
+            name = (bal.get("name") or "").lower()
+            amount = float((bal.get("balance_amount") or {}).get("amount") or 0)
+            if booked is None and (kind in ("CLBD", "ITBD") or "booked" in name):
+                booked = amount
+            elif available is None and (kind in ("CLAV", "ITAV") or "available" in name):
+                available = amount
+        return booked, available
 
-        `lines` is what the bank returned as booked for the period; the OCA base
-        then skips the ones already imported (unique_import_id)."""
-        period = f"{date_since.date()} – {(date_until - timedelta(days=1)).date()}"
-        summary = self.env._("%(when)s — %(period)s: %(n)s booked transaction(s) from the bank",
-                             when=fields.Datetime.context_timestamp(self, fields.Datetime.now()).strftime("%Y-%m-%d %H:%M"),
-                             period=period, n=len(lines))
+    @staticmethod
+    def _enable_banking_explained_by_lag(bank_booked, odoo_balance, today_amounts, limit=100000):
+        """True when the bank's booked balance equals Odoo's balance without some of today's lines.
+
+        The booked balance lags booked transactions of the same day (see _statement_create_or_write),
+        so bank == Odoo - (today's lines not yet in the bank's figure) is expected; any other
+        difference is real. Works in öre to avoid float noise; gives up (False) on huge line sets."""
+        cents = [round(a * 100) for a in today_amounts]
+        missing = round((odoo_balance - bank_booked) * 100)
+        sums = {0}
+        for c in cents:
+            sums |= {x + c for x in sums}
+            if len(sums) > limit:
+                return False
+        return missing in sums
+
+    def _pull(self, date_since, date_until):
+        started = fields.Datetime.now()
+        res = super()._pull(date_since, date_until)
+        if not self.env.context.get("account_statement_online_import_debug"):
+            for provider in self.filtered(lambda p: p.service == "enable_banking"):
+                if provider.eb_bank_balance_at and provider.eb_bank_balance_at >= started:
+                    try:
+                        provider._enable_banking_check_balance()
+                    except Exception:  # noqa: BLE001 - a failed check must not undo the import
+                        _logger.exception("Enable Banking: balance check failed for provider %s", provider.id)
+        return res
+
+    def _enable_banking_lang(self):
+        return self.journal_id.company_id.partner_id.lang or self.env.lang
+
+    def _enable_banking_tz(self):
+        # Scheduled pulls run as the system user without a timezone; show the renewal user's local time.
+        return self.eb_renewal_user_id.tz or self.env.user.tz or "UTC"
+
+    def _enable_banking_check_balance(self):
+        """Compare the bank's balance with Odoo after every pull, also on days without new lines.
+
+        Consistent when Odoo equals the booked or the available balance, or when the booked
+        balance only lacks some of today's lines (lag) and the available balance, if the bank sends
+        one, is not below Odoo — a duplicate import makes Odoo exceed what the bank has, pending
+        incoming payments only make the available balance larger. Anything else is a real
+        discrepancy: one chatter warning per difference (the key is the difference, so both balances
+        moving together does not repeat it), and the result is kept in eb_balance_check."""
+        self.ensure_one()
+        if not self.create_statement:
+            return  # lines without statements: the last statement does not show the journal balance
+        me = self.sudo().with_context(lang=self._enable_banking_lang(), tz=self._enable_banking_tz())
+        currency = self.journal_id.currency_id or self.journal_id.company_id.currency_id
+        last = self.env["account.bank.statement"].sudo().search(
+            [("journal_id", "=", self.journal_id.id), ("date", "!=", False)], order="date desc, id desc", limit=1)
+        if not last:
+            return
+        today = fields.Date.context_today(self)
+        odoo_balance = last.balance_end
+        today_amounts = last.line_ids.filtered(lambda l: l.date == today).mapped("amount")
+        booked = self.eb_bank_booked_balance
+        available = self.eb_bank_available_balance if self.eb_bank_has_available else None
+        when = fields.Datetime.context_timestamp(me, self.eb_bank_balance_at).strftime("%Y-%m-%d %H:%M")
+        amounts = {"bank": booked, "odoo": odoo_balance, "diff": booked - odoo_balance,
+                   "available": available if available is not None else 0.0, "when": when}
+        key = self.eb_balance_warning_key
+        if not currency.compare_amounts(odoo_balance, booked):
+            result, real, key = me.env._("%(when)s: balance agrees with the bank (%(odoo).2f)", **amounts), False, False
+        elif available is not None and not currency.compare_amounts(odoo_balance, available):
+            result, real, key = me.env._(
+                "%(when)s: balance agrees with the bank's available balance (%(available).2f); the booked "
+                "balance (%(bank).2f) has not caught up yet", **amounts), False, False
+        elif self._enable_banking_explained_by_lag(booked, odoo_balance, today_amounts) and (
+                available is None or currency.compare_amounts(available, odoo_balance) >= 0):
+            result, real = me.env._(
+                "%(when)s: the bank's booked balance (%(bank).2f) lacks some of today's lines; Odoo %(odoo).2f",
+                **amounts), False
+        else:
+            result, real = me.env._(
+                "%(when)s: DIFFERENCE – bank %(bank).2f, Odoo %(odoo).2f (%(diff).2f)", **amounts), True
+        if real:
+            new_key = f"{self.journal_id.id}|{booked - odoo_balance:.2f}"
+            if new_key != self.eb_balance_warning_key:
+                me.message_post(body=me.env._(
+                    "Enable Banking: the bank's booked balance (%(bank).2f) differs by %(diff).2f from Odoo's balance "
+                    "(%(odoo).2f) on %(name)s, and the difference is not explained by today's transactions. Check that "
+                    "every transaction has been imported and that the opening balance is right.",
+                    name=last.name, **amounts))
+            key = new_key
+        self.sudo().write({"eb_balance_check": result[:250], "eb_balance_warning_key": key})
+
+    def _enable_banking_record_pull(self, date_since, date_until, transactions, lines, note=""):
+        """Leave a trace of every pull on the provider; chatter only when something new came in.
+
+        `lines` is what the bank returned as booked for the period. The bank filters on its own
+        date, so the same lines can come back for neighbouring periods (weekend Swish booked on
+        Monday); only lines dated inside the period and not yet imported are new — exactly what
+        the OCA base will import."""
+        me = self.sudo().with_context(lang=self._enable_banking_lang(), tz=self._enable_banking_tz())
+        first, last = date_since.date(), (date_until - timedelta(days=1)).date()
+        period = f"{first} – {last}" if first != last else f"{first}"
+        new = []
+        Line = self.env["account.bank.statement.line"].sudo()
+        for vals in lines:
+            if not (first <= vals["date"] <= last):
+                continue
+            probe = {"unique_import_id": vals.get("unique_import_id")}
+            self.journal_id._statement_line_import_update_unique_import_id(probe, self.account_number)
+            if probe.get("unique_import_id") and Line.search_count(
+                    [("unique_import_id", "=", probe["unique_import_id"])], limit=1):
+                continue
+            new.append(vals)
+        summary = me.env._("%(when)s — %(period)s: %(n)s booked transaction(s) from the bank, %(new)s new",
+                           when=fields.Datetime.context_timestamp(me, fields.Datetime.now()).strftime("%Y-%m-%d %H:%M"),
+                           period=period, n=len(lines), new=len(new))
         self.sudo().write({"eb_last_pull": fields.Datetime.now(), "eb_last_pull_summary": (summary + note)[:250]})
-        if lines:
-            self.sudo().message_post(body=self.env._("Enable Banking: %(period)s — %(n)s booked transaction(s) received (%(amount)s %(cur)s net).",
-                                                     period=period, n=len(lines), amount=round(sum(v["amount"] for v in lines), 2),
-                                                     cur=self.journal_id.currency_id.name or self.journal_id.company_id.currency_id.name))
+        if new:
+            me.message_post(body=me.env._(
+                "Enable Banking: %(period)s — %(n)s new booked transaction(s) (%(amount).2f %(cur)s net).",
+                period=period, n=len(new), amount=round(sum(v["amount"] for v in new), 2),
+                cur=self.journal_id.currency_id.name or self.journal_id.company_id.currency_id.name))
 
     def _enable_banking_line_vals(self, tr, own_iban):
         amount = float((tr.get("transaction_amount") or {}).get("amount") or 0)
