@@ -42,6 +42,13 @@ DEBIT = {
     "remittance_information": ["Water Utility"],
 }
 PENDING = dict(SWISH, status="PDNG", booking_date=None)
+# Personal account: no transaction type, no counterparty id, the number first in the remittance.
+SWISH_PERSONAL = {
+    "transaction_amount": {"currency": "SEK", "amount": "20.00"},
+    "credit_debit_indicator": "CRDT", "status": "BOOK",
+    "booking_date": "2026-09-14", "value_date": "2026-09-14",
+    "remittance_information": ["+46700000000    1833000000000001 swish mottagen"],
+}
 
 
 @tagged("post_install", "-at_install")
@@ -383,4 +390,11 @@ class TestEnableBanking(TransactionCase):
         self._pull([BANKGIRO], since=datetime(2026, 9, 20), until=datetime(2026, 9, 21))
         self.assertIn("1 booked transaction(s) from the bank, 0 new", self.provider.eb_last_pull_summary,
                       "a line dated outside the period is not counted for it")
+
+    def test_swish_personal_account_matches_payer(self):
+        lines, _ = self._pull([SWISH_PERSONAL])
+        self.assertEqual(lines[0]["partner_id"], self.payer.id, "number first in the remittance, personal account format")
+        self.env["res.partner"].create({"name": "Same Number", "phone": "+46700000000"})
+        lines, _ = self._pull([SWISH_PERSONAL])
+        self.assertFalse(lines[0].get("partner_id"), "two partners with the number: no guess")
 

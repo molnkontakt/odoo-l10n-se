@@ -40,6 +40,9 @@ EB_DATE_FORMAT = "%Y-%m-%d"
 # ASPSP as `maximum_consent_validity`); used when the ASPSP lookup fails.
 EB_DEFAULT_CONSENT_DAYS = 90
 SWISH_RE = re.compile(r"Swish\s+(\+?\d[\d \-]{6,})", re.I)
+# Personal accounts (Swedbank via Enable Banking): no transaction type and no counterparty id; the payer
+# number only appears first in the remittance, e.g. "+46701234567    1833000000000000 swish mottagen".
+SWISH_PERSONAL_RE = re.compile(r"^\s*(\+?\d{9,15})\s+\d+\s+swish\b", re.I)
 
 
 class OnlineBankStatementProvider(models.Model):
@@ -574,12 +577,15 @@ class OnlineBankStatementProvider(models.Model):
 
     def _enable_banking_match_swish_partners(self, lines):
         """Swish: the payer's mobile number is the only handle; look it up on
-        res.partner.phone_sanitized (E.164). Same rule as the Swedbank CSV import."""
+        res.partner.phone_sanitized (E.164). Same rule as the Swedbank CSV import.
+        Business accounts carry "Swish +46…"; personal accounts start the remittance with
+        the number. Two partners with the same number: no match (never guess a payer)."""
         Partner = self.env["res.partner"]
         for vals in lines:
             if vals.get("partner_id"):
                 continue
-            mo = SWISH_RE.search(vals.get("payment_ref") or "")
+            text = vals.get("payment_ref") or ""
+            mo = SWISH_RE.search(text) or SWISH_PERSONAL_RE.search(text)
             if not mo:
                 continue
             digits = re.sub(r"\D", "", mo.group(1))
