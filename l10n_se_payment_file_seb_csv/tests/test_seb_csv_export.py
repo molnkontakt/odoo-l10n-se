@@ -221,11 +221,13 @@ class TestSebCsvExport(TransactionCase):
                 others = {"OCR", "Fakturanummer", "RF", "Meddelande"} - {column}
                 self.assertFalse(any(row[c] for c in others), row)
                 self.assertEqual(row["Egen anteckning"], move.name)
-                self.assertEqual(row["Avsändarens referens"], f"{batch.name}-{i:03d}")
+                sender_ref = f"{batch.name}-{i:03d}"
+                # SEB refuses the field for Bankgiro/Plusgiro payments; kept on the line for the trace
+                self.assertEqual(row["Avsändarens referens"], sender_ref if code in ("BBAN", "IBAN") else "")
                 self.assertEqual(row["Standard eller Express"], "Standard")
                 line = batch.line_ids.filtered(lambda line, move=move: line.move_id == move)
                 self.assertEqual(line.state, "exported")
-                self.assertEqual(line.sender_reference, row["Avsändarens referens"])
+                self.assertEqual(line.sender_reference, sender_ref)
                 self.assertEqual(line.own_note, move.name)
                 self.assertEqual(line.to_account, to_account)
                 self.assertEqual(line.to_account_format, code)

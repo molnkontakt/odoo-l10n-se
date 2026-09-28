@@ -108,13 +108,26 @@ def test_bankgiro_with_ocr():
     assert row["Fakturanummer"] == row["RF"] == row["Meddelande"] == ""
     assert row["Egen anteckning"] == "BILL/2026/10/0001"
     assert row["Standard eller Express"] == "Standard"
-    assert row["Avsändarens referens"] == "SEB2026-0001-001"
+    assert row["Avsändarens referens"] == "", "SEB refuses it for Bankgiro/Plusgiro payments"
     filled = {k for k, v in row.items() if v}
     assert filled == {
         "Betaltyp", "Från konto", "Till konto", "Till konto - format (IBAN/BBAN/BG/PG)",
         "Mottagarens namn", "Belopp", "Betaldatum", "OCR", "Egen anteckning",
-        "Standard eller Express", "Avsändarens referens",
+        "Standard eller Express",
     }
+
+
+@pytest.mark.parametrize("account_type, number, expected", [
+    ("bankgiro", "5551239", ""),
+    ("plusgiro", "1234566", ""),
+    ("bban", "52031234560", "SEB2026-0001-001"),
+])
+def test_sender_reference_only_for_account_payments(account_type, number, expected):
+    """Test upload 2026-09-28: SEB refuses "Avsändarens referens" on a Bankgiro payment."""
+    ref = "ocr" if account_type != "bban" else "message"
+    value = "1234567897" if ref == "ocr" else "Faktura 1"
+    row = _row(_payment(account_type=account_type, to_account=number, reference_type=ref, reference=value))
+    assert row["Avsändarens referens"] == expected
 
 
 @pytest.mark.parametrize(

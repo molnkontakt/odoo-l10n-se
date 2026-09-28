@@ -150,6 +150,10 @@ MESSAGE_MAX = 140  # MIG: Ustrd
 SENDER_REFERENCE_MAX = 35  # MIG: EndToEndId
 OWN_NOTE_MAX = 35  # unknown; cut, never refused
 
+# "Avsändarens referens" only for account payments. Verified with a test upload (2026-09-28): SEB refuses
+# the file when it is filled for a Bankgiro/Plusgiro payment ("not needed for bg and pg payments").
+SENDER_REFERENCE_ACCOUNT_TYPES = ("bban", "iban")
+
 # --- End of VERIFY block ---------------------------------------------------------------------
 
 OCR_MAX = 25  # Bankgirot OCR: 2-25 digits (documented)
@@ -333,7 +337,7 @@ def payment_values(payment):
         ref_column: ref_value,
         COL_OWN_NOTE: clean_text(payment.own_note, OWN_NOTE_MAX),
         COL_PRIORITY: PRIORITY_STANDARD,
-        COL_SENDER_REFERENCE: sender_reference,
+        COL_SENDER_REFERENCE: sender_reference if payment.account_type in SENDER_REFERENCE_ACCOUNT_TYPES else "",
     }
 
 
