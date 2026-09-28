@@ -89,6 +89,23 @@ one section per module. The format follows
 
 ## account_statement_import_online_enable_banking
 
+### [19.0.1.4.1] — 2026-09-28
+
+- Swish payers on personal accounts are matched too: such accounts send no transaction type and
+  no counterparty id, and the payer's number only starts the remittance text. Two partners with
+  the number still means no match.
+
+### [19.0.1.4.0] — 2026-09-28
+
+- Balance check after every pull, also on days without transactions: Odoo's balance is compared
+  with the bank's booked and available balances. A booked balance that lags same-day
+  transactions is accepted only when the available balance is not below Odoo's, so duplicate
+  imports still surface. One chatter warning per difference.
+- The pull note counts only lines inside the period that are not yet imported, so neighbouring
+  periods no longer report the same transactions twice.
+- Scheduled pulls write in the company's language and show times in the time zone of the user
+  who renews the consent; Swedish translation (`i18n/sv.po`).
+
 ### [19.0.1.3.0] — 2026-09-21
 
 - A statement dated today keeps the bank's closing balance only when it agrees with the start
