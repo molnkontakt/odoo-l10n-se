@@ -305,8 +305,9 @@ class AccountMove(models.Model):
             warnings.append(
                 _(
                     "The OCR number %(reference)s is the same as the supplier's invoice number. "
-                    "Check on the invoice that it is the OCR reference; a payee that checks OCR "
-                    "numbers rejects a wrong one.",
+                    "Check on the invoice that it is also the OCR reference: the bank checks the "
+                    "check digit (and for some payees the length), so a wrong number can go "
+                    "through and the supplier then cannot match the payment.",
                     reference=reference,
                 )
             )

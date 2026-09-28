@@ -7,6 +7,19 @@ one section per module. The format follows
 
 ## l10n_se_payment_file_seb_csv
 
+### [19.0.1.1.0] — 2026-09-28
+
+- *Avsändarens referens* (sender's reference) is only written for bank account payments
+  (BBAN/IBAN): a test upload was refused because SEB does not accept it for Bankgiro and Plusgiro
+  payments. The export line keeps it for the trace.
+- Export wizard: opens as a wide dialog; blocked reasons and the warnings to acknowledge are listed
+  above the bills, with *I have read the warnings* directly under them. The long *Why blocked* and
+  *Warnings* columns, and the due date, amount due and clearing bank columns, are hidden by default
+  (optional columns).
+- The warning for an OCR number equal to the supplier's invoice number no longer says a wrong
+  number is rejected: the bank checks the check digit (and for some payees the length), so a
+  wrong number can go through and the supplier then cannot match the payment.
+
 ### [19.0.1.0.0] — 2026-09-27
 
 - Initial release. Export vendor bills to SEB's CSV upload for domestic payments (the internet

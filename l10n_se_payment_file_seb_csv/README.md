@@ -31,9 +31,9 @@ check digits and the account number as payment files write it). No OCA modules a
 2. **Select bills.** In the vendor bill list, the filter **To pay via SEB** shows posted, unpaid
    SEK bills that are not in a payment file. Select bills and choose *Actions > Export to SEB
    (CSV)*.
-3. **Review.** The wizard checks every bill and shows, per bill, why it cannot be paid
-   (*Blocked*) or what needs attention (*Warning*). Blocked bills are left out; warnings must be
-   acknowledged. The bank account, amount, payment date and the reference the payee sees can be
+3. **Review.** The wizard checks every bill and lists, above the bills, why a bill cannot be paid
+   (*Blocked*) and what needs attention (*Warning*); the status column marks the bill. Blocked bills
+   are left out; warnings must be acknowledged with *I have read the warnings* under the list. The bank account, amount, payment date and the reference the payee sees can be
    changed per bill. Payment date: the last Swedish bank day on or before the due date (today at
    the earliest), or one date for all. A bill you untick stays unticked when you change other
    values; ticking *I have read the warnings* is taken back when the warnings change.

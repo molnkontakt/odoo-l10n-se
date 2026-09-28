@@ -89,6 +89,16 @@ msgstr ""
 "                    Fakturan förblir obetald tills bankkontoutdragets rad har stämts av mot den."
 
 #. module: l10n_se_payment_file_seb_csv
+#: model_terms:ir.ui.view,arch_db:l10n_se_payment_file_seb_csv.view_l10n_se_payment_export_wizard_form
+msgid "<strong>Blocked: these bills cannot be paid in the file.</strong>"
+msgstr "<strong>Spärrade: de här fakturorna kan inte betalas i filen.</strong>"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model_terms:ir.ui.view,arch_db:l10n_se_payment_file_seb_csv.view_l10n_se_payment_export_wizard_form
+msgid "<strong>Read the warnings before the file is generated.</strong>"
+msgstr "<strong>Läs varningarna innan filen skapas.</strong>"
+
+#. module: l10n_se_payment_file_seb_csv
 #: model:ir.model.constraint,message:l10n_se_payment_file_seb_csv.constraint_l10n_se_payment_export_line_move_active_uniq
 msgid "A vendor bill can be in only one active SEB payment file."
 msgstr "En leverantörsfaktura kan bara finnas i en aktiv SEB-betalfil."
@@ -1212,6 +1222,11 @@ msgid "Warnings"
 msgstr "Varningar"
 
 #. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard__warning_summary
+msgid "Warnings to read"
+msgstr "Varningar att läsa"
+
+#. module: l10n_se_payment_file_seb_csv
 #: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export__website_message_ids
 msgid "Website Messages"
 msgstr "Webbplatsmeddelanden"
@@ -1238,6 +1253,11 @@ msgid ""
 msgstr ""
 "Vad mottagaren ser: OCR-nummer, RF-referens, fakturanummer eller meddelande,"
 " så som det skrivs i filen."
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard__blocked_summary
+msgid "Why bills are blocked"
+msgstr "Orsak till spärr"
 
 #. module: l10n_se_payment_file_seb_csv
 #: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard_line__problems
@@ -1354,12 +1374,14 @@ msgstr ""
 #: code:addons/l10n_se_payment_file_seb_csv/models/account_move.py:0
 msgid ""
 "The OCR number %(reference)s is the same as the supplier's invoice number. "
-"Check on the invoice that it is the OCR reference; a payee that checks OCR "
-"numbers rejects a wrong one."
+"Check on the invoice that it is also the OCR reference: the bank checks the "
+"check digit (and for some payees the length), so a wrong number can go "
+"through and the supplier then cannot match the payment."
 msgstr ""
 "OCR-numret %(reference)s är samma som leverantörens fakturanummer. "
-"Kontrollera på fakturan att det är OCR-referensen; en mottagare som "
-"kontrollerar OCR-nummer avvisar ett felaktigt."
+"Kontrollera på fakturan att det också är OCR-referensen: banken kontrollerar "
+"kontrollsiffran (och för vissa mottagare längden), så ett felaktigt nummer "
+"kan gå igenom och leverantören kan då inte matcha betalningen."
 
 #. module: l10n_se_payment_file_seb_csv
 #: model:ir.model.fields,help:l10n_se_payment_file_seb_csv.field_account_bank_statement_line__l10n_se_payment_export_id

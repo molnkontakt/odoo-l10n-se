@@ -1,5 +1,7 @@
 from datetime import date
 
+from markupsafe import Markup
+
 from odoo import Command, api, fields, models
 from odoo.exceptions import UserError
 
@@ -47,6 +49,13 @@ class L10nSePaymentExportWizard(models.TransientModel):
     blocked_count = fields.Integer(string="Blocked bills", compute="_compute_summary")
     amount_total = fields.Monetary(string="Total", compute="_compute_summary")
     has_warnings = fields.Boolean(string="Has warnings", compute="_compute_summary")
+    # Listed above the bills: as the last of many list columns they were out of sight in the dialog
+    warning_summary = fields.Html(
+        string="Warnings to read", compute="_compute_summary", sanitize=False
+    )
+    blocked_summary = fields.Html(
+        string="Why bills are blocked", compute="_compute_summary", sanitize=False
+    )
     warnings_acknowledged = fields.Boolean(string="I have read the warnings")
     acknowledged_warnings = fields.Text(
         compute="_compute_acknowledged_warnings",
@@ -98,14 +107,42 @@ class L10nSePaymentExportWizard(models.TransientModel):
         res["line_ids"] = lines
         return res
 
-    @api.depends("line_ids.include", "line_ids.amount", "line_ids.status")
+    @api.depends(
+        "line_ids.include",
+        "line_ids.amount",
+        "line_ids.status",
+        "line_ids.warnings",
+        "line_ids.problems",
+    )
     def _compute_summary(self):
         for wizard in self:
             ready = wizard.line_ids.filtered(lambda line: line.include and line.status != "blocked")
+            blocked = wizard.line_ids.filtered(lambda line: line.status == "blocked")
+            warned = ready.filtered(lambda line: line.status == "warning")
             wizard.ready_count = len(ready)
-            wizard.blocked_count = len(wizard.line_ids.filtered(lambda line: line.status == "blocked"))
+            wizard.blocked_count = len(blocked)
             wizard.amount_total = sum(ready.mapped("amount"))
-            wizard.has_warnings = any(line.status == "warning" for line in ready)
+            wizard.has_warnings = bool(warned)
+            # the same bills as _l10n_se_warnings_signature: those that need the acknowledgement
+            wizard.warning_summary = self._l10n_se_summary_html(warned, "warnings")
+            wizard.blocked_summary = self._l10n_se_summary_html(blocked, "problems")
+
+    @api.model
+    def _l10n_se_summary_html(self, lines, field_name):
+        """One list item per text of the lines' field, starting with the bill and its supplier."""
+
+        def bill(move):
+            # a draft is called "/"; its display name says "Draft Bill (reference)"
+            return move.name if move.name and move.name != "/" else move.display_name
+
+        items = [
+            Markup("<li><strong>%s</strong> %s: %s</li>")
+            % (bill(line.move_id), line.partner_id.name or "", text)
+            for line in lines
+            for text in (line[field_name] or "").splitlines()
+            if text.strip()
+        ]
+        return Markup('<ul class="mb-0 ps-3">%s</ul>') % Markup().join(items) if items else False
 
     def _l10n_se_warnings_signature(self):
         """The warnings of the bills to be paid, one line per bill."""

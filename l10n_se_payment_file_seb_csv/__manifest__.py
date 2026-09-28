@@ -1,6 +1,6 @@
 {
     "name": "Sweden - SEB payment file (CSV)",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.1.0",
     "category": "Accounting/Localizations",
     "summary": "Export vendor bills to SEB's CSV upload for domestic payments (Bankgiro, "
     "Plusgiro, bank account, IBAN, OCR) without registering payments",

@@ -628,6 +628,40 @@ class TestSebCsvExport(TransactionCase):
         self.assertIn("invalid check digit for clearing number 5203", self._line(wizard, typo).problems)
         self.assertEqual(self._line(wizard, typo).status, "blocked")
 
+    def test_summaries_above_the_bills(self):
+        """Blocked reasons and the warnings to acknowledge are listed above the bills: as the last
+        columns of the list they were out of sight in the dialog."""
+        partner = self._partner("Varning & <Co> AB")
+        warned = self._bill(amount=1000.0, ref="F-22001", partner=partner)
+        blocked = self._bill(trusted=False, ref="F-22002")
+        ready = self._bill(ref="F-22003")
+        wizard = self._wizard(warned | blocked | ready)
+        self._line(wizard, warned).amount = 400.0
+        self.assertIn(warned.name, wizard.warning_summary)
+        self.assertIn("Partial payment", wizard.warning_summary)
+        self.assertIn("Varning &amp; &lt;Co&gt; AB", wizard.warning_summary)  # escaped
+        self.assertNotIn(ready.name, wizard.warning_summary)
+        self.assertNotIn(blocked.name, wizard.warning_summary)
+        self.assertIn(blocked.name, wizard.blocked_summary)
+        self.assertIn("not trusted", wizard.blocked_summary)
+        self.assertNotIn(warned.name, wizard.blocked_summary)
+        # an unticked bill is not paid: its warnings need no acknowledgement and are not listed
+        self._line(wizard, warned).include = False
+        self.assertFalse(wizard.has_warnings)
+        self.assertFalse(wizard.warning_summary)
+        # a bill without blocked reasons leaves no blocked list
+        self.assertFalse(self._wizard(ready).blocked_summary)
+        # a draft bill is named "/": the list shows its display name instead
+        draft = self._bill(ref="F-22004", post=False)
+        summary = self._wizard(draft).blocked_summary
+        self.assertIn(draft.display_name, summary)
+        self.assertNotIn("<strong>/</strong>", summary)
+
+    def test_action_opens_a_wide_dialog(self):
+        action = self.env.ref("l10n_se_payment_file_seb_csv.action_l10n_se_payment_export_wizard")
+        self.assertEqual(action.target, "new")
+        self.assertIn("'dialog_size': 'extra-large'", action.context)
+
     # --- The wizard in the form view -----------------------------------------------------------
 
     def _form(self, moves):
