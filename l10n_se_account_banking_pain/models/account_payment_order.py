@@ -3,6 +3,11 @@ from lxml import etree
 from odoo import api, models
 from odoo.exceptions import UserError
 
+try:
+    from unidecode import unidecode
+except ImportError:  # the pain base module requires it; stay importable without
+    unidecode = None
+
 # Swedish clearing numbers used as creditor agent for the giro systems
 SE_CLEARING_BANKGIRO = "9900"
 SE_CLEARING_PLUSGIRO = "9960"
@@ -59,6 +64,51 @@ class AccountPaymentOrder(models.Model):
                         problem=problem,
                     )
                 )
+            self._l10n_se_check_reference(payment, bank)
+
+    def _l10n_se_check_reference(self, payment, bank):
+        """What the payee's number accepts, and a message that fits Ustrd (140) instead of being cut."""
+        ocr = payment.payment_line_ids[:1].communication_type == "ocr"
+        giro = bank.l10n_se_account_type in ("bankgiro", "plusgiro")
+        if giro and bank.l10n_se_ocr_required and not ocr:
+            raise UserError(
+                self.env._(
+                    "%(partner)s: the payee requires an OCR reference, but %(reference)s is not a "
+                    "valid OCR number.",
+                    partner=payment.partner_id.display_name,
+                    reference=payment.payment_reference or self.env._("(empty)"),
+                )
+            )
+        if giro and bank.l10n_se_ocr_refused and ocr:
+            raise UserError(
+                self.env._(
+                    "%(partner)s: the payee accepts only text messages, no OCR reference.",
+                    partner=payment.partner_id.display_name,
+                )
+            )
+        if not (ocr and giro) and self._l10n_se_message_cut(payment):
+            raise UserError(
+                self.env._(
+                    "%(partner)s: the message has more than 140 characters; shorten the payment "
+                    "reference.",
+                    partner=payment.partner_id.display_name,
+                )
+            )
+
+    @api.model
+    def _l10n_se_message_cut(self, payment):
+        """Would Ustrd lose text? The payment line's communication is a Char(140) that cuts silently,
+        the lines of a grouped payment are joined with " - ", and the file converts to ASCII and cuts
+        at 140 again: measure each bill's own communication and the joined text as the file writes it."""
+        def ascii_(text):
+            return unidecode(text) if unidecode else text
+
+        for line in payment.payment_line_ids:
+            full = line.move_line_id._get_communication()[1] if line.move_line_id else line.communication
+            if len(ascii_(full or "")) > 140:
+                return True
+        # what the file writes: the payment's reference (the joined lines, or edited by hand)
+        return len(ascii_(payment.payment_reference or "")) > 140
 
     # --- Payment information block -------------------------------------------------------
 

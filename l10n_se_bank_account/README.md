@@ -25,6 +25,12 @@ length, a bank account whose length or check digit does not fit its bank, an inv
 number of only zeros. A second, softer warning appears when a bank account's check digit could
 not be confirmed (see below).
 
+For a Bankgiro or Plusgiro number the form also says what the payee accepts, which SEB's payment
+form shows when the number is typed: **Payee requires OCR** ("Du måste fylla i OCR") or **Payee
+accepts only messages** ("tillåter bara textmeddelanden, inte OCR"), never both. The payment-file
+modules follow them: no payment without a valid OCR number to the first, never an OCR or RF
+reference to the second.
+
 ## Bank account numbers in payment files (MIG Annex 5)
 
 Swedish banks' ISO 20022 guides (SEB MIG pain.001.001.03, Annex 5) write a domestic account

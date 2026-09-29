@@ -1,5 +1,5 @@
 from odoo import api, fields, models
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 
 from ..lib import se_bank
 
@@ -7,6 +7,21 @@ from ..lib import se_bank
 class ResPartnerBank(models.Model):
     _inherit = "res.partner.bank"
 
+    # What the payee's Bankgiro/Plusgiro number accepts. SEB's payment form shows it when the
+    # number is typed ("Du måste fylla i OCR", "tillåter bara textmeddelanden, inte OCR"); an
+    # uploaded file is refused without saying so in advance. Used by the payment-file modules.
+    l10n_se_ocr_required = fields.Boolean(
+        string="Payee requires OCR",
+        help="This Bankgiro or Plusgiro number only accepts payments with a valid OCR "
+        "reference. Payment files refuse bills to it that have no valid OCR number in their "
+        "payment reference.",
+    )
+    l10n_se_ocr_refused = fields.Boolean(
+        string="Payee accepts only messages",
+        help="This Bankgiro or Plusgiro number takes only text messages, no OCR or RF "
+        "reference. Payment files send the supplier's invoice number as a message, even when "
+        "the bill has a valid OCR number.",  # SEB CSV and pain.001 both do
+    )
     l10n_se_account_type = fields.Selection(
         [
             ("bankgiro", "Bankgiro"),
@@ -229,3 +244,14 @@ class ResPartnerBank(models.Model):
         """Translated text for a se_bank.InvalidAccountNumber."""
         template = self._l10n_se_error_templates().get(exc.code)
         return template % exc.params if template else str(exc)
+
+    @api.constrains("l10n_se_ocr_required", "l10n_se_ocr_refused")
+    def _check_l10n_se_ocr_rule(self):
+        for bank in self:
+            if bank.l10n_se_ocr_required and bank.l10n_se_ocr_refused:
+                raise ValidationError(
+                    self.env._(
+                        "A payee cannot both require OCR and accept only messages (%(account)s).",
+                        account=bank.acc_number,
+                    )
+                )

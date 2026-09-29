@@ -1,6 +1,6 @@
 {
     "name": "Sweden - Bank accounts, Bankgiro, Plusgiro, OCR",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.1.0",
     "category": "Accounting/Localizations",
     "summary": "Swedish account types and check digits for payment files: Bankgiro, Plusgiro, "
     "bank account (clearing number rules), IBAN, OCR and RF references",

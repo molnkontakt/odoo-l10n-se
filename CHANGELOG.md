@@ -7,6 +7,11 @@ one section per module. The format follows
 
 ## l10n_se_payment_file_seb_csv
 
+### [19.0.1.2.0] — 2026-09-29
+
+- *Payee requires OCR* and *Payee accepts only messages* moved to `l10n_se_bank_account`, so the
+  pain.001 module follows them too. Update both modules together; the values are kept.
+
 ### [19.0.1.1.1] — 2026-09-29
 
 - SEB refused a file because *Fakturanummer* was filled for a Bankgiro payment ("not needed for bg
@@ -53,6 +58,11 @@ one section per module. The format follows
 
 ## l10n_se_bank_account
 
+### [19.0.1.1.0] — 2026-09-29
+
+- *Payee requires OCR* and *Payee accepts only messages* on Bankgiro/Plusgiro accounts (moved
+  here from `l10n_se_payment_file_seb_csv`, values kept), with the rule that not both are set.
+
 ### [19.0.1.0.0] — 2026-09-27
 
 - Initial release. Swedish account type on bank accounts (moved from
@@ -70,6 +80,12 @@ one section per module. The format follows
 - Pure-Python library `lib/se_bank.py` with pytest tests.
 
 ## l10n_se_account_banking_pain
+
+### [19.0.1.2.0] — 2026-09-29
+
+- Follows what the payee accepts: a payee that accepts only messages never gets an OCR
+  reference; a payee that requires OCR stops the file when the bill has no valid OCR number.
+- A message longer than 140 characters stops the file instead of being cut by the payment line.
 
 ### [19.0.1.1.0] — 2026-09-27
 

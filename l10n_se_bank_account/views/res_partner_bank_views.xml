@@ -7,6 +7,10 @@
         <field name="arch" type="xml">
             <field name="acc_number" position="after">
                 <field name="l10n_se_account_type"/>
+                <field name="l10n_se_ocr_required"
+                       invisible="l10n_se_account_type not in ('bankgiro', 'plusgiro') and not l10n_se_ocr_required"/>
+                <field name="l10n_se_ocr_refused"
+                       invisible="l10n_se_account_type not in ('bankgiro', 'plusgiro') and not l10n_se_ocr_refused"/>
                 <field name="l10n_se_payment_number" invisible="not l10n_se_payment_number"/>
                 <field name="l10n_se_clearing_bank" invisible="not l10n_se_clearing_bank"/>
                 <div colspan="2" class="text-warning" invisible="not l10n_se_account_problem">

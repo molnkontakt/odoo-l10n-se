@@ -145,6 +145,35 @@ class TestPainSE(TransactionCase):
                 with self.assertRaisesRegex(UserError, text):
                     order.open2generated()
 
+    def test_what_the_payee_accepts(self):
+        """The flags on the payee's Bankgiro: only messages -> never OCR; requires OCR -> refused
+        without one. A message over 140 characters is refused instead of cut."""
+        move, bank = self._bill("Messages only", "BG 555-1239", "1234567897")
+        move.ref = "F-4711"
+        bank.l10n_se_ocr_refused = True
+        order = self._order(move)
+        self.assertEqual(order.payment_line_ids.communication_type, "normal", "no OCR to this payee")
+        order.open2generated()
+        att = self.env["ir.attachment"].search(
+            [("res_model", "=", "account.payment.order"), ("res_id", "=", order.id)], limit=1
+        )
+        root = etree.fromstring(base64.b64decode(att.datas))
+        self.assertEqual(root.findtext(".//p:Ustrd", namespaces=NS), "F-4711", "the supplier's invoice number")
+        self.assertIsNone(root.find(".//p:Strd", NS))
+
+        move, bank = self._bill("Requires OCR", "BG 5551-2347", "Faktura 5")
+        bank.l10n_se_ocr_required = True
+        with self.assertRaisesRegex(UserError, "requires an OCR reference"):
+            self._order(move).open2generated()
+
+        move, _bank = self._bill("Long message", "8327-9 123 456 789-7", "X" * 141)
+        with self.assertRaisesRegex(UserError, "more than 140 characters"):
+            self._order(move).open2generated()
+        # 139 characters, but converted to ASCII the file would need 140+: "Æ" becomes "AE"
+        move, _bank = self._bill("Long after ASCII", "8327-9 123 456 789-7", "Æ" * 2 + "X" * 137)
+        with self.assertRaisesRegex(UserError, "more than 140 characters"):
+            self._order(move).open2generated()
+
     def test_unknown_account_type_is_refused(self):
         move, bank = self._bill("Unknown type", "55512347", "Faktura 2")
         self.assertEqual(bank.l10n_se_account_type, "other")

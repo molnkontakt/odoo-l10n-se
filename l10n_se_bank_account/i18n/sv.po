@@ -17,6 +17,51 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #. module: l10n_se_bank_account
+#: model:ir.model.fields,field_description:l10n_se_bank_account.field_account_setup_bank_manual_config__l10n_se_ocr_required
+#: model:ir.model.fields,field_description:l10n_se_bank_account.field_res_partner_bank__l10n_se_ocr_required
+msgid "Payee requires OCR"
+msgstr "Mottagaren kräver OCR"
+
+#. module: l10n_se_bank_account
+#: model:ir.model.fields,help:l10n_se_bank_account.field_account_setup_bank_manual_config__l10n_se_ocr_required
+#: model:ir.model.fields,help:l10n_se_bank_account.field_res_partner_bank__l10n_se_ocr_required
+msgid ""
+"This Bankgiro or Plusgiro number only accepts payments with a valid OCR "
+"reference. Payment files refuse bills to it that have no valid OCR number in "
+"their payment reference."
+msgstr ""
+"Det här bankgiro- eller plusgironumret tar bara emot betalningar med giltigt "
+"OCR-nummer. Betalfiler vägrar fakturor till det som saknar ett giltigt "
+"OCR-nummer i betalningsreferensen."
+
+#. module: l10n_se_bank_account
+#: model:ir.model.fields,field_description:l10n_se_bank_account.field_account_setup_bank_manual_config__l10n_se_ocr_refused
+#: model:ir.model.fields,field_description:l10n_se_bank_account.field_res_partner_bank__l10n_se_ocr_refused
+msgid "Payee accepts only messages"
+msgstr "Mottagaren tar bara emot meddelanden"
+
+#. module: l10n_se_bank_account
+#: model:ir.model.fields,help:l10n_se_bank_account.field_account_setup_bank_manual_config__l10n_se_ocr_refused
+#: model:ir.model.fields,help:l10n_se_bank_account.field_res_partner_bank__l10n_se_ocr_refused
+msgid ""
+"This Bankgiro or Plusgiro number takes only text messages, no OCR or RF "
+"reference. Payment files send the supplier's invoice number as a message, even "
+"when the bill has a valid OCR number."
+msgstr ""
+"Det här bankgiro- eller plusgironumret tar bara emot textmeddelanden, inte "
+"OCR eller RF-referens. Betalfiler skickar leverantörens fakturanummer som "
+"meddelande, även när fakturan har ett giltigt OCR-nummer."
+
+#. module: l10n_se_bank_account
+#. odoo-python
+#: code:addons/l10n_se_bank_account/models/res_partner_bank.py:0
+msgid ""
+"A payee cannot both require OCR and accept only messages (%(account)s)."
+msgstr ""
+"En mottagare kan inte både kräva OCR och bara ta emot meddelanden "
+"(%(account)s)."
+
+#. module: l10n_se_bank_account
 #. odoo-python
 #: code:addons/l10n_se_bank_account/models/res_partner_bank.py:0
 msgid "%(number)s is not a Swedish IBAN."

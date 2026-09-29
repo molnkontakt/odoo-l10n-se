@@ -19,6 +19,37 @@ msgstr ""
 #. module: l10n_se_account_banking_pain
 #. odoo-python
 #: code:addons/l10n_se_account_banking_pain/models/account_payment_order.py:0
+msgid ""
+"%(partner)s: the message has more than 140 characters; shorten the payment "
+"reference."
+msgstr ""
+"%(partner)s: meddelandet är längre än 140 tecken; korta betalningsreferensen."
+
+#. module: l10n_se_account_banking_pain
+#. odoo-python
+#: code:addons/l10n_se_account_banking_pain/models/account_payment_order.py:0
+msgid "%(partner)s: the payee accepts only text messages, no OCR reference."
+msgstr "%(partner)s: mottagaren tar bara emot textmeddelanden, inte OCR-referens."
+
+#. module: l10n_se_account_banking_pain
+#. odoo-python
+#: code:addons/l10n_se_account_banking_pain/models/account_payment_order.py:0
+msgid ""
+"%(partner)s: the payee requires an OCR reference, but %(reference)s is not a "
+"valid OCR number."
+msgstr ""
+"%(partner)s: mottagaren kräver OCR-referens, men %(reference)s är inget "
+"giltigt OCR-nummer."
+
+#. module: l10n_se_account_banking_pain
+#. odoo-python
+#: code:addons/l10n_se_account_banking_pain/models/account_payment_order.py:0
+msgid "(empty)"
+msgstr "(tom)"
+
+#. module: l10n_se_account_banking_pain
+#. odoo-python
+#: code:addons/l10n_se_account_banking_pain/models/account_payment_order.py:0
 msgid "%(partner)s: %(problem)s"
 msgstr "%(partner)s: %(problem)s"
 

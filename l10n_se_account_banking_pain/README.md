@@ -30,6 +30,11 @@ this module adds the Swedish rules of the bank's implementation guide (MIG).
 | Bank account | `ClrSysMmbId` SESBA / clearing (4 digits) | `Othr/Id` per MIG Annex 5 (clearing + account; Handelsbanken and Danske 9180-9189 account only; Swedbank 8-series 5-digit clearing, zero-padded to 15) + `SchmeNm/Cd` **BBAN** | `Ustrd` |
 | IBAN | BIC (from the bank, or derived from a Swedish IBAN) | `IBAN` | `Ustrd` |
 
+What the payee accepts (flags on the bank account, `l10n_se_bank_account`): a payee that accepts
+only messages gets `Ustrd` even when the bill has a valid OCR number; a payee that requires OCR
+stops the file when the bill has none. A message longer than 140 characters stops the file (the
+payment line would cut it).
+
 Payment level: `SvcLvl/Prtry` **MPNS**, no `BtchBookg` (the bank batches per debtor account and
 date), charge bearer `SHAR`. Creditor postal address only `Ctry` (SEB uses it for regulatory reporting, warning 32065 without it), no debtor address (SEB takes it from its register). Initiating party and debtor are identified by
 the customer id with `SchmeNm/Cd` **BANK**. Only SEK.

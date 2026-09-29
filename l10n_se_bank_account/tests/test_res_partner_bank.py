@@ -1,6 +1,6 @@
 # All account numbers are invented; they only satisfy the check digits.
 from odoo.addons.l10n_se_bank_account.lib import se_bank
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 from odoo.tests import tagged
 from odoo.tests.common import TransactionCase
 
@@ -33,6 +33,15 @@ class TestResPartnerBank(TransactionCase):
         for acc, expected in cases.items():
             with self.subTest(acc=acc):
                 self.assertEqual(self._bank(acc).l10n_se_account_type, expected)
+
+    def test_ocr_rule_flags(self):
+        """What the payee's Bankgiro accepts: OCR only, messages only, or both - never OCR and only messages."""
+        bank = self._bank("BG 555-1239", l10n_se_ocr_required=True)
+        self.assertTrue(bank.l10n_se_ocr_required)
+        with self.assertRaisesRegex(ValidationError, "cannot both require OCR"):
+            bank.l10n_se_ocr_refused = True
+        other = self._bank("BG 5551-2347", l10n_se_ocr_refused=True)
+        self.assertTrue(other.l10n_se_ocr_refused)
 
     def test_manual_type_is_kept_until_the_number_changes(self):
         bank = self._bank("55512347")
