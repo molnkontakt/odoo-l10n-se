@@ -1,6 +1,6 @@
 {
     "name": "Betalningspåminnelser (nivåer, avgift, historik)",
-    "version": "19.0.1.3.0",
+    "version": "19.0.1.4.0",
     "category": "Accounting",
     "summary": "Påminnelsenivåer per bolag med dagar efter förfall, lagstadgad påminnelseavgift som egen faktura, PDF och e-post, historik per kund",
     "description": """
@@ -20,6 +20,7 @@ Odoo Community saknar påminnelser (Follow-up är Enterprise). Den här modulen 
     "depends": ["account"],
     "data": [
         "security/ir.model.access.csv",
+        "security/security.xml",
         "report/reminder_report.xml",
         "data/mail_template.xml",
         "views/reminder_level_views.xml",

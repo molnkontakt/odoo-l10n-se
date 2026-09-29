@@ -232,6 +232,12 @@ one section per module. The format follows
 
 ## account_invoice_reminder
 
+### [19.0.1.4.0] — 2026-09-29
+
+- Fixed: reminders and reminder levels had no company rule, so another company's reminder was
+  listed and opening the list ended in an access error on its invoices. Both are now shown only
+  for the selected companies.
+
 ### [19.0.1.3.0] — 2026-09-15
 
 - Levels: *Betalningsfrist (dagar)* → `date_due` ("betala senast") on the reminder, and
