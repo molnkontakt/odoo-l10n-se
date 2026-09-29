@@ -79,7 +79,8 @@ class TestFindInvoice(TransactionCase):
         return move
 
     def _find(self, ref):
-        return self.wizard._find_invoice(ref, 1000.0, self.wizard._build_invoice_index())
+        company = self.env.company
+        return self.wizard._find_invoice(company, ref, 1000.0, self.wizard._build_invoice_index(company))
 
     def test_open_invoice_by_ocr_name_and_digits(self):
         self.assertEqual(self._find(self.open_inv.payment_reference), self.open_inv)
@@ -94,9 +95,9 @@ class TestFindInvoice(TransactionCase):
             re.sub(r"\D", "", self.credited.name),
         ):
             self.assertFalse(self._find(ref), ref)
-            self.assertEqual(self.wizard._find_settled_invoice(ref), self.credited, ref)
+            self.assertEqual(self.wizard._find_settled_invoice(self.env.company, ref), self.credited, ref)
         self.assertEqual(self.wizard._settled_label(self.credited), "krediterad")
 
     def test_open_invoice_is_not_settled(self):
-        self.assertFalse(self.wizard._find_settled_invoice(self.open_inv.payment_reference))
-        self.assertFalse(self.wizard._find_settled_invoice("okänd referens 999"))
+        self.assertFalse(self.wizard._find_settled_invoice(self.env.company, self.open_inv.payment_reference))
+        self.assertFalse(self.wizard._find_settled_invoice(self.env.company, "okänd referens 999"))

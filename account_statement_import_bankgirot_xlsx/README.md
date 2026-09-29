@@ -18,7 +18,12 @@ Tested against SEB's sample `camt.054_SE_CRED_BGC.xml`.
 
 The bank line is found by date and amount: first a line labelled *Bankgiro
 inbetalning* (Swedbank), otherwise any unreconciled line with that date and
-amount (other banks and Enable Banking feeds label it differently).
+amount (other banks and Enable Banking feeds label it differently). When the
+receiving Bankgiro is registered as a bank account on a company, only that
+company's lines are considered; among several lines, the one whose text holds
+the receiving Bankgiro number wins. When that company is not selected in the
+company switcher, no line is picked and the result says which company to
+select.
 
 ## Matching
 
@@ -26,6 +31,12 @@ Per detail row, in order: OCR reference (`payment_reference`), customer name in
 the reference or message (normalised), invoice number, amount. The result is
 posted as a note on the bank statement line ("split" with payer, amount and the
 matched invoice or the reason no match was found).
+
+Only invoices and SIE-imported sales entries of the bank line's company (and
+its branches), and payer bank accounts shared or of that company, are
+searched, whichever companies are selected in the company switcher. Companies number their invoices each on
+their own, so the first invoice of a year has the same number, and the same
+OCR number, in every company.
 
 ## Reconciliation proposal
 
@@ -43,6 +54,6 @@ line, the proposal is confirmed immediately.
 
 - Bankgirot formats amounts as text with non-breaking spaces (`'2 000,00'`);
   the parser handles that.
-- The bank line is found by date, total and receiving Bankgiro number on lines
-  whose text contains "Bankgiro inbetalning".
+- The bank line is found by date, total and receiving Bankgiro number (see
+  *camt.054* above); it decides the company.
 - Python dependency: `openpyxl`.

@@ -1,6 +1,6 @@
 {
     "name": "Bankgirot Insättningsuppgifter Import",
-    "version": "19.0.1.5.2",
+    "version": "19.0.1.5.3",
     "category": "Accounting",
     "summary": "Berika bankrader med insättningsuppgifter per betalare: Bankgirot (XLSX) eller bankens camt.054 (ISO 20022)",
     "depends": ["account"],

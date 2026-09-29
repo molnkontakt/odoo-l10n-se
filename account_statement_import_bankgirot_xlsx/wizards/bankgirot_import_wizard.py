@@ -253,15 +253,24 @@ class BankgirotImportWizard(models.TransientModel):
             if short and short != seq:
                 yield short, year
 
-    def _build_invoice_index(self):
-        """Pre-fetch open out_invoices and SIE-imported sales entries."""
+    @api.model
+    def _company_domain(self, company):
+        """Only the bank line's company (and its branches). Companies in one database number their
+        invoices each on their own, so the first invoice of a year - and its OCR number - exists
+        once per company; a payment to one company's Bankgiro must never settle another's."""
+        return [("company_id", "child_of", company.id)]
+
+    def _build_invoice_index(self, company):
+        """Pre-fetch open out_invoices and SIE-imported sales entries of ``company``."""
         Move = self.env["account.move"]
         out_invs = Move.search([
+            *self._company_domain(company),
             ("move_type", "=", "out_invoice"),
             ("state", "=", "posted"),
             ("amount_residual", ">", 0),
         ])
         sie_invs = Move.search([
+            *self._company_domain(company),
             ("state", "=", "posted"),
             ("ref", "=ilike", "%Kundfaktura%"),
         ])
@@ -271,10 +280,10 @@ class BankgirotImportWizard(models.TransientModel):
     def _open_invoice(self, inv):
         return inv.amount_residual > 0
 
-    def _find_settled_invoice(self, ref, message=""):
-        """The customer invoice the reference names exactly - OCR number, invoice number as printed,
-        or the digits of the invoice number - when it is no longer open (paid, credited, a file
-        imported again). None when it names an open invoice, or none."""
+    def _find_settled_invoice(self, company, ref, message=""):
+        """The customer invoice of ``company`` the reference names exactly - OCR number, invoice
+        number as printed, or the digits of the invoice number - when it is no longer open (paid,
+        credited, a file imported again). None when it names an open invoice, or none."""
         text = " ".join(t for t in (ref, message) if t)
         # short OCR numbers too: invoice 1020 has OCR 10207; a year alone ("ÅRSAVGIFT 2026") is not a number
         numbers = re.findall(r"\d{4,}", text)
@@ -290,14 +299,18 @@ class BankgirotImportWizard(models.TransientModel):
         if not domains:
             return None
         found = self.env["account.move"].search(
-            Domain.AND([[("move_type", "=", "out_invoice"), ("state", "=", "posted")], Domain.OR(domains)]),
+            Domain.AND([
+                self._company_domain(company),
+                [("move_type", "=", "out_invoice"), ("state", "=", "posted")],
+                Domain.OR(domains),
+            ]),
             order="id desc",
         )
         if not found or any(self._open_invoice(inv) for inv in found):
             return None
         return found[0]
 
-    def _find_invoice(self, ref, amount, all_invs, message=""):
+    def _find_invoice(self, company, ref, amount, all_invs, message=""):
         text = " ".join(t for t in (ref, message) if t)
         tokens = re.findall(r"\d{6,}", text)
         # 1) OCR-/betalningsreferens exakt (l10n_se_ocr sätter payment_reference på fakturan), eller
@@ -308,7 +321,7 @@ class BankgirotImportWizard(models.TransientModel):
                     return inv
         # 1b) referensen pekar ut en faktura som inte längre är öppen (betald, krediterad, filen importerad
         #     igen): gissa aldrig på en annan (OCR för en betald .../0042 hamnade förr på en öppen .../0004)
-        if self._find_settled_invoice(ref, message):
+        if self._find_settled_invoice(company, ref, message):
             return None
         # 2) kundens namn i referens eller meddelande ("ÅRSAVGIFT 2026 EXEMPELVÄGEN 11")
         def norm(t):
@@ -354,28 +367,46 @@ class BankgirotImportWizard(models.TransientModel):
     def _settled_label(self, inv):
         return "krediterad" if inv.payment_state == "reversed" else "redan betald"
 
-    def _find_partner_by_bg(self, bg):
+    def _find_partner_by_bg(self, bg, company):
         if not bg:
             return None
         bg_clean = bg.replace("-", "").replace(" ", "")
         bank = self.env["res.partner.bank"].search([
+            *self.env["res.partner.bank"]._check_company_domain(company),
             ("sanitized_acc_number", "=", bg_clean),
         ], limit=1)
         return bank.partner_id.id if bank else None
 
+    def _receiving_companies(self, receiver_bg):
+        """Bolagen som har det mottagande bankgirot upplagt som bankkonto. Söks med sudo: ett bolag
+        som inte är valt i bolagsväljaren syns annars inte för den som inte är ERP-administratör, och
+        då söktes bankraden i de valda bolagen i stället (ett annat bolags rad, samma dag och belopp)."""
+        digits = (receiver_bg or "").replace("-", "").replace(" ", "")
+        if not digits:
+            return self.env["res.company"]
+        return self.env["res.company"].sudo().search([
+            ("partner_id.bank_ids.sanitized_acc_number", "=", digits),
+        ]).sudo(False)
+
     def _find_statement_line(self, date, total, receiver_bg=None):
         """Find a Swedbank 'Bankgiro inbetalning' line on the given date with matching amount.
         Swedbanks etikett är "<bankgironr utan bindestreck> — Bankgiro inbetalning"; matcha som
-        delsträng (inte prefix) och föredra raden med rätt bankgironummer när flera bolag delar databas."""
+        delsträng (inte prefix) och föredra raden med rätt bankgironummer när flera bolag delar databas.
+        Bankraden bestämmer bolaget som fakturorna söks i. Är det mottagande bankgirot upplagt som
+        bankkonto på ett bolag söks bara det bolagets rader, och bara om bolaget är valt i
+        bolagsväljaren: annars hittas ingen rad, aldrig ett annat bolags."""
         Line = self.env["account.bank.statement.line"]
-        domain = [("date", "=", date), ("amount", "=", total), ("payment_ref", "ilike", "Bankgiro inbetalning")]
-        lines = Line.search(domain)
+        digits = (receiver_bg or "").replace("-", "").replace(" ", "")
+        domain = [("date", "=", date), ("amount", "=", total)]
+        owners = self._receiving_companies(receiver_bg)
+        if owners:
+            domain.append(("company_id", "in", (owners & self.env.companies).ids))
+        lines = Line.search(domain + [("payment_ref", "ilike", "Bankgiro inbetalning")])
         if not lines:
             # Andra banker (t.ex. SEB via Enable Banking) märker inte raden "Bankgiro inbetalning":
             # samma dag och belopp, ännu oavstämd
-            lines = Line.search([("date", "=", date), ("amount", "=", total), ("is_reconciled", "=", False)])
-        if receiver_bg and len(lines) > 1:
-            digits = receiver_bg.replace("-", "")
+            lines = Line.search(domain + [("is_reconciled", "=", False)])
+        if digits and len(lines) > 1:
             lines = lines.filtered(lambda ln: digits in (ln.payment_ref or "")) or lines
         return lines[:1]
 
@@ -419,8 +450,9 @@ class BankgirotImportWizard(models.TransientModel):
             stl.clean_reconcile()
             return " · <i>inget förslag: fel, se loggen</i>"
 
-    def _import_deposit(self, att, bg_data, all_invs, counters):
-        """En insättning (datum, total, detaljer) → berikad bankrad. Returnerar en resultatrad (HTML)."""
+    def _import_deposit(self, att, bg_data, invoice_index, counters):
+        """En insättning (datum, total, detaljer) → berikad bankrad. Returnerar en resultatrad (HTML).
+        ``invoice_index``: fakturaindex per bolag, byggs när ett bolags första bankrad hittas."""
         if not bg_data.get("date") or not bg_data.get("total"):
             return (
                 f"<tr><td>{att.name}</td><td colspan='4' style='color:orange'>"
@@ -428,22 +460,33 @@ class BankgirotImportWizard(models.TransientModel):
 
         stl = self._find_statement_line(bg_data["date"], bg_data["total"], bg_data.get("receiver_bg"))
         if not stl:
+            reason = "Ingen matchande bankrad"
+            owners = self._receiving_companies(bg_data.get("receiver_bg"))
+            if owners and not owners & self.env.companies:
+                reason = (f"Bankgirot {bg_data['receiver_bg']} tillhör "
+                          f"{', '.join(owners.sudo().mapped('name'))} – välj bolaget i bolagsväljaren")
             return (
                 f"<tr><td>{att.name}</td><td>{bg_data['date']}</td>"
                 f"<td>{bg_data['total']:.2f} kr</td>"
-                f"<td colspan='2' style='color:orange'>Ingen matchande bankrad</td></tr>")
+                f"<td colspan='2' style='color:orange'>{reason}</td></tr>")
+
+        # Fakturor och medlemmar söks bara i bankradens bolag (samma OCR-nummer finns i varje bolag)
+        company = stl.company_id
+        if company.id not in invoice_index:
+            invoice_index[company.id] = self._build_invoice_index(company)
+        all_invs = invoice_index[company.id]
 
         # Resolve each detail
         enriched = []
         for x in bg_data["details"]:
             counters["details"] += 1
-            inv = self._find_invoice(x["ref"], x["amount"], all_invs, x.get("message", ""))
+            inv = self._find_invoice(company, x["ref"], x["amount"], all_invs, x.get("message", ""))
             # en faktura som inte längre är öppen: visa den och dess medlem, men föreslå den aldrig
-            settled = None if inv else self._find_settled_invoice(x["ref"], x.get("message", ""))
+            settled = None if inv else self._find_settled_invoice(company, x["ref"], x.get("message", ""))
             known = inv or settled
             pid = known.partner_id.id if known and known.partner_id else None
             if not pid:
-                pid = self._find_partner_by_bg(x["bg"])
+                pid = self._find_partner_by_bg(x["bg"], company)
             pname = self.env["res.partner"].browse(pid).name if pid else None
             inv_name = inv.name if inv else f"{settled.name} ({self._settled_label(settled)})" if settled else None
             enriched.append({
@@ -511,7 +554,7 @@ class BankgirotImportWizard(models.TransientModel):
         if not self.file_ids:
             raise UserError(_("Välj minst en fil (Bankgirot-XLSX eller camt.054)."))
 
-        all_invs = self._build_invoice_index()
+        invoice_index = {}
         result_rows = []
         counters = {"details": 0, "matched": 0, "partner_set": 0}
         total_files = 0
@@ -530,7 +573,7 @@ class BankgirotImportWizard(models.TransientModel):
                     f"<tr><td>{att.name}</td><td colspan='4' style='color:orange'>"
                     f"Inga insättningar i filen</td></tr>")
             for bg_data in deposits:
-                result_rows.append(self._import_deposit(att, bg_data, all_invs, counters))
+                result_rows.append(self._import_deposit(att, bg_data, invoice_index, counters))
 
         total_details, total_matched, total_partner_set = (
             counters["details"], counters["matched"], counters["partner_set"])

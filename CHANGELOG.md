@@ -294,6 +294,18 @@ one section per module. The format follows
 
 ## account_statement_import_bankgirot_xlsx
 
+### [19.0.1.5.3] — 2026-09-29
+
+- Fixed: with several companies selected, a payment could be matched to another company's
+  invoice. Companies number their invoices each on their own, so the first invoice of a year has
+  the same number and OCR number in each. Invoices, SIE sales entries, the *redan betald* /
+  *krediterad* lookup and payer Bankgiro accounts are now searched in the bank line's company (and
+  its branches) only.
+- When the receiving Bankgiro of a deposit is registered as a bank account on a company, only that
+  company's bank lines are considered; before, a same-day line with the same amount in another
+  company could be picked. That company is found whichever companies are selected, and when it is
+  not selected in the company switcher no line is picked: the result says which company to select.
+
 ### [19.0.1.5.2] — 2026-09-29
 
 - Fixed: camt.054.001.08 and later nest the status (`<Sts><Cd>`); a pending entry was read as a
