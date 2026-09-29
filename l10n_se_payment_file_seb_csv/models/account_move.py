@@ -116,18 +116,23 @@ class AccountMove(models.Model):
     def _l10n_se_seb_default_reference(self, bank):
         """(reference type, reference) the payee sees: a valid OCR number when paying to a
         Bankgiro/Plusgiro number, a valid RF reference, otherwise the supplier's invoice number
-        (the bill's reference) or, failing that, a message. Never both OCR and invoice number."""
+        (the bill's reference) - in "Fakturanummer" for a bank account, as a message for a
+        Bankgiro/Plusgiro number, where SEB refuses "Fakturanummer" - or, failing that, a message.
+        Never both OCR and invoice number."""
         self.ensure_one()
         payment_ref = se_bank.compact_reference(self.payment_reference)
-        if bank.l10n_se_account_type in GIRO_TYPES and se_bank.ocr_valid(payment_ref):
+        # a Bankgiro/Plusgiro payee that takes only messages
+        structured = not (bank.l10n_se_ocr_refused and bank.l10n_se_account_type in GIRO_TYPES)
+        if structured and bank.l10n_se_account_type in GIRO_TYPES and se_bank.ocr_valid(payment_ref):
             return seb_csv.REFERENCE_OCR, payment_ref
-        if se_bank.rf_valid(payment_ref):
+        if structured and se_bank.rf_valid(payment_ref):
             return seb_csv.REFERENCE_RF, payment_ref.upper()
         ref = seb_csv.clean_text(self.ref)
         if (
             seb_csv.REFERENCE_WITHOUT_OCR == "invoice_number"
             and ref
             and len(ref) <= seb_csv.INVOICE_NUMBER_MAX
+            and bank.l10n_se_account_type in seb_csv.INVOICE_NUMBER_ACCOUNT_TYPES
         ):
             return seb_csv.REFERENCE_INVOICE, ref
         text = ref or seb_csv.clean_text(self.payment_reference) or seb_csv.clean_text(self.name)
@@ -285,6 +290,7 @@ class AccountMove(models.Model):
             payment_ref = se_bank.compact_reference(self.payment_reference)
             if (
                 reference_type != seb_csv.REFERENCE_OCR
+                and not bank.l10n_se_ocr_refused
                 and bank.l10n_se_account_type in GIRO_TYPES
                 and re.fullmatch(r"[0-9]{2,25}", payment_ref)
                 and not se_bank.ocr_valid(payment_ref)
@@ -365,6 +371,18 @@ class AccountMove(models.Model):
                     account=bank.acc_number,
                 )
             )
+        if (
+            bank.l10n_se_ocr_refused
+            and bank.l10n_se_account_type in GIRO_TYPES
+            and reference_type in (seb_csv.REFERENCE_OCR, seb_csv.REFERENCE_RF)
+        ):
+            problems.append(
+                _(
+                    "The payee %(account)s accepts only text messages, no OCR or RF reference: "
+                    "send the reference as a message.",
+                    account=bank.acc_number,
+                )
+            )
         if bank.l10n_se_ocr_required and reference_type != seb_csv.REFERENCE_OCR:
             problems.append(
                 _(
@@ -419,6 +437,13 @@ class AccountMove(models.Model):
             if not se_bank.rf_valid(text):
                 return [_("RF reference %(reference)s is not valid.", reference=reference or "")]
         elif reference_type == seb_csv.REFERENCE_INVOICE:
+            if bank and bank.l10n_se_account_type not in seb_csv.INVOICE_NUMBER_ACCOUNT_TYPES:
+                return [
+                    _(
+                        "SEB does not accept an invoice number for a Bankgiro or Plusgiro payment: "
+                        "send it as a message."
+                    )
+                ]
             if not text:
                 return [_("The invoice number is empty.")]
             if len(text) > seb_csv.INVOICE_NUMBER_MAX:

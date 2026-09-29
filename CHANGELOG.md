@@ -7,6 +7,17 @@ one section per module. The format follows
 
 ## l10n_se_payment_file_seb_csv
 
+### [19.0.1.1.1] — 2026-09-29
+
+- SEB refused a file because *Fakturanummer* was filled for a Bankgiro payment ("not needed for bg
+  and pg payments"). Without an OCR number, a Bankgiro or Plusgiro payment now sends the
+  supplier's invoice number as a message (*Meddelande*); choosing *Invoice number* for one is
+  blocked, and the file writer refuses it too. Bank account payments keep *Fakturanummer*.
+- New on Bankgiro/Plusgiro accounts: *Payee accepts only messages*, next to *Payee requires OCR*
+  (not both). Such a payee never gets an OCR or RF reference, even when the bill has a valid OCR
+  number; choosing one is blocked.
+- A message is at most 100 characters, the limit of SEB's payment form for a Bankgiro message.
+
 ### [19.0.1.1.0] — 2026-09-28
 
 - *Avsändarens referens* (sender's reference) is only written for bank account payments

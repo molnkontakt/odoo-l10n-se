@@ -27,7 +27,9 @@ check digits and the account number as payment files write it). No OCA modules a
    The journal's bank account must be an SEB account in SEK, stored as an SEB IBAN or as clearing
    number + account number; the form shows the resulting *From account (SEB CSV)*. On supplier
    bank accounts, check the *Swedish account type*, mark the accounts you pay to as trusted
-   (*Send Money*) and tick *Payee requires OCR* for Bankgiro numbers that only accept OCR.
+   (*Send Money*) and tick *Payee requires OCR* for Bankgiro numbers that only accept OCR, or
+   *Payee accepts only messages* for those that take no OCR (SEB's payment form says which when
+   you type the number).
 2. **Select bills.** In the vendor bill list, the filter **To pay via SEB** shows posted, unpaid
    SEK bills that are not in a payment file. Select bills and choose *Actions > Export to SEB
    (CSV)*.
@@ -69,15 +71,16 @@ A bill is **blocked** (never written to the file) when:
 - it has no bank account, the account belongs to your own company, is not trusted, has no known
   Swedish account type, fails its check digit or length (Bankgiro, Plusgiro, the banks' clearing
   number and check digit rules), is only zeros, or is a foreign IBAN;
-- the payee requires OCR and the bill has no valid OCR number, or the chosen reference is invalid
-  (OCR check digit, OCR to a bank account, RF check digits, invoice number over 35 or message over
-  140 characters);
+- the payee requires OCR and the bill has no valid OCR number, the payee accepts only messages and
+  an OCR or RF reference is chosen, or the chosen reference is invalid (OCR check digit, OCR to a
+  bank account, RF check digits, an invoice number to a Bankgiro or Plusgiro number, invoice
+  number over 35 or message over 100 characters);
 - the amount is zero, negative or more than the amount due, or the payment date is in the past.
 
 **Warnings** (to acknowledge): open credit notes of the supplier (they are not netted: reconcile
 them against the bill first, then export the rest), a partial amount, a payment date that is not
 a Swedish bank day (weekend, public holiday, midsummer, Christmas or New Year's Eve), a numeric
-payment reference that fails the OCR check digit (sent as invoice number or message instead), an
+payment reference that fails the OCR check digit (sent as a message instead), an
 OCR number equal to the supplier's invoice number, a bank account of another partner, a bank
 account whose check digit could not be confirmed (Swedbank 8-series and PlusGirot have accounts
 that fail it; an unlisted clearing number cannot be checked), a bank on the account record that
@@ -102,11 +105,11 @@ only be changed by its buttons, not by a direct write (RPC, import).
 | Betaldatum | `YYYY-MM-DD` (`DATE_FORMAT`) |
 | OCR | the bill's payment reference when it is a valid OCR number and the payee is Bankgiro/Plusgiro |
 | RF | the payment reference when it is a valid RF creditor reference |
-| Fakturanummer | otherwise the bill's vendor reference (max 35) |
-| Meddelande | otherwise a message (max 140): the vendor reference, payment reference or bill number |
+| Fakturanummer | otherwise, for a bank account (BBAN/IBAN), the bill's vendor reference (max 35); SEB refuses it for Bankgiro/Plusgiro |
+| Meddelande | otherwise a message (max 100): the vendor reference (Bankgiro/Plusgiro, a payee that accepts only messages, or over 35 characters), else the payment reference or bill number |
 | Egen anteckning | the bill number |
 | Standard eller Express | `Standard` (`PRIORITY_STANDARD`) |
-| Avsändarens referens | batch name + line number, e.g. `SEB2026-0001-001`: unique, for matching the bank line later |
+| Avsändarens referens | bank account payments only (SEB refuses it for Bankgiro/Plusgiro): batch name + line number, e.g. `SEB2026-0001-001` |
 | all other columns | empty (they are for foreign payments, funds and payments on behalf of others) |
 
 Exactly one of OCR, RF, Fakturanummer and Meddelande is filled, so OCR and an invoice number are
@@ -123,6 +126,12 @@ statement line later.
 All format choices SEB does not document are constants in one block of `lib/seb_csv.py`, marked
 *VERIFY WITH A TEST UPLOAD*. Change them there; no other code hard-codes them.
 
+Verified by uploads (2026-09-28/29): decimal point, `YYYY-MM-DD`, Bankgiro without hyphen, own
+account as 11-digit BBAN, an SEB account as bank account payee (11-digit BBAN), `Standard`, OCR
+and *Meddelande* for Bankgiro. SEB refuses *Avsändarens referens* and *Fakturanummer* for a
+Bankgiro payment; its error text says the same for Plusgiro. Other banks' BBAN forms (Annex 5)
+are not verified.
+
 | Constant | Default | Question |
 |---|---|---|
 | `DECIMAL_SEPARATOR`, `QUOTED_COLUMNS` | `.`, none | `1.25`, or `"1,25"` in quotes? |
@@ -132,8 +141,8 @@ All format choices SEB does not document are constants in one block of `lib/seb_
 | `BBAN_FORM` | `annex5` | MIG Annex 5 (Handelsbanken without clearing, Swedbank 8-series padded) or clearing + account for every bank? |
 | `FROM_ACCOUNT_FORM` | `bban` | own account as 11-digit BBAN or IBAN? |
 | `PRIORITY_STANDARD` | `Standard` | spelling; is an empty value accepted? |
-| `REFERENCE_WITHOUT_OCR` | `invoice_number` | does the payee see *Fakturanummer*, or should it be a message? |
-| `PAYEE_NAME_MAX`, `INVOICE_NUMBER_MAX`, `MESSAGE_MAX`, `SENDER_REFERENCE_MAX`, `OWN_NOTE_MAX` | 35, 35, 140, 35, 35 | length limits |
+| `REFERENCE_WITHOUT_OCR` | `invoice_number` | bank accounts only (`INVOICE_NUMBER_ACCOUNT_TYPES`): does the payee see *Fakturanummer*? |
+| `PAYEE_NAME_MAX`, `INVOICE_NUMBER_MAX`, `MESSAGE_MAX`, `SENDER_REFERENCE_MAX`, `OWN_NOTE_MAX` | 35, 35, 100, 35, 35 | length limits |
 
 ### Test-upload checklist
 
@@ -157,7 +166,7 @@ payment = seb_csv.Payment(
     payee_name="<own company name>",
     amount=1.00,
     payment_date=date(2026, 10, 1),
-    reference_type=seb_csv.REFERENCE_INVOICE,
+    reference_type=seb_csv.REFERENCE_MESSAGE,  # SEB refuses Fakturanummer for Bankgiro
     reference="TEST-1",
 )
 open("/tmp/seb-test-1.csv", "wb").write(seb_csv.build_file([payment]))
@@ -165,12 +174,13 @@ open("/tmp/seb-test-1.csv", "wb").write(seb_csv.build_file([payment]))
 
 (Outside Odoo, load `lib/seb_csv.py` directly with `importlib`, as the pytest file does.)
 
-- [ ] One row: own Bankgiro without hyphen, `1.00`, `YYYY-MM-DD`, own account as 11-digit BBAN,
-  `Standard`, invoice number only.
+- [x] One row: own Bankgiro without hyphen, `1.00`, `YYYY-MM-DD`, own account as 11-digit BBAN,
+  `Standard`, message only (2026-09-28; an invoice number is refused for Bankgiro).
 - [ ] Amount `1.25` against `"1,25"` in quotes.
 - [ ] Own account as IBAN.
 - [ ] Bankgiro with hyphen.
-- [ ] Three rows: OCR only (valid check digit), invoice number only, message only.
+- [ ] Bankgiro rows: OCR only (valid check digit) and message only; a bank account row with an
+  invoice number only.
 - [ ] A row with an OCR number with a wrong check digit (must be rejected).
 - [ ] A bank account row to another own account (BBAN, 11 digits); if possible also a
   Handelsbanken and a Swedbank 8-series account (Annex 5 against clearing + account), and a

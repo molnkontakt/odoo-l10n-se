@@ -286,7 +286,7 @@ class L10nSePaymentExportWizardLine(models.TransientModel):
         store=True,
         readonly=False,
         help="What the payee sees. OCR only with a valid OCR number to a Bankgiro or Plusgiro "
-        "number; never both OCR and invoice number.",
+        "number; an invoice number only to a bank account; never both OCR and invoice number.",
     )
     reference = fields.Char(
         string="Reference", compute="_compute_reference", store=True, readonly=False

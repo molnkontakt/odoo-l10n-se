@@ -741,6 +741,43 @@ msgid "Payee requires OCR"
 msgstr "Mottagaren kräver OCR"
 
 #. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_account_setup_bank_manual_config__l10n_se_ocr_refused
+#: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_res_partner_bank__l10n_se_ocr_refused
+msgid "Payee accepts only messages"
+msgstr "Mottagaren tar bara emot meddelanden"
+
+#. module: l10n_se_payment_file_seb_csv
+#: model:ir.model.fields,help:l10n_se_payment_file_seb_csv.field_account_setup_bank_manual_config__l10n_se_ocr_refused
+#: model:ir.model.fields,help:l10n_se_payment_file_seb_csv.field_res_partner_bank__l10n_se_ocr_refused
+msgid ""
+"This Bankgiro or Plusgiro number takes only text messages, no OCR or RF "
+"reference. The SEB CSV export sends the supplier's invoice number as a message, even "
+"when the bill has a valid OCR number."
+msgstr ""
+"Det här bankgiro- eller plusgironumret tar bara emot textmeddelanden, inte "
+"OCR eller RF-referens. SEB CSV-exporten skickar leverantörens fakturanummer som "
+"meddelande, även när fakturan har ett giltigt OCR-nummer."
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/res_partner_bank.py:0
+msgid ""
+"A payee cannot both require OCR and accept only messages (%(account)s)."
+msgstr ""
+"En mottagare kan inte både kräva OCR och bara ta emot meddelanden "
+"(%(account)s)."
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/account_move.py:0
+msgid ""
+"The payee %(account)s accepts only text messages, no OCR or RF reference: "
+"send the reference as a message."
+msgstr ""
+"Mottagaren %(account)s tar bara emot textmeddelanden, inte OCR eller "
+"RF-referens: skicka referensen som meddelande."
+
+#. module: l10n_se_payment_file_seb_csv
 #: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export__payment_date
 #: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_line__payment_date
 #: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard__date_mode
@@ -831,6 +868,16 @@ msgid ""
 msgstr ""
 "Borttagen ur SEB-betalfilen %(batch)s (%(reason)s); fakturan kan exporteras "
 "igen."
+
+#. module: l10n_se_payment_file_seb_csv
+#. odoo-python
+#: code:addons/l10n_se_payment_file_seb_csv/models/account_move.py:0
+msgid ""
+"SEB does not accept an invoice number for a Bankgiro or Plusgiro payment: "
+"send it as a message."
+msgstr ""
+"SEB tar inte emot fakturanummer för en bankgiro- eller plusgirobetalning: "
+"skicka det som meddelande."
 
 #. module: l10n_se_payment_file_seb_csv
 #: model:ir.model.fields,field_description:l10n_se_payment_file_seb_csv.field_account_journal__l10n_se_seb_csv_problem
@@ -1240,10 +1287,12 @@ msgstr "Kommunikationshistorik för webbplats"
 #: model:ir.model.fields,help:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_wizard_line__reference_type
 msgid ""
 "What the payee sees. OCR only with a valid OCR number to a Bankgiro or "
-"Plusgiro number; never both OCR and invoice number."
+"Plusgiro number; an invoice number only to a bank account; never both OCR "
+"and invoice number."
 msgstr ""
 "Vad mottagaren ser. OCR bara med ett giltigt OCR-nummer till ett bankgiro- "
-"eller plusgironummer; aldrig både OCR och fakturanummer."
+"eller plusgironummer; fakturanummer bara till ett bankkonto; aldrig både OCR "
+"och fakturanummer."
 
 #. module: l10n_se_payment_file_seb_csv
 #: model:ir.model.fields,help:l10n_se_payment_file_seb_csv.field_l10n_se_payment_export_line__reference

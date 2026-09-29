@@ -137,22 +137,29 @@ PRIORITY_STANDARD = "Standard"
 # "iban". VERIFY with a test upload.
 FROM_ACCOUNT_FORM = "bban"
 
-# Without a valid OCR/RF the payee gets the supplier's invoice number in "Fakturanummer"
-# ("invoice_number") or as free text in "Meddelande" ("message"). VERIFY with a test payment
-# that the payee sees "Fakturanummer" (in the Bankgiro report); if not, switch to "message".
+# Without a valid OCR/RF a bank account payment (INVOICE_NUMBER_ACCOUNT_TYPES) gets the supplier's
+# invoice number in "Fakturanummer" ("invoice_number") or as free text in "Meddelande"
+# ("message"); Bankgiro and Plusgiro always get a message. VERIFY with a test payment that the
+# payee of a bank account payment sees "Fakturanummer" on its statement; if not, use "message".
 REFERENCE_WITHOUT_OCR = "invoice_number"
 
 # Maximum lengths. The ISO 20022 limits are documented in SEB's MIG; whether the CSV applies the
 # same limits is not. VERIFY with a test upload.
 PAYEE_NAME_MAX = 35  # ISO allows 70; 35 is conservative. Names are cut, never refused.
 INVOICE_NUMBER_MAX = 35  # MIG: RfrdDocInf/Nb
-MESSAGE_MAX = 140  # MIG: Ustrd
+MESSAGE_MAX = 100  # SEB's payment form, Bankgiro message (2026-09-29); MIG Ustrd allows 140
 SENDER_REFERENCE_MAX = 35  # MIG: EndToEndId
 OWN_NOTE_MAX = 35  # unknown; cut, never refused
 
 # "Avsändarens referens" only for account payments. Verified with a test upload (2026-09-28): SEB refuses
 # the file when it is filled for a Bankgiro/Plusgiro payment ("not needed for bg and pg payments").
 SENDER_REFERENCE_ACCOUNT_TYPES = ("bban", "iban")
+
+# "Fakturanummer" only for account payments. Verified with an upload (2026-09-29): SEB refuses the
+# file when it is filled for a Bankgiro payment ("not needed for bg and pg payments"), as for
+# "Avsändarens referens"; there the invoice number goes in "Meddelande", which SEB accepts for
+# Bankgiro. That account payments accept "Fakturanummer" is not verified yet.
+INVOICE_NUMBER_ACCOUNT_TYPES = ("bban", "iban")
 
 # --- End of VERIFY block ---------------------------------------------------------------------
 
@@ -174,9 +181,9 @@ class Payment(NamedTuple):
     l10n_se_bank_account's ``payment_account_number``); texts are cleaned by the writer.
 
     ``reference_type`` is one of REFERENCE_TYPES and ``reference`` its value: an OCR number goes
-    to "OCR", an RF reference to "RF", an invoice number to "Fakturanummer", a text to
-    "Meddelande". Exactly one reference per payment, so OCR and an invoice number are never both
-    written.
+    to "OCR", an RF reference to "RF", an invoice number to "Fakturanummer" (account payments
+    only), a text to "Meddelande". Exactly one reference per payment, so OCR and an invoice number
+    are never both written.
     """
 
     from_account: str
@@ -301,6 +308,11 @@ def _reference_columns(payment):
             raise CsvFieldError(f"Invalid RF reference form: {raw!r}")
         return COL_RF, ref
     if kind == REFERENCE_INVOICE:
+        if payment.account_type not in INVOICE_NUMBER_ACCOUNT_TYPES:
+            raise CsvFieldError(
+                "SEB does not accept 'Fakturanummer' for Bankgiro and Plusgiro payments; send the "
+                "invoice number as a message"
+            )
         ref = clean_text(raw)
         if not ref or len(ref) > INVOICE_NUMBER_MAX:
             raise CsvFieldError(f"An invoice number is 1-{INVOICE_NUMBER_MAX} characters, got {raw!r}")

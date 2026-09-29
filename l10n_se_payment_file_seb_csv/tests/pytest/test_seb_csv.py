@@ -168,7 +168,7 @@ def test_every_account_type(account_type, number, code):
 def test_bad_account_forms_are_refused(account_type, number):
     with pytest.raises(seb_csv.CsvFieldError):
         seb_csv.build_file([_payment(account_type=account_type, to_account=number,
-                                     reference_type="invoice", reference="F-1")])
+                                     reference_type="message", reference="F-1")])
 
 
 def test_giro_with_hyphen_switch(monkeypatch):
@@ -225,9 +225,29 @@ def test_date_format_switch(monkeypatch):
 
 
 def test_invoice_number_without_ocr():
-    row = _row(_payment(reference_type="invoice", reference="4711-A"))
+    row = _row(_payment(account_type="bban", to_account="52031234560", reference_type="invoice",
+                        reference="4711-A"))
     assert row["Fakturanummer"] == "4711-A"
     assert row["OCR"] == row["RF"] == row["Meddelande"] == ""
+
+
+@pytest.mark.parametrize("account_type, number", [("bankgiro", "5551239"), ("plusgiro", "1234566")])
+def test_invoice_number_refused_for_giro(account_type, number):
+    """Upload 2026-09-29: SEB refuses "Fakturanummer" for Bankgiro and Plusgiro payments."""
+    with pytest.raises(seb_csv.CsvFieldError, match="Fakturanummer"):
+        seb_csv.build_file([_payment(account_type=account_type, to_account=number,
+                                     reference_type="invoice", reference="F-1")])
+    row = _row(_payment(account_type=account_type, to_account=number, reference_type="message",
+                        reference="F-1"))
+    assert row["Meddelande"] == "F-1"
+    assert row["Fakturanummer"] == ""
+
+
+def test_message_length():
+    """SEB's payment form allows 100 characters for a Bankgiro message."""
+    assert _row(_payment(reference_type="message", reference="X" * 100))["Meddelande"] == "X" * 100
+    with pytest.raises(seb_csv.CsvFieldError):
+        seb_csv.build_file([_payment(reference_type="message", reference="X" * 101)])
 
 
 def test_message():
@@ -255,10 +275,8 @@ def test_ocr_only_for_giro():
         ("ocr", "1" * 26),
         ("ocr", "12 34A"),
         ("rf", "RF1"),
-        ("invoice", ""),
-        ("invoice", "X" * 36),
         ("message", " , "),
-        ("message", "X" * 141),
+        ("message", "X" * 101),
         ("both", "1234567897"),
         (None, "x"),
     ],
@@ -266,6 +284,14 @@ def test_ocr_only_for_giro():
 def test_bad_references_are_refused(kind, value):
     with pytest.raises(seb_csv.CsvFieldError):
         seb_csv.build_file([_payment(reference_type=kind, reference=value)])
+
+
+@pytest.mark.parametrize("value", ["", "X" * 36])
+def test_bad_invoice_numbers_are_refused(value):
+    """The 1-35 check, on a bank account: a Bankgiro payment is refused before it."""
+    with pytest.raises(seb_csv.CsvFieldError, match="1-35"):
+        seb_csv.build_file([_payment(account_type="bban", to_account="52031234560",
+                                     reference_type="invoice", reference=value)])
 
 
 def test_ocr_whitespace_is_removed():

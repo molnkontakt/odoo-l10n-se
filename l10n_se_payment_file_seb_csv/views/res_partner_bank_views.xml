@@ -8,6 +8,8 @@
             <field name="l10n_se_account_type" position="after">
                 <field name="l10n_se_ocr_required"
                        invisible="l10n_se_account_type not in ('bankgiro', 'plusgiro')"/>
+                <field name="l10n_se_ocr_refused"
+                       invisible="l10n_se_account_type not in ('bankgiro', 'plusgiro') and not l10n_se_ocr_refused"/>
             </field>
         </field>
     </record>

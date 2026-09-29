@@ -172,7 +172,8 @@ class TestSebCsvExport(TransactionCase):
         cases = [
             # account, payment reference, bill reference -> to account, format, column, value
             ("BG 555-1239", "1234567897", "F-1001", "5551239", "BG", "OCR", "1234567897"),
-            ("BG 5551-2347", False, "F-1002", "55512347", "BG", "Fakturanummer", "F-1002"),
+            # SEB refuses "Fakturanummer" for Bankgiro/Plusgiro (upload 2026-09-29): a message
+            ("BG 5551-2347", False, "F-1002", "55512347", "BG", "Meddelande", "F-1002"),
             ("PG 12 34 56-6", "12345 67897", False, "1234566", "PG", "OCR", "1234567897"),
             ("5203-123 45 60", False, "F-1004", "52031234560", "BBAN", "Fakturanummer", "F-1004"),
             ("6789 123 456 789", False, "F-1005", "123456789", "BBAN", "Fakturanummer", "F-1005"),
@@ -250,12 +251,12 @@ class TestSebCsvExport(TransactionCase):
         bban_numeric = self._bill("5203-123 45 60", "1234567897", False)
         rf = self._bill("5203-123 45 60", "RF18 5390 0754 7034", "F-2003")
         nothing = self._bill("BG 555-1239", False, False)
-        long_ref = self._bill("BG 555-1239", False, "Faktura " + "9" * 40)
+        long_ref = self._bill("5203-123 45 60", False, "Faktura " + "9" * 40)  # over 35 on a bank account
         text_ref = self._bill("BG 555-1239", "Faktura 4711, maj", False)
         wizard = self._wizard(not_ocr | bban_numeric | rf | nothing | long_ref | text_ref)
 
         line = self._line(wizard, not_ocr)
-        self.assertEqual((line.reference_type, line.reference), ("invoice", "F-2001"))
+        self.assertEqual((line.reference_type, line.reference), ("message", "F-2001"))
         self.assertEqual(line.status, "warning")
         self.assertIn("looks like an OCR number", line.warnings)
         # an OCR number is only sent to a Bankgiro/Plusgiro number
@@ -275,7 +276,8 @@ class TestSebCsvExport(TransactionCase):
         rows = {row["Egen anteckning"]: row for row in self._rows(batch)}
         self.assertEqual(rows[rf.name]["RF"], "RF18539007547034")
         self.assertEqual(rows[text_ref.name]["Meddelande"], "Faktura 4711 maj")
-        self.assertEqual(rows[not_ocr.name]["Fakturanummer"], "F-2001")
+        self.assertEqual(rows[not_ocr.name]["Meddelande"], "F-2001")
+        self.assertEqual(rows[not_ocr.name]["Fakturanummer"], "")
         self.assertEqual(rows[not_ocr.name]["OCR"], "")
 
     def test_user_chosen_reference_is_checked(self):
@@ -291,6 +293,38 @@ class TestSebCsvExport(TransactionCase):
         self.assertEqual(line.status, "ok")
         batch = self.env["l10n_se.payment.export"].browse(wizard.action_generate()["res_id"])
         self.assertEqual(self._rows(batch)[0]["Meddelande"], "Ert ordernr 17")
+
+    def test_invoice_number_refused_for_giro(self):
+        """SEB refused a file with "Fakturanummer" on a Bankgiro payment (2026-09-29)."""
+        bill = self._bill("BG 555-1239", False, "F-3101")
+        line = self._wizard(bill).line_ids
+        self.assertEqual((line.reference_type, line.reference), ("message", "F-3101"))
+        line.reference_type = "invoice"
+        self.assertEqual(line.status, "blocked")
+        self.assertIn("does not accept an invoice number", line.problems)
+        # a bank account keeps the invoice number
+        bban = self._bill("5203-123 45 60", False, "F-3102")
+        line = self._wizard(bban).line_ids
+        self.assertEqual((line.reference_type, line.reference), ("invoice", "F-3102"))
+
+    def test_payee_accepts_only_messages(self):
+        """SEB's payment form: some Bankgiro payees take only text messages, no OCR (2026-09-29)."""
+        bill = self._bill("BG 555-1239", "1234567897", "F-3201", bank_vals={"l10n_se_ocr_refused": True})
+        line = self._wizard(bill).line_ids
+        # a valid OCR number on the bill is not sent; the invoice number goes as a message
+        self.assertEqual((line.reference_type, line.reference), ("message", "F-3201"))
+        self.assertEqual(line.status, "ok", line.warnings)
+        line.reference_type = "ocr"
+        self.assertEqual(line.status, "blocked")
+        self.assertIn("accepts only text messages", line.problems)
+        # a numeric reference that fails the OCR check is no warning for such a payee
+        other = self._bill("BG 555-1239", "12345", "F-3202", bank_vals={"l10n_se_ocr_refused": True})
+        self.assertEqual(self._wizard(other).line_ids.status, "ok")
+        with self.assertRaises(ValidationError):
+            other.partner_bank_id.l10n_se_ocr_required = True
+        # the flag only means something for Bankgiro/Plusgiro: a bank account keeps its RF
+        rf = self._bill("5203-123 45 60", "RF18 5390 0754 7034", "F-3203", bank_vals={"l10n_se_ocr_refused": True})
+        self.assertEqual(self._wizard(rf).line_ids.reference_type, "rf")
 
     def test_bban_form_switch(self):
         """Should a test upload show that SEB wants clearing + account for every bank."""
