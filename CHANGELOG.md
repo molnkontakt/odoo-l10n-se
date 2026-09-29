@@ -247,6 +247,16 @@ one section per module. The format follows
 
 ## account_statement_import_swedbank_csv
 
+### [19.0.1.5.0] — 2026-09-29
+
+- Fixed: rows that share an id - +100, -100, +100 on one day (same amount and balance after), or
+  two identical payments on one day without balances - lost all but the first as "already
+  imported". The first keeps its id, the next ones get -2, -3; importing an export again now
+  brings in a row that was dropped before.
+- A UTF-8 export (with or without byte order mark) keeps its letters; Swedbank's cp1252 export is
+  read as before.
+- Tests.
+
 ### [19.0.1.4.1] — 2026-09-15
 
 - Detect row order from the dates instead of assuming newest-first; balances are
@@ -259,6 +269,15 @@ one section per module. The format follows
   `phone_sanitized`, optional automatic reconciliation (journal flag).
 
 ## account_statement_import_bankgirot_xlsx
+
+### [19.0.1.5.2] — 2026-09-29
+
+- Fixed: camt.054.001.08 and later nest the status (`<Sts><Cd>`); a pending entry was read as a
+  booked deposit.
+- camt.054 with whitespace or a byte order mark before `<?xml` is read (it failed).
+- Bankgirot XLSX: a date stored as a real Excel date, and a reference stored as a number, are read
+  (the date was missed, the reference came out as "203100425.0").
+- Tests for the XLSX and camt.054 parsers.
 
 ### [19.0.1.5.1] — 2026-09-28
 

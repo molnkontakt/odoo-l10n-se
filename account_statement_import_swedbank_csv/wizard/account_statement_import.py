@@ -40,8 +40,10 @@ class AccountStatementImport(models.TransientModel):
             return super()._parse_file(data_file)
 
     def _parse_swedbank_csv(self, data_file):
-        # Try CP1252 first (Swedbank default), then UTF-8
-        for encoding in ("cp1252", "utf-8", "latin-1"):
+        # UTF-8 first (with or without byte order mark): it is strict, so Swedbank's cp1252 export -
+        # whose å/ä/ö are not valid UTF-8 - falls through to cp1252 as before, while a UTF-8 file no
+        # longer gets its letters garbled by cp1252, which accepts almost any byte.
+        for encoding in ("utf-8-sig", "cp1252", "latin-1"):
             try:
                 data = data_file.decode(encoding)
                 break
@@ -54,6 +56,7 @@ class AccountStatementImport(models.TransientModel):
         # character (ef bf bd) decoded as cp1252 becomes "ï¿½" (3 chars).
         # Replace known patterns, then strip remaining.
         MOJIBAKE = "ï¿½"  # ef bf bd decoded as cp1252
+        data = data.replace("\ufffd", MOJIBAKE)  # the same bytes in a file read as UTF-8
         SWEDBANK_CHAR_FIXES = {
             f"F{MOJIBAKE}retagskonto": "Företagskonto",
             f"F{MOJIBAKE}RETAG": "FÖRETAG",
@@ -205,6 +208,18 @@ class AccountStatementImport(models.TransientModel):
         # come out mirrored (seen 2026-07-18: oldest-first file gave balance_start -73 610,15).
         if transactions[0]["date"] >= transactions[-1]["date"]:
             transactions.reverse()
+
+        # Rows can share an id: +100, -100, +100 on one day gives the first and the third the same
+        # amount and balance; without balances, two identical payments on one day. The later one was
+        # dropped as already imported. Number them now that the order is oldest first: an export made
+        # during the day and a later one differ only at the newest end, so the oldest occurrence keeps
+        # the plain id (as imported before) and each later one keeps its -2, -3 in every export.
+        occurrences = {}
+        for t in transactions:
+            uid = t["unique_import_id"]
+            occurrences[uid] = occurrences.get(uid, 0) + 1
+            if occurrences[uid] > 1:
+                t["unique_import_id"] = f"{uid}-{occurrences[uid]}"
 
         # Balances from the running balance column: after the newest transaction, and before
         # the oldest one. Fall back to summing when the column is missing.

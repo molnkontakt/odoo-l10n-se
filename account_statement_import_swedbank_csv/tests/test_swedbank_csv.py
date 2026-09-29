@@ -139,6 +139,64 @@ class TestSwedbankCsv(TransactionCase):
             ],
         )
 
+    def test_rows_that_share_an_id_are_all_kept(self):
+        """+100, -100, +100 on one day: the first and the third have the same amount and balance after.
+        Without balances, two identical payments on one day are the same row. The later one used to
+        be dropped as already imported; the first keeps its plain id, the next ones get -2, -3."""
+        data = _csv(
+            [
+                ("2026-09-15", "Swish", "Exempel", "100.00", "1100.00"),
+                ("2026-09-15", "Swish", "Exempel", "-100.00", "1000.00"),
+                ("2026-09-15", "Swish", "Exempel", "100.00", "1100.00"),
+            ]
+        )
+        ids = [t["unique_import_id"] for t in self._statement(data)["transactions"]]
+        self.assertEqual(len(ids), 3)
+        self.assertEqual(len(set(ids)), 3)
+        self.assertIn("SWED-1234567890-2026-09-15-100.00-1100.00", ids, "the first keeps the plain id")
+        self.assertIn("SWED-1234567890-2026-09-15-100.00-1100.00-2", ids)
+        same = _csv([("2026-09-15", "Swish", "Exempel", "50.00", ""), ("2026-09-15", "Swish", "Exempel", "50.00", "")])
+        ids = [t["unique_import_id"] for t in self._statement(same)["transactions"]]
+        self.assertEqual(len(set(ids)), 2)
+        self.assertTrue(ids[0] + "-2" in ids or ids[1] + "-2" in ids)
+
+    def test_shared_ids_are_stable_across_exports(self):
+        """An export made during the day has X; a later one (newest first, Swedbank's default) has Y, Z,
+        X. X must keep the id it was imported with and Y - not X again - gets -2."""
+        x = ("2026-09-15", "Swish", "Kund A", "100.00", "1100.00")
+        z = ("2026-09-15", "Swish", "Kund A", "-100.00", "1000.00")
+        y = ("2026-09-15", "Swish", "Kund B", "100.00", "1100.00")
+        (first,) = self._statement(_csv([x]))["transactions"]
+        later = {t["unique_import_id"]: t["payment_ref"] for t in self._statement(_csv([y, z, x]))["transactions"]}
+        self.assertEqual(later[first["unique_import_id"]], first["payment_ref"], "X keeps its id")
+        self.assertIn("Kund B", later[first["unique_import_id"] + "-2"], "the new row is the -2")
+
+    def test_utf8_export_with_swedbanks_broken_letters(self):
+        """Swedbank's real export can be ASCII plus EF BF BD only - valid UTF-8. The broken letters are
+        restored exactly as in a cp1252 file, and the id of a row without balance does not change."""
+        u = "\ufffd"
+        rows = [
+            ("2026-09-15", f"L{u}n september", f"{u}verf{u}ring", "-500.00", "1500.00"),
+            ("2026-09-14", f"Ins{u}ttning", "Kaffe", "300.00", ""),
+        ]
+        cp1252 = _csv([(d, r.replace(u, "ï¿½"), t.replace(u, "ï¿½"), a, b) for d, r, t, a, b in rows])
+        text = cp1252.decode("cp1252").replace("ï¿½", u).replace("Företagskonto", f"F{u}retagskonto")
+        utf8 = text.encode("utf-8")
+        self.assertNotIn(b"\xf6", utf8)
+        utf8.decode("utf-8")  # valid UTF-8: the UTF-8 branch is taken
+
+        def refs(data):
+            return [(t["payment_ref"], t["unique_import_id"]) for t in self._statement(data)["transactions"]]
+
+        self.assertEqual(refs(utf8), refs(cp1252))
+
+    def test_utf8_export(self):
+        """A UTF-8 file (with or without byte order mark) keeps its letters; cp1252 used to garble them."""
+        text = _csv(ROWS).decode("cp1252")
+        for data in (text.encode("utf-8"), b"\xef\xbb\xbf" + text.encode("utf-8")):
+            with self.subTest(bom=data.startswith(b"\xef")):
+                self.assertEqual(self._parse(data), [("SEK", ACCOUNT, [STATEMENT])])
+
     def test_without_balances(self):
         """Without the Saldo column filled in, the statement has no balances; a row with neither
         reference nor text gets "/" as its label."""

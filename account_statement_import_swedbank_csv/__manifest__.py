@@ -1,6 +1,6 @@
 {
     "name": "Import Swedbank CSV Bank Statements",
-    "version": "19.0.1.4.1",
+    "version": "19.0.1.5.0",
     "category": "Accounting",
     "summary": "Importera kontoutdrag från Swedbank (CSV-format)",
     "depends": ["account_statement_import_file"],

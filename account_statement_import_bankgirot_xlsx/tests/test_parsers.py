@@ -5,6 +5,7 @@ All names, account numbers, Bankgiro numbers and references are invented. The pa
 Bankgiro check digits; the OCR references carry a modulus 10 check digit only to look real.
 """
 
+import datetime
 import io
 
 import openpyxl
@@ -15,6 +16,7 @@ from odoo.tests import TransactionCase, tagged
 
 from ..wizards.bankgirot_import_wizard import (
     _bgnr,
+    _cell_text,
     _looks_like_count,
     _to_number,
     parse_bankgirot_xlsx,
@@ -127,6 +129,15 @@ class TestBankgirotXlsx(TransactionCase):
         parsed = parse_bankgirot_xlsx(_xlsx(rows))
         self.assertEqual(parsed["date"], "2026-09-15")
         self.assertEqual(parsed["receiver_bg"], "555-5555")
+
+    def test_excel_date_and_numeric_reference(self):
+        """A date stored as a real Excel date and an OCR reference stored as a number are read as the
+        date and as the digits, not missed or read as "203100425.0"."""
+        payers = [_payer("Anna Exempel", 203100425.0, "555-5556", 1000.0)]
+        parsed = parse_bankgirot_xlsx(_sheet(payers, date=datetime.date(2026, 9, 15)))
+        self.assertEqual(parsed["date"], "2026-09-15")
+        self.assertEqual(parsed["receiver_bg"], RECEIVER_BG)
+        self.assertEqual(parsed["details"][0]["ref"], "203100425")
 
     def test_without_date_or_total(self):
         parsed = parse_bankgirot_xlsx(_sheet(PAYERS, date=None))
@@ -362,6 +373,20 @@ class TestCamt054(TransactionCase):
             ],
         )
 
+    def test_pending_entry_in_a_later_version_is_ignored(self):
+        """.001.08 nests the status (<Sts><Cd>); a pending entry must not become a deposit."""
+        pending = DEPOSIT_ENTRY.replace("<Sts>BOOK</Sts>", "<Sts><Cd>PDNG</Cd></Sts>")
+        self.assertNotEqual(pending, DEPOSIT_ENTRY)
+        self.assertEqual(parse_camt054(_camt(pending, ns=CAMT_08)), [])
+        booked = DEPOSIT_ENTRY.replace("<Sts>BOOK</Sts>", "<Sts><Cd>BOOK</Cd></Sts>")
+        self.assertEqual(len(parse_camt054(_camt(booked, ns=CAMT_08))), 1)
+
+    def test_whitespace_or_byte_order_mark_before_the_declaration(self):
+        for prefix in (b"\r\n  ", b"\xef\xbb\xbf", b"\xef\xbb\xbf\n"):
+            with self.subTest(prefix=prefix):
+                self.assertEqual(parse_camt054(prefix + CAMT_DEPOSIT), CAMT_DEPOSIT_PARSED)
+                self.assertEqual(parse_deposit_file(prefix + CAMT_DEPOSIT), CAMT_DEPOSIT_PARSED)
+
     def test_entries_without_date_or_details(self):
         """An entry without a booking date is skipped; one without details is still a deposit (the
         total only). Every notification in the file is read."""
@@ -407,6 +432,13 @@ class TestParseDepositFile(TransactionCase):
 
 @tagged("post_install", "-at_install")
 class TestParserHelpers(TransactionCase):
+    def test_cell_text(self):
+        """openpyxl can give a stored reference back as a float; it must read as its digits."""
+        self.assertEqual(_cell_text(203100425.0), "203100425")
+        self.assertEqual(_cell_text(203100425), "203100425")
+        self.assertEqual(_cell_text(12.5), "12.5")
+        self.assertEqual(_cell_text("  INV/2031/0042 "), "INV/2031/0042")
+
     def test_to_number(self):
         for value, expected in (
             (f"2{NBSP}000,00", 2000.0),

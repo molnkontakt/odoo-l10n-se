@@ -11,6 +11,8 @@ two so each bank line gets:
 """
 
 import base64
+import codecs
+import datetime
 import io
 import logging
 import re
@@ -48,6 +50,8 @@ def parse_bankgirot_xlsx(file_bytes):
         if not row:
             continue
         cells = [c if c is not None else "" for c in row]
+        if isinstance(cells[0], (datetime.date, datetime.datetime)):  # a real Excel date cell
+            cells[0] = cells[0].strftime("%Y-%m-%d")
         # Date row: first cell is an ISO date (raden under "Datum, Bankkontonummer, Bankgironummer, Mottagare")
         if isinstance(cells[0], str) and re.match(r"^\d{4}-\d{2}-\d{2}", cells[0]):
             if date is None:
@@ -69,8 +73,8 @@ def parse_bankgirot_xlsx(file_bytes):
             continue
         if in_details and isinstance(cells[0], str) and cells[0].strip() and not cells[0].startswith("©"):
             sender = cells[0].strip()
-            ref = str(cells[2]).strip() if len(cells) > 2 else ""
-            bg = str(cells[3]).strip() if len(cells) > 3 else ""
+            ref = _cell_text(cells[2]) if len(cells) > 2 else ""
+            bg = _cell_text(cells[3]) if len(cells) > 3 else ""
             amount = _to_number(cells[4]) if len(cells) > 4 else None
             message = str(cells[7]).strip() if len(cells) > 7 else ""
             if amount and amount > 0:
@@ -79,6 +83,13 @@ def parse_bankgirot_xlsx(file_bytes):
     if total is None and details:
         total = round(sum(d["amount"] for d in details), 2)
     return {"date": date, "total": total, "details": details, "receiver_bg": receiver_bg}
+
+
+def _cell_text(value):
+    """A cell as text; a whole number stored as a number (an OCR reference) without ".0"."""
+    if isinstance(value, float) and value.is_integer():
+        return str(int(value))
+    return str(value).strip()
 
 
 def _to_number(value):
@@ -140,11 +151,15 @@ def parse_camt054(file_bytes):
     """Tolkar en camt.054 (.001.02 eller senare) till samma struktur som XLSX-tolken, en post per
     kreditnotering (Ntry) med detaljer per betalare (TxDtls). En TxDtls med flera strukturerade
     referenser (CINV/SCOR med eget belopp) blir en detaljrad per referens."""
-    root = etree.fromstring(file_bytes)
+    if file_bytes.startswith(codecs.BOM_UTF8):
+        file_bytes = file_bytes[len(codecs.BOM_UTF8):]
+    root = etree.fromstring(file_bytes.lstrip())  # whitespace before <?xml is not well-formed XML
     result = []
     for ntfctn in root.iter("{*}Ntfctn"):
         for ntry in _children(ntfctn, "Ntry"):
-            if _text(ntry, "CdtDbtInd") != "CRDT" or _text(ntry, "Sts") not in ("BOOK", ""):
+            # .001.02: <Sts>BOOK</Sts>; .001.08 and later: <Sts><Cd>BOOK</Cd></Sts>
+            status = _text(ntry, "Sts", "Cd") or _text(ntry, "Sts")
+            if _text(ntry, "CdtDbtInd") != "CRDT" or status not in ("BOOK", ""):
                 continue
             date = _text(ntry, "BookgDt", "Dt") or _text(ntry, "BookgDt", "DtTm")[:10]
             amount = _to_number(_text(ntry, "Amt"))
