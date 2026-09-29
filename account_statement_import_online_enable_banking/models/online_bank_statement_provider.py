@@ -763,7 +763,7 @@ class OnlineBankStatementProvider(models.Model):
         the OCA base will import."""
         me = self.sudo().with_context(lang=self._enable_banking_lang(), tz=self._enable_banking_tz())
         first, last = date_since.date(), (date_until - timedelta(days=1)).date()
-        period = f"{first} – {last}" if first != last else f"{first}"
+        period = self._enable_banking_period_label(date_since, date_until)
         new = []
         Line = self.env["account.bank.statement.line"].sudo()
         for vals in lines:
@@ -782,13 +782,76 @@ class OnlineBankStatementProvider(models.Model):
                            when=fields.Datetime.context_timestamp(me, fields.Datetime.now()).strftime("%Y-%m-%d %H:%M"),
                            period=period, n=len(lines), new=len(new))
         self.sudo().write({"eb_last_pull": fields.Datetime.now(), "eb_last_pull_summary": (summary + note)[:250]})
-        if new:
-            me.message_post(body=me.env._(
-                "Enable Banking: %(period)s — %(n)s new booked transaction(s) (%(amount).2f %(cur)s net).",
-                period=period, n=len(new), amount=round(sum(v["amount"] for v in new), 2),
-                cur=self.journal_id.currency_id.name or self.journal_id.company_id.currency_id.name))
+        # the chatter note on the new lines follows once they are imported (_create_or_update_statement)
         if look_alikes:
             self._enable_banking_report_look_alikes(look_alikes)
+
+    @staticmethod
+    def _enable_banking_period_label(date_since, date_until):
+        first, last = date_since.date(), (date_until - timedelta(days=1)).date()
+        return f"{first} – {last}" if first != last else f"{first}"
+
+    def _create_or_update_statement(self, data, statement_date_since, statement_date_until):
+        """After the OCA base has imported a period: reconcile the new Swish payments that are unambiguous
+        (see _enable_banking_reconcile_swish) and note the new lines in the chatter.
+
+        The new lines are the journal's lines with an id above the highest one before the import. The
+        transaction runs on one snapshot, so lines another transaction adds meanwhile are not seen."""
+        if self.service != "enable_banking":
+            return super()._create_or_update_statement(data, statement_date_since, statement_date_until)
+        self.ensure_one()
+        Line = self.env["account.bank.statement.line"].sudo()
+        last_id = Line.search([], order="id desc", limit=1).id or 0
+        statement = super()._create_or_update_statement(data, statement_date_since, statement_date_until)
+        new_lines = Line.search([("journal_id", "=", self.journal_id.id), ("id", ">", last_id)])
+        if new_lines:
+            reconciled = self._enable_banking_reconcile_swish(new_lines.with_env(self.env))
+            self._enable_banking_report_new_lines(new_lines, reconciled, statement_date_since, statement_date_until)
+        return statement
+
+    def _enable_banking_reconcile_swish(self, lines):
+        """Swish payments reconciled at once, as the Swedbank CSV import does, when that module is
+        installed and the journal has its flag `swedbank_swish_auto_reconcile`: a positive line with a
+        partner (from the payer's number) and exactly one open customer invoice of the line's company
+        with the same amount due. Anything else is left for the reconciliation view. Each line runs in
+        its own savepoint, rolled back when it fails - also when that method swallowed a database error
+        (it logs its own errors), since releasing the savepoint then fails - so a failed line never undoes
+        the import. Returns how many were reconciled."""
+        if not getattr(self.journal_id, "swedbank_swish_auto_reconcile", False):
+            return 0
+        lines = lines.with_company(self.journal_id.company_id)
+        if not callable(getattr(lines, "swedbank_auto_reconcile_swish", None)):
+            return 0
+        done = 0
+        for line in lines.filtered(lambda ln: ln.amount > 0 and ln.partner_id and not ln.is_reconciled):
+            savepoint = self.env.cr.savepoint()
+            try:
+                ok = line.swedbank_auto_reconcile_swish()
+                savepoint.close(rollback=False)
+            except Exception:
+                savepoint.close(rollback=True)  # nothing left to do if the failed close already rolled back
+                _logger.exception("Enable Banking: Swish reconciliation failed for statement line %s", line.id)
+                continue
+            done += 1 if ok else 0
+        return done
+
+    def _enable_banking_report_new_lines(self, lines, reconciled, date_since, date_until):
+        """The chatter note on a period's imported lines; the reconciled Swish payments also go into the
+        pull result (kept within its 250 characters)."""
+        me = self.sudo().with_context(lang=self._enable_banking_lang(), tz=self._enable_banking_tz())
+        body = me.env._(
+            "Enable Banking: %(period)s — %(n)s new booked transaction(s) (%(amount).2f %(cur)s net).",
+            period=self._enable_banking_period_label(date_since, date_until), n=len(lines),
+            amount=round(sum(lines.mapped("amount")), 2),
+            cur=self.journal_id.currency_id.name or self.journal_id.company_id.currency_id.name)
+        if reconciled:
+            body += " " + me.env._(
+                "%s Swish payment(s) reconciled automatically against the customer's only open invoice of that "
+                "amount.", reconciled)
+            done = me.env._("; %s Swish payment(s) reconciled automatically", reconciled)
+            summary = self.eb_last_pull_summary or ""
+            self.sudo().eb_last_pull_summary = summary[:250 - len(done)] + done
+        me.message_post(body=body)
 
     def _enable_banking_line_vals(self, tr, own_iban):
         amount = float((tr.get("transaction_amount") or {}).get("amount") or 0)

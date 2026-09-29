@@ -7,6 +7,7 @@ from unittest import mock
 import requests
 
 from odoo import fields
+from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 from odoo.exceptions import UserError
 from odoo.tests import tagged
 from odoo.tests.common import TransactionCase
@@ -223,10 +224,14 @@ class TestEnableBanking(TransactionCase):
         self.assertTrue(self.provider.eb_last_pull)
         self.assertIn("0 booked transaction", self.provider.eb_last_pull_summary)
         before = len(self.provider.message_ids)
-        self._pull([SWISH, DEBIT])
+        data = self._pull([SWISH, DEBIT])
         self.assertIn("2 booked transaction", self.provider.eb_last_pull_summary)
+        self.assertEqual(len(self.provider.message_ids), before, "the chatter note follows the import")
+        self.provider._create_or_update_statement(data, datetime(2026, 9, 1), datetime(2026, 10, 1))
         self.assertEqual(len(self.provider.message_ids), before + 1, "chatter note only when something came in")
+        self.assertIn("2 new booked transaction(s)", self.provider.message_ids[0].body)
         self.assertIn("-43445.0", self.provider.message_ids[0].body)
+        self.assertNotIn("reconciled", self.provider.message_ids[0].body)
 
     def test_balance_failure_keeps_transactions(self):
         now = fields.Datetime.now()
@@ -821,3 +826,126 @@ class TestEnableBanking(TransactionCase):
         lines, _ = self._pull([SWISH_PERSONAL])
         self.assertFalse(lines[0].get("partner_id"), "two partners with the number: no guess")
 
+
+@tagged("post_install", "-at_install")
+class TestEnableBankingSwishReconcile(AccountTestInvoicingCommon):
+    """A pull reconciles its new Swish payments the way a Swedbank CSV import does
+    (account_statement_import_swedbank_csv with account_reconcile_oca): only when the journal asks for
+    it, and only against the one open customer invoice of the line's company with that amount due."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        Line = cls.env["account.bank.statement.line"]
+        cls.can_reconcile = (
+            "swedbank_swish_auto_reconcile" in cls.env["account.journal"]._fields
+            and hasattr(Line, "swedbank_auto_reconcile_swish") and hasattr(Line, "_add_account_move_line")
+        )
+        company = cls.company_data["company"]
+        bank_account = cls.env["res.partner.bank"].sudo().create(  # testanvändaren saknar Betalningar
+            {"acc_number": "SE00 0000 0000 0000 0000 0001", "partner_id": company.partner_id.id})
+        cls.journal = cls.env["account.journal"].sudo().create(  # sätter journalen på bankkontot: också Betalningar
+            {"name": "EB Swish", "type": "bank", "code": "EBSW", "company_id": company.id,
+             "bank_account_id": bank_account.id}).sudo(False)
+        cls.provider = cls.env["online.bank.statement.provider"].create(
+            {"journal_id": cls.journal.id, "service": "enable_banking", "username": "app-id",
+             "certificate_private_key": "-----BEGIN PRIVATE KEY-----\nnot-a-key\n-----END PRIVATE KEY-----",
+             "eb_aspsp_name": "Mock ASPSP", "eb_session_id": "sess", "eb_account_uid": "acc-uid",
+             "eb_session_valid_until": fields.Datetime.now() + timedelta(days=30),
+             "statement_creation_mode": "monthly"})
+        cls.payer = cls.env["res.partner"].create({"name": "Swish Payer", "phone": "+46700000000"})
+
+    def setUp(self):
+        super().setUp()
+        patcher = mock.patch(f"{PROVIDER}._enable_banking_lang", return_value=None)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def _need_reconcile(self):
+        if not self.can_reconcile:
+            self.skipTest("needs account_statement_import_swedbank_csv and account_reconcile_oca")
+        self.journal.swedbank_swish_auto_reconcile = True
+
+    def _invoice(self, amount=1000.0, company=None):
+        return self.init_invoice("out_invoice", partner=self.payer, invoice_date=fields.Date.from_string("2026-09-01"),
+                                 amounts=[amount], taxes=[], post=True, company=company)
+
+    def _import(self, transactions):
+        """A manual pull of September through the OCA base; returns the journal's lines."""
+        def fake_request(provider, method, path, params=None, body=None):
+            if path.endswith("/transactions"):
+                return {"transactions": transactions, "continuation_key": None}
+            return {"balances": []}
+
+        with mock.patch(f"{PROVIDER}._eb_request", new=fake_request):
+            self.provider._pull(datetime(2026, 9, 1), datetime(2026, 10, 1))
+        return self.env["account.bank.statement.line"].search([("journal_id", "=", self.journal.id)], order="id")
+
+    def test_reconciled_when_unambiguous(self):
+        self._need_reconcile()
+        invoice = self._invoice()
+        line = self._import([SWISH, DEBIT]).filtered(lambda ln: ln.amount > 0)
+        self.assertEqual(line.partner_id, self.payer)
+        self.assertTrue(line.is_reconciled)
+        self.assertIn(invoice.payment_state, ("paid", "in_payment"))
+        self.assertIn("; 1 Swish payment(s) reconciled automatically", self.provider.eb_last_pull_summary)
+        note = self.provider.message_ids[0].body
+        self.assertIn("2 new booked transaction(s)", note)
+        self.assertIn("1 Swish payment(s) reconciled automatically", note)
+
+    def test_left_when_two_open_invoices_match(self):
+        self._need_reconcile()
+        invoices = self._invoice() | self._invoice()
+        line = self._import([SWISH])
+        self.assertFalse(line.is_reconciled, "which invoice is paid is not guessed")
+        self.assertEqual(set(invoices.mapped("payment_state")), {"not_paid"})
+        self.assertNotIn("reconciled", self.provider.eb_last_pull_summary)
+        self.assertNotIn("reconciled", self.provider.message_ids[0].body)
+
+    def test_left_when_the_journal_flag_is_off(self):
+        self._need_reconcile()
+        self.journal.swedbank_swish_auto_reconcile = False
+        invoice = self._invoice()
+        line = self._import([SWISH])
+        self.assertFalse(line.is_reconciled)
+        self.assertEqual(invoice.payment_state, "not_paid")
+
+    def test_only_invoices_of_the_lines_company(self):
+        """The payer is a shared partner; an open invoice of that amount in another company is never used,
+        nor does it make the company's own invoice ambiguous. Only the pull's new lines are reconciled."""
+        self._need_reconcile()
+        other = self._invoice(company=self.setup_other_company(name="Other Swish company")["company"])
+        first = self._import([SWISH])
+        self.assertFalse(first.is_reconciled)
+        self.assertEqual(other.payment_state, "not_paid")
+        own = self._invoice()
+        second = self._import([SWISH, dict(SWISH, entry_reference="EB-SWISH-2")]) - first
+        self.assertEqual(len(second), 1)
+        self.assertTrue(second.is_reconciled)
+        self.assertIn(own.payment_state, ("paid", "in_payment"))
+        self.assertEqual(other.payment_state, "not_paid")
+        self.assertFalse(first.is_reconciled, "a line from an earlier pull is left to the user")
+
+    def test_pull_without_the_swedbank_module(self):
+        """Without account_statement_import_swedbank_csv the method is missing: the pull imports as before."""
+        if "swedbank_swish_auto_reconcile" in self.env["account.journal"]._fields:
+            self.journal.swedbank_swish_auto_reconcile = True
+        self._invoice()
+        Line = type(self.env["account.bank.statement.line"])
+        with mock.patch.object(Line, "swedbank_auto_reconcile_swish", None, create=True):
+            line = self._import([SWISH])
+        self.assertEqual(len(line), 1)
+        self.assertFalse(line.is_reconciled)
+        self.assertNotIn("reconciled", self.provider.eb_last_pull_summary)
+        self.assertIn("1 new booked transaction(s)", self.provider.message_ids[0].body)
+
+    def test_failed_reconciliation_keeps_the_import(self):
+        self._need_reconcile()
+        self._invoice()
+        Line = type(self.env["account.bank.statement.line"])
+        with mock.patch.object(Line, "swedbank_auto_reconcile_swish", side_effect=RuntimeError("boom")), \
+                self.assertLogs(MODULE, "ERROR"):
+            line = self._import([SWISH])
+        self.assertEqual(len(line), 1, "the line is imported")
+        self.assertFalse(line.is_reconciled)
+        self.assertIn("1 new booked transaction(s)", self.provider.message_ids[0].body)

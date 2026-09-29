@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_mail_form_rate_limit" model="ir.ui.view">
+        <field name="name">mail.mail.form.rate.limit</field>
+        <field name="model">mail.mail</field>
+        <field name="inherit_id" ref="mail.view_mail_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='mail_server_id']" position="after">
+                <field name="rate_limit_retries" invisible="not rate_limit_retries"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

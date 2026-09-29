@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="ir_mail_server_view_form_rate_limit" model="ir.ui.view">
+        <field name="name">ir.mail_server.view.form.rate.limit</field>
+        <field name="model">ir.mail_server</field>
+        <field name="inherit_id" ref="base.ir_mail_server_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook/page[@name='connection']" position="after">
+                <page name="rate_limit" string="Rate Limit" invisible="owner_user_id">
+                    <group>
+                        <group>
+                            <field name="rate_limit_count"/>
+                            <field name="rate_limit_minutes" invisible="not rate_limit_count"/>
+                            <field name="rate_limit_used" invisible="not rate_limit_count"/>
+                        </group>
+                        <group invisible="not rate_limit_count">
+                            <field name="rate_limit_retry_minutes"/>
+                            <field name="rate_limit_retry_max"/>
+                        </group>
+                    </group>
+                    <div class="text-muted">With a rate limit, mail through this server is only sent by the email queue cron, at most this many messages per window; the rest waits in the queue. A temporary error from the server puts the mail back in the queue for the recipients it has not reached.</div>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

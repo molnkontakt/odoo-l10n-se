@@ -49,6 +49,18 @@ msgstr "%(when)s: bankens bokförda saldo (%(bank).2f) saknar några av dagens r
 #. module: account_statement_import_online_enable_banking
 #. odoo-python
 #: code:addons/account_statement_import_online_enable_banking/models/online_bank_statement_provider.py:0
+msgid "%s Swish payment(s) reconciled automatically against the customer's only open invoice of that amount."
+msgstr "Swish-inbetalningar som stämdes av automatiskt mot kundens enda öppna faktura på samma belopp: %s."
+
+#. module: account_statement_import_online_enable_banking
+#. odoo-python
+#: code:addons/account_statement_import_online_enable_banking/models/online_bank_statement_provider.py:0
+msgid "; %s Swish payment(s) reconciled automatically"
+msgstr "; Swish-inbetalningar avstämda automatiskt: %s"
+
+#. module: account_statement_import_online_enable_banking
+#. odoo-python
+#: code:addons/account_statement_import_online_enable_banking/models/online_bank_statement_provider.py:0
 msgid "; %s with the day and amount of a line from a Swedbank file - check for duplicates"
 msgstr "; %s med samma dag och belopp som en rad från en Swedbank-fil – kontrollera dubbletter"
 

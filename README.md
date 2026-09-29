@@ -22,6 +22,7 @@ holds the Skatteverket-facing modules (VAT return / eSKD).
 | [`account_invoice_send_hand_delivered`](account_invoice_send_hand_delivered/) | *Lämnad för hand*: mark invoices delivered by hand (dialog checkbox + list action) |
 | [`account_invoice_reminder`](account_invoice_reminder/) | Payment reminders: levels per company (days after due date, statutory fee as a separate posted invoice), PDF, e-mail, history, review dialog. Follow-up is Enterprise-only and the OCA modules are not on 19 |
 | [`account_invoice_reminder_ekopost`](account_invoice_reminder_ekopost/), [`account_invoice_reminder_sms_46elks`](account_invoice_reminder_sms_46elks/) | Glue (auto-installed): payment reminders by letter / SMS |
+| [`mail_server_rate_limit`](mail_server_rate_limit/) | Not Swedish-specific: at most N messages per M minutes on an outgoing mail server, the rest waits in the mail queue; a temporary (4xx) refusal is retried only for the recipients not yet reached |
 
 Each module installs independently, except that the payment-file modules
 (`l10n_se_payment_file_seb_csv`, `l10n_se_account_banking_pain`) depend on

@@ -1,0 +1,151 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* mail_server_rate_limit
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-29 18:00+0000\n"
+"PO-Revision-Date: 2026-09-29 18:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: sv\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. module: mail_server_rate_limit
+#: model:ir.model.fields,help:mail_server_rate_limit.field_mail_mail__rate_limit_retries
+msgid ""
+"How many times this mail went back to the queue after a temporary error from"
+" a rate-limited mail server."
+msgstr ""
+"Hur många gånger e-postmeddelandet har lagts tillbaka i kön efter ett "
+"tillfälligt fel från en e-postserver med hastighetsgräns."
+
+#. module: mail_server_rate_limit
+#: model:ir.model.fields,help:mail_server_rate_limit.field_ir_mail_server__rate_limit_retry_max
+msgid ""
+"How many times a mail goes back to the queue after a temporary error before "
+"it is marked as failed."
+msgstr ""
+"Hur många gånger ett e-postmeddelande läggs tillbaka i kön efter ett "
+"tillfälligt fel innan det markeras som misslyckat."
+
+#. module: mail_server_rate_limit
+#: model:ir.model.fields,help:mail_server_rate_limit.field_ir_mail_server__rate_limit_minutes
+msgid "Length of the sliding window the rate limit counts over."
+msgstr "Längden på det glidande fönster som hastighetsgränsen räknas över."
+
+#. module: mail_server_rate_limit
+#: model:ir.model.fields,field_description:mail_server_rate_limit.field_mail_server_rate_slot__server_id
+msgid "Mail Server"
+msgstr "E-postserver"
+
+#. module: mail_server_rate_limit
+#: model:ir.model,name:mail_server_rate_limit.model_mail_server_rate_slot
+msgid "Mail server rate limit slot"
+msgstr "Räknepost för e-postserverns hastighetsgräns"
+
+#. module: mail_server_rate_limit
+#: model:ir.model.fields,field_description:mail_server_rate_limit.field_mail_server_rate_slot__count
+msgid "Messages"
+msgstr "Meddelanden"
+
+#. module: mail_server_rate_limit
+#: model:ir.model.fields,help:mail_server_rate_limit.field_ir_mail_server__rate_limit_used
+msgid ""
+"Messages counted in the current window. A temporary error from the server "
+"counts as a full window."
+msgstr ""
+"Meddelanden som räknats i det nuvarande fönstret. Ett tillfälligt fel från "
+"servern räknas som ett helt fönster."
+
+#. module: mail_server_rate_limit
+#: model:ir.model.fields,help:mail_server_rate_limit.field_ir_mail_server__rate_limit_count
+msgid ""
+"Most messages this server may send per window; 0 means no limit. Each "
+"recipient address counts as one message. Mail over the limit waits in the "
+"queue and is sent by the email queue cron as soon as the window has room. Not"
+" used for personal mail servers."
+msgstr ""
+"Högst så många meddelanden får servern skicka per fönster; 0 betyder ingen "
+"gräns. Varje mottagaradress räknas som ett meddelande. E-post över gränsen "
+"väntar i kön och skickas av e-postköns schemalagda åtgärd så snart fönstret "
+"har plats. Används inte för personliga e-postservrar."
+
+#. module: mail_server_rate_limit
+#: model:ir.model.fields,field_description:mail_server_rate_limit.field_ir_mail_server__rate_limit_count
+#: model_terms:ir.ui.view,arch_db:mail_server_rate_limit.ir_mail_server_view_form_rate_limit
+msgid "Rate Limit"
+msgstr "Hastighetsgräns"
+
+#. module: mail_server_rate_limit
+#: model:ir.model.fields,field_description:mail_server_rate_limit.field_mail_mail__rate_limit_retries
+msgid "Rate Limit Retries"
+msgstr "Nya försök (hastighetsgräns)"
+
+#. module: mail_server_rate_limit
+#: model:ir.model.fields,field_description:mail_server_rate_limit.field_ir_mail_server__rate_limit_retry_minutes
+msgid "Retry After (Minutes)"
+msgstr "Nytt försök efter (minuter)"
+
+#. module: mail_server_rate_limit
+#: model:ir.model.fields,field_description:mail_server_rate_limit.field_ir_mail_server__rate_limit_retry_max
+msgid "Retries"
+msgstr "Antal nya försök"
+
+#. module: mail_server_rate_limit
+#. odoo-python
+#: code:addons/mail_server_rate_limit/models/ir_mail_server.py:0
+msgid "The rate limit and the number of retries cannot be negative."
+msgstr "Hastighetsgränsen och antalet nya försök kan inte vara negativa."
+
+#. module: mail_server_rate_limit
+#. odoo-python
+#: code:addons/mail_server_rate_limit/models/ir_mail_server.py:0
+msgid "The rate limit window and the retry delay must be at least one minute."
+msgstr ""
+"Hastighetsgränsens fönster och fördröjningen före nytt försök måste vara "
+"minst en minut."
+
+#. module: mail_server_rate_limit
+#: model:ir.model.fields,field_description:mail_server_rate_limit.field_mail_server_rate_slot__at
+msgid "Time"
+msgstr "Tidpunkt"
+
+#. module: mail_server_rate_limit
+#: model:ir.model.fields,field_description:mail_server_rate_limit.field_ir_mail_server__rate_limit_used
+msgid "Used in Current Window"
+msgstr "Använt i nuvarande fönster"
+
+#. module: mail_server_rate_limit
+#: model:ir.model.fields,help:mail_server_rate_limit.field_ir_mail_server__rate_limit_retry_minutes
+msgid ""
+"When the server answers with a temporary error (4xx, e.g. 451 too many "
+"mails), the mail goes back to the queue and is sent again after this many "
+"minutes, only to the recipients it has not reached yet."
+msgstr ""
+"När servern svarar med ett tillfälligt fel (4xx, t.ex. 451 too many mails) "
+"läggs e-postmeddelandet tillbaka i kön och skickas igen efter så här många "
+"minuter, bara till de mottagare det ännu inte har nått."
+
+#. module: mail_server_rate_limit
+#: model:ir.model.fields,field_description:mail_server_rate_limit.field_ir_mail_server__rate_limit_minutes
+msgid "Window (Minutes)"
+msgstr "Fönster (minuter)"
+
+#. module: mail_server_rate_limit
+#: model_terms:ir.ui.view,arch_db:mail_server_rate_limit.ir_mail_server_view_form_rate_limit
+msgid ""
+"With a rate limit, mail through this server is only sent by the email queue "
+"cron, at most this many messages per window; the rest waits in the queue. A "
+"temporary error from the server puts the mail back in the queue for the "
+"recipients it has not reached."
+msgstr ""
+"Med en hastighetsgräns skickas e-post via den här servern bara av e-postköns "
+"schemalagda åtgärd, högst så här många meddelanden per fönster; resten "
+"väntar i kön. Ett tillfälligt fel från servern lägger tillbaka "
+"e-postmeddelandet i kön för de mottagare det inte har nått."

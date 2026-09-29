@@ -59,6 +59,20 @@ are plain data and can be edited per level or template.
 
 ## Notes
 
+- What the e-mail carries on top of the template comes from
+  `account.reminder._email_values(attachments)` (by default the invoices' PDFs). It is applied
+  after the template's `partner_to`, so a module can send the reminder to other recipients by
+  overriding it and returning `recipient_ids: [Command.set(partner_ids)]`.
+- The e-mail is sent with `force_send`: at once on an ordinary outgoing server. It goes through
+  `mail.mail.send()`, so an outgoing-server rate limit that defers mail sent outside the mail
+  queue cron can hold it in the queue; it then leaves with the cron. The reminder is marked sent
+  when the dialog runs; a delivery failure afterwards shows on the e-mail (*Settings → Technical
+  → Emails*, filter *Exception*), not on the reminder.
+- Sending checks every reminder of the run first (`account.reminder._check_send()`) and sends
+  nothing if one of them cannot go out on its channel, with one error listing all of them. SMS and
+  letters leave at once and cannot be called back, so an error halfway would otherwise roll back
+  their reminders and send them again on the next try. A module with its own requirements for a
+  channel overrides `_check_send`.
 - The mail template has `use_default_to = False` on purpose: with the default,
   Odoo ignores `partner_to` and computes default recipients, which never include
   an address that is one of the system's own aliases (e.g. a distribution-list

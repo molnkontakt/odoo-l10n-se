@@ -130,6 +130,14 @@ class AccountReminder(models.Model):
         self.pdf_attachment_id = att
         return att
 
+    def _email_values(self, attachments):
+        """Värden som skrivs över det mallen renderar för påminnelsemailet (email_values till send_mail, som
+        läggs på efter att partner_to satt recipient_ids). Som standard fakturornas PDF:er; påminnelse-PDF:en
+        bifogar mallen själv (report_template_ids). Överlagra för att t.ex. byta mottagare:
+        {"recipient_ids": [Command.set(partner_ids)]} ersätter mallens partner_to."""
+        self.ensure_one()
+        return {"attachment_ids": [Command.link(a.id) for a in attachments]}
+
     def _send_email(self):
         self.ensure_one()
         template = self.level_id.mail_template_id
@@ -138,11 +146,12 @@ class AccountReminder(models.Model):
         if not self.partner_id.email:
             raise UserError(_("%s saknar e-postadress.", self.partner_id.name))
         attachments = self._attachments()
-        # mallen bifogar påminnelse-PDF:en själv (report_template_ids); fakturorna läggs till här
-        template.send_mail(
-            self.id, force_send=True,
-            email_values={"attachment_ids": [Command.link(a.id) for a in attachments]},
-        )
+        # force_send: mailet går genom mail.mail.send() direkt i stället för att vänta på mailköns cron
+        # (en gång i timmen). Det är också i send() som en hastighetsgräns per utgående server kan hålla
+        # tillbaka det: en begränsare som skjuter upp mail som skickas utanför kökörningen lämnar det i kön
+        # och triggar cronen, så det går ändå ut, i takt. Påminnelsen markeras skickad nu; ett senare
+        # leveransfel syns på mail.mail (Inställningar → Tekniskt → E-post), inte på påminnelsen.
+        template.send_mail(self.id, force_send=True, email_values=self._email_values(attachments))
 
     def _send_manual(self):
         """Ingen sändning: PDF:en (och fakturorna) finns på påminnelsen för utskrift; noteringen säger att den
@@ -160,10 +169,28 @@ class AccountReminder(models.Model):
             raise UserError(_("Inget sändningssätt för %s.", self.channel))
         handler()
 
+    def _check_send(self):
+        """Varför påminnelsen inte kan skickas på sin kanal, eller en tom sträng. action_send frågar alla
+        påminnelser i en körning innan någon skickas: SMS och brev går iväg direkt och kan inte tas tillbaka, så ett
+        fel mitt i körningen (som rullar tillbaka allt, även påminnelserna som redan gått) skulle skicka dem en gång
+        till när körningen görs om. Överlagra för en kanals egna krav; kontrollerna i _send_<kanal> är kvar som sista
+        spärr."""
+        self.ensure_one()
+        if not hasattr(self, f"_send_{self.channel}"):
+            return _("Inget sändningssätt för %s.", self.channel)
+        if self.channel == "email":
+            if not self.level_id.mail_template_id:
+                return _("Nivån %s har ingen mailmall.", self.level_id.name)
+            if not self.partner_id.email:
+                return _("%s saknar e-postadress.", self.partner_id.name)
+        return ""
+
     def action_send(self):
-        for rec in self:
-            if rec.state != "draft":
-                continue
+        drafts = self.filtered(lambda r: r.state == "draft")
+        problems = [problem for problem in (rec._check_send() for rec in drafts) if problem]
+        if problems:
+            raise UserError(_("Inget skickades. Rätta kanalen eller kunden och försök igen:\n%s", "\n".join(problems)))
+        for rec in drafts:
             rec._send()
             rec._mark_sent()
         return True

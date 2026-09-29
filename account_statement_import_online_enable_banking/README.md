@@ -45,8 +45,9 @@ more.
   many booked transactions the bank returned and how many of them are new). The bank
   filters on its own date, so the same transactions often come back for neighbouring
   periods (a weekend Swish booked on Monday); only lines dated inside the period and
-  not yet imported count as new. The chatter gets a note only when something new came
-  in or the pull failed, so a quiet day leaves no noise.
+  not yet imported count as new. The chatter gets a note only when something new was
+  imported (posted after the import, with the lines actually created) or the pull
+  failed, so a quiet day leaves no noise.
 - Only booked transactions are imported; pending ones wait for the next pull.
 - `unique_import_id` is the bank's `entry_reference`/`transaction_id` when
   present. Swedbank sends neither, so the id is a hash of the stable fields
@@ -55,10 +56,19 @@ more.
   cover whole days, which the framework guarantees.
 - Line text: the remittance information, prefixed with the bank's transaction
   type when it adds something (`Bankgiro inbetalning 1234567`, `Bg-bet. via
-  internet Water Utility`). Swish lines end with `Swish +46…` so the Swish
-  matching and automatic reconciliation of `account_statement_import_swedbank_csv`
-  apply unchanged; the payer is looked up on `res.partner.phone_sanitized` here
-  as well.
+  internet Water Utility`). Swish lines end with `Swish +46…`, as in Swedbank's
+  CSV export; the payer is looked up on `res.partner.phone_sanitized`, the same
+  rule as `account_statement_import_swedbank_csv` (one partner with the number, or
+  none).
+- **Swish reconciliation.** With `account_statement_import_swedbank_csv` (and
+  `account_reconcile_oca`) installed and *Stäm av Swish automatiskt vid import* on the
+  journal, every pull reconciles the new Swish payments it imported the way the CSV
+  import does: a positive line with a partner and exactly one open customer invoice of
+  the line's company whose amount due equals the payment. Two matching invoices, an
+  invoice in another company, a line from an earlier pull or a journal without the flag
+  are left for the reconciliation view. Each line is tried in its own savepoint; a
+  failure is logged and does not undo the import. The count goes into the pull result
+  and the chatter note. Without the Swedbank module the pull imports as before.
 - The closing balance (`balance_end_real`) is set only when the pulled period
   includes today, because the balances endpoint knows only the current balance.
   A failed balance call does not lose the transactions; the result field says so.

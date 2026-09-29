@@ -5,6 +5,28 @@ one section per module. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions use Odoo's
 `<odoo-version>.<major>.<minor>.<patch>` scheme.
 
+## mail_server_rate_limit
+
+### [19.0.1.0.0] — 2026-09-29
+
+- Initial release. A rate limit on an outgoing mail server: at most N messages per M minutes
+  (sliding window, each recipient address counts), 0 = no limit, not used for personal servers.
+  An SMTP provider refused a batch of invoices with "451 Too many mails" because Odoo sends the
+  whole queue at once.
+- Mail through a limited server is only sent by the *Mail: Email Queue Manager* cron. What does
+  not fit the window keeps state *Outgoing* with a scheduled date for when there is room, and the
+  cron is triggered at each of those dates; sending outside the cron (right after a post, *Send
+  Now*, a template with `force_send`) leaves the mail in the queue and wakes the cron. A mail with
+  more recipients than the limit is split, as Odoo splits one for a personal mail server; the parts
+  share one message, and deleting one of them (auto delete once sent) never deletes the others.
+- A temporary answer (4xx, e.g. `451 4.7.1 Too many mails`) puts the mail back in the queue for
+  the recipients it has not reached, their notifications back to *Ready* and the reached ones to
+  *Sent*, so nobody gets a second copy; the rest of that batch waits for a full window. After the
+  configured number of retries the mail fails as before, without the recipients it reached, so
+  *Retry* by hand (which gives it its retries back) does not send them a second copy either.
+- Settings on the mail server form (*Rate Limit* tab) with the number used in the current window;
+  retries on the e-mail's *Advanced* tab. Swedish translation.
+
 ## l10n_se_payment_file_seb_csv
 
 ### [19.0.1.2.0] — 2026-09-29
@@ -115,6 +137,20 @@ one section per module. The format follows
   tests validate the file against the XSD.
 
 ## account_statement_import_online_enable_banking
+
+### [19.0.1.8.0] — 2026-09-29
+
+- Swish payments are reconciled automatically after a pull, as the Swedbank CSV import does, when
+  `account_statement_import_swedbank_csv` (with `account_reconcile_oca`) is installed and the
+  journal has *Stäm av Swish automatiskt vid import* on: a new line with a partner (found by the
+  payer's number) and exactly one open customer invoice of the line's company with that amount
+  due. Before, this only ran for CSV imports, so a journal switched to Enable Banking got no
+  automatic Swish reconciliation. Only the lines the pull imported are considered; each is tried
+  in its own savepoint, so a failure is logged and never undoes the import. Without the Swedbank
+  module nothing changes.
+- The chatter note on new booked transactions is posted once the lines are imported (it counts
+  the lines actually created) and says how many Swish payments were reconciled; the pull result
+  says so too.
 
 ### [19.0.1.7.0] — 2026-09-29
 
@@ -231,6 +267,27 @@ one section per module. The format follows
 - Initial public release.
 
 ## account_invoice_reminder
+
+### [19.0.1.5.0] — 2026-09-29
+
+- New hook `account.reminder._email_values(attachments)`: the values the reminder e-mail gets on
+  top of the template (by default the invoices' PDFs). They are applied after the template's
+  `partner_to`, so a module can replace the recipients with
+  `{"recipient_ids": [Command.set(partner_ids)]}`. No change in behaviour.
+- The e-mail is still sent with `force_send`, through `mail.mail.send()`: at once on an ordinary
+  outgoing server, and held in the mail queue by an outgoing-server rate limit that defers mail
+  sent outside the queue cron (the cron is triggered, so it still goes out, paced). The reminder
+  is marked sent either way; a later delivery failure shows on the e-mail (*Settings → Technical
+  → Emails*), not on the reminder.
+- New hook `account.reminder._check_send()`: why a reminder cannot be sent on its channel (no
+  channel method; for e-mail no template or no address), or an empty string. `action_send` asks
+  every reminder of the run before sending any and raises one error listing them all. Before, an
+  error on a later reminder rolled back the whole run after earlier SMS or letters had already
+  gone out, and running it again sent those a second time. A module adds a channel's own
+  requirements by overriding the hook; the checks in `_send_<channel>` stay as a last guard.
+- Tests for the hooks and the default recipient. The e-mail tests use their own company and assert
+  on the created e-mail with `mail.mail.send` mocked, so they do not depend on the database's
+  outgoing mail servers.
 
 ### [19.0.1.4.0] — 2026-09-29
 
