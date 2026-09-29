@@ -1,0 +1,164 @@
+/* OCA bank reconciliation on narrow screens (phones): stack the statement lines above the reconciliation form,
+   let the buttons wrap, and show the reconciliation lines and the matching list as cards. Styling only. */
+@media (max-width: 767.98px) {
+    /* OCA puts the line list (30 %) and the form (70 %) side by side in a wrapping flex row of fixed height, each
+       scrolling on its own. On a phone: one block that scrolls, the list on top and the form below. */
+    .o_content.o_account_reconcile_oca {
+        display: block !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+    }
+    /* Statement lines on top, full width, scrolling on their own */
+    .o_account_reconcile_oca > .o_account_reconcile_oca_selector {
+        width: 100% !important;
+        max-width: 100% !important;
+        flex: 0 0 auto !important;
+        min-height: 0 !important;
+        height: auto !important;
+        max-height: 34vh !important;
+        overflow-y: auto !important;
+        border-right: 0 !important;
+        border-bottom: 1px solid var(--border-color, #444);
+    }
+    .o_account_reconcile_oca_selector .o_kanban_ghost { display: none !important; }
+    .o_account_reconcile_oca_selector .o_kanban_record {
+        width: 100% !important;
+        max-width: 100% !important;
+        flex: 0 0 auto !important;
+        word-break: normal !important;
+        overflow-wrap: anywhere;
+        padding: 10px 12px !important;
+        font-size: 15px;
+    }
+    /* The form below, full width */
+    .o_account_reconcile_oca > .o_account_reconcile_oca_info {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow: visible !important;
+        height: auto !important;
+    }
+    .o_account_reconcile_oca_info .o_form_renderer { padding: 8px 10px !important; }
+    /* Status bar: no fixed height, buttons wrap */
+    .o_form_statusbar.o_account_reconcile_oca_statusbar {
+        height: auto !important;
+        min-height: 0 !important;
+        margin-bottom: 10px;
+    }
+    .o_account_reconcile_oca_statusbar .o_statusbar_buttons {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 6px;
+    }
+    .o_account_reconcile_oca_statusbar .o_statusbar_buttons .btn {
+        margin: 0 !important;
+        flex: 1 1 auto;
+        padding: 8px 10px;
+    }
+    /* Reconciliation lines as cards: account on top, label and date below, the amount in a Debit or Credit column.
+       The header row keeps only its (translated) Debit and Credit titles above those two columns. */
+    .o_reconcile_widget_table,
+    .o_reconcile_widget_table tbody { display: block; width: 100%; }
+    /* OCA's thead holds the th cells directly, without a tr */
+    .o_reconcile_widget_table thead,
+    .o_reconcile_widget_table tr.o_reconcile_widget_line {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 96px 96px;
+        column-gap: 8px;
+    }
+    .o_reconcile_widget_table thead { padding: 0 6px; }
+    .o_reconcile_widget_table thead th { display: none; }
+    .o_reconcile_widget_table thead th:nth-child(5),
+    .o_reconcile_widget_table thead th:nth-child(6) {
+        display: block;
+        text-align: right;
+        font-size: 12px;
+        opacity: .7;
+        padding: 0 !important;
+        border: 0 !important;
+    }
+    .o_reconcile_widget_table thead th:nth-child(5) { grid-column: 2; }
+    .o_reconcile_widget_table thead th:nth-child(6) { grid-column: 3; }
+    .o_reconcile_widget_table tr.o_reconcile_widget_line {
+        grid-template-areas:
+            "account account account"
+            "name    debit   credit"
+            "partner partner partner"
+            "date    action  action";
+        row-gap: 2px;
+        padding: 8px 6px;
+        border-bottom: 1px solid var(--border-color, #444);
+    }
+    .o_reconcile_widget_table tr.o_reconcile_widget_line > td,
+    .o_reconcile_move_line_view tr.o_data_row > td {
+        background: transparent !important;
+        box-shadow: none !important;
+    }
+    .o_reconcile_widget_table tr.o_reconcile_widget_line > td {
+        display: block;
+        padding: 0 !important;
+        border: 0 !important;
+        white-space: normal !important;
+    }
+    .o_reconcile_widget_table td.o_account_reconcile_oca_data_line_account { grid-area: account; font-weight: 600; overflow-wrap: anywhere; }
+    .o_reconcile_widget_table td.o_account_reconcile_oca_data_line_name { grid-area: name; font-size: 13px; opacity: .85; overflow-wrap: anywhere; }
+    .o_reconcile_widget_table td.o_account_reconcile_oca_data_line_partner { grid-area: partner; font-size: 13px; }
+    .o_reconcile_widget_table td.o_account_reconcile_oca_data_line_partner:empty { display: none; }
+    .o_reconcile_widget_table tr.o_reconcile_widget_line > td:nth-child(3) { grid-area: date; font-size: 12px; opacity: .7; }
+    .o_reconcile_widget_table td.o_account_reconcile_oca_data_line_debit { grid-area: debit; }
+    .o_reconcile_widget_table td.o_account_reconcile_oca_data_line_credit { grid-area: credit; }
+    .o_reconcile_widget_table td.o_account_reconcile_oca_data_line_debit,
+    .o_reconcile_widget_table td.o_account_reconcile_oca_data_line_credit {
+        text-align: right;
+        white-space: nowrap !important;
+        font-weight: 600;
+        font-size: 14px;
+    }
+    .o_reconcile_widget_table tr.o_reconcile_widget_line > td:last-child { grid-area: action; text-align: right; }
+    /* Matching list as cards: journal entry and residual amount on top, partner below, date last.
+       Due date, account and label are hidden, and so is the header row (sort on a desktop). */
+    .o_reconcile_move_line_view .o_list_table,
+    .o_reconcile_move_line_view .o_list_table tbody {
+        display: block !important;
+        width: 100% !important;
+        min-width: 0 !important;
+    }
+    .o_reconcile_move_line_view .o_list_table thead,
+    .o_reconcile_move_line_view .o_list_table tfoot { display: none !important; }
+    .o_reconcile_move_line_view .o_list_table tr.o_data_row {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) auto;
+        grid-template-areas:
+            "move    amount"
+            "partner amount"
+            "date    button";
+        gap: 2px 10px;
+        padding: 10px 6px;
+        border-bottom: 1px solid var(--border-color, #444);
+    }
+    .o_reconcile_move_line_view tr.o_data_row > td {
+        display: block !important;
+        padding: 0 !important;
+        border: 0 !important;
+        width: auto !important;
+        max-width: none !important;
+        white-space: normal !important;
+    }
+    .o_reconcile_move_line_view tr.o_data_row > td[name="date_maturity"],
+    .o_reconcile_move_line_view tr.o_data_row > td[name="account_id"],
+    .o_reconcile_move_line_view tr.o_data_row > td[name="name"],
+    .o_reconcile_move_line_view tr.o_data_row > td:not([name]):not(.o_list_button) { display: none !important; }
+    .o_reconcile_move_line_view td[name="move_id"] {
+        grid-area: move;
+        font-weight: 600;
+        display: -webkit-box !important;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .o_reconcile_move_line_view td[name="partner_id"] { grid-area: partner; font-size: 14px; }
+    .o_reconcile_move_line_view td[name="date"] { grid-area: date; font-size: 12px; opacity: .7; }
+    .o_reconcile_move_line_view td[name="amount_residual"] { grid-area: amount; text-align: right; white-space: nowrap !important; font-weight: 600; }
+    .o_reconcile_move_line_view td.o_list_button { grid-area: button; text-align: right; }
+    /* The notebook tabs can be swiped sideways */
+    .o_account_reconcile_oca_info .o_notebook_headers { overflow-x: auto; }
+}

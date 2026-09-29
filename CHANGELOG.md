@@ -5,6 +5,14 @@ one section per module. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions use Odoo's
 `<odoo-version>.<major>.<minor>.<patch>` scheme.
 
+## account_reconcile_oca_mobile
+
+### [19.0.1.0.0] — 2026-09-29
+
+- Initial release. Styles for the OCA bank reconciliation view on screens narrower than 768 px:
+  statement lines stacked above the form, wrapping status bar buttons, reconciliation lines and the
+  matching list as cards. Styling only; the desktop layout is unchanged.
+
 ## mail_server_rate_limit
 
 ### [19.0.1.0.0] — 2026-09-29

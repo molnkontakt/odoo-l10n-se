@@ -10,6 +10,7 @@ holds the Skatteverket-facing modules (VAT return / eSKD).
 
 | Module | Description |
 |--------|-------------|
+| [`account_reconcile_oca_mobile`](account_reconcile_oca_mobile/) | Makes the OCA bank reconciliation view readable on phones: stacked layout, wrapping buttons, reconciliation lines and matching list as cards (styling only) |
 | [`account_statement_import_swedbank_csv`](account_statement_import_swedbank_csv/) | Swedbank CSV statement export in the OCA import wizard; balance-based dedupe; automatic Swish matching on the payer's mobile number |
 | [`account_statement_import_online_enable_banking`](account_statement_import_online_enable_banking/) | Enable Banking (PSD2) as an OCA online statement provider: scheduled pull of booked transactions and closing balance, Swish payer matching; needs `account_statement_import_online` |
 | [`account_statement_import_bankgirot_xlsx`](account_statement_import_bankgirot_xlsx/) | Bankgiro deposit details from Bankgirot *Insättningsuppgifter* (XLSX) or the bank's ISO 20022 **camt.054**: splits a lump-sum Bankgiro deposit into payer details, matches invoices by OCR/name/amount and reconciles automatically |
