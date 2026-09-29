@@ -183,7 +183,7 @@ class AccountStatementImport(models.TransientModel):
                     t["partner_id"] = rule.mapped_partner_id.id
                     break
 
-        # Swish: avsändarens mobilnummer står i texten ("Swish +46763417683"). Slå upp det mot
+        # Swish: avsändarens mobilnummer står i texten ("Swish +46700000000"). Slå upp det mot
         # kontakternas phone_sanitized (E.164) och sätt kundens commercial partner så avstämningsvyn föreslår rätt öppna faktura.
         # Flera kontakter med samma nummer är OK om de hör till samma kund; annars lämnas raden.
         Partner = self.env["res.partner"]
