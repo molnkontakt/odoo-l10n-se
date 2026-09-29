@@ -1,1 +1,1 @@
-from . import test_candidates
+from . import test_candidates, test_parsers
