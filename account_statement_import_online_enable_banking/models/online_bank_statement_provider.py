@@ -545,6 +545,34 @@ class OnlineBankStatementProvider(models.Model):
         self._enable_banking_record_pull(date_since, date_until, transactions, lines, note)
         return lines, statement_values
 
+    def _enable_banking_file_look_alikes(self, new):
+        """How many of the pull's new lines (in the period, not imported yet) have the day and amount of a
+        line the Swedbank CSV import brought into this journal. The channels give one transaction
+        different ids, so they could be the same payment - or two payments. Nothing is left out (a lost
+        payment would not be noticed); the user checks. The file has the booking day: dated by value day,
+        a line can be a few days off (a weekend), so look that far either way."""
+        Line = self.env["account.bank.statement.line"].sudo()
+        days = timedelta(days=4 if self.eb_date_type == "value_date" else 0)
+        return sum(1 for vals in new if Line.search_count([
+            ("journal_id", "=", self.journal_id.id), ("date", ">=", vals["date"] - days), ("date", "<=", vals["date"] + days),
+            ("amount", "=", round(vals["amount"], 2)), ("unique_import_id", "like", "%SWED-%"),
+        ], limit=1))
+
+    def _enable_banking_report_look_alikes(self, count):
+        """A chatter note, and a to-do for the renewal user unless one is open. Its summary must not
+        start with "Enable Banking": that marks the renewal to-dos."""
+        me = self.sudo().with_context(lang=self._enable_banking_lang(), tz=self._enable_banking_tz())
+        body = me.env._(
+            "Enable Banking: %s new line(s) have the same day and amount as lines the Swedbank CSV import brought "
+            "into this journal. They are imported (a lost payment would not be noticed); check that they are not "
+            "the same payments. Delete a duplicate on the file's side: a later pull can bring the Enable Banking "
+            "line back.", count)
+        me.message_post(body=body)
+        summary = me.env._("Check for duplicates: Swedbank file and Enable Banking")
+        if not self.activity_ids.filtered(lambda a: a.summary == summary):
+            me.activity_schedule("mail.mail_activity_data_todo", summary=summary, note=body,
+                                 user_id=(self.eb_renewal_user_id or self.create_uid).id)
+
     def _enable_banking_post_failure(self, err, date_since, date_until, skipped=False):
         """One chatter note and the result field for a failed pull. A UserError carries a text meant
         for the user (the fixed Enable Banking texts, a missing key); anything else is only named,
@@ -747,6 +775,9 @@ class OnlineBankStatementProvider(models.Model):
                     [("unique_import_id", "=", probe["unique_import_id"])], limit=1):
                 continue
             new.append(vals)
+        look_alikes = self._enable_banking_file_look_alikes(new)
+        if look_alikes:  # first: the summary is cut at 250 characters
+            note = me.env._("; %s with the day and amount of a line from a Swedbank file - check for duplicates", look_alikes) + note
         summary = me.env._("%(when)s — %(period)s: %(n)s booked transaction(s) from the bank, %(new)s new",
                            when=fields.Datetime.context_timestamp(me, fields.Datetime.now()).strftime("%Y-%m-%d %H:%M"),
                            period=period, n=len(lines), new=len(new))
@@ -756,6 +787,8 @@ class OnlineBankStatementProvider(models.Model):
                 "Enable Banking: %(period)s — %(n)s new booked transaction(s) (%(amount).2f %(cur)s net).",
                 period=period, n=len(new), amount=round(sum(v["amount"] for v in new), 2),
                 cur=self.journal_id.currency_id.name or self.journal_id.company_id.currency_id.name))
+        if look_alikes:
+            self._enable_banking_report_look_alikes(look_alikes)
 
     def _enable_banking_line_vals(self, tr, own_iban):
         amount = float((tr.get("transaction_amount") or {}).get("amount") or 0)

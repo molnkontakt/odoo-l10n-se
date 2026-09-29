@@ -89,6 +89,75 @@ class TestSwedbankCsv(TransactionCase):
         (statement,) = statements
         return statement
 
+    def _complete(self, data, journal):
+        """Parsed and completed as the OCA wizard does before creating statements (journal, ids)."""
+        wizard = self.env["account.statement.import"].create(
+            {"statement_file": base64.b64encode(data), "statement_filename": "swedbank.csv"}
+        )
+        ((_currency, account_number, statements),) = wizard.with_context(active_id=wizard.id)._parse_file(data)
+        return wizard, wizard._complete_stmts_vals(statements, journal, account_number)
+
+    def _eb_line(self, journal, day, amount, text="Bankgiro inbetalning", n=0):
+        """A line Enable Banking brought into the journal (an id without SWED-)."""
+        stmt = self.env["account.bank.statement"].create({"journal_id": journal.id, "name": "Enable Banking"})
+        return self.env["account.bank.statement.line"].create({
+            "journal_id": journal.id, "statement_id": stmt.id, "date": day, "amount": amount,
+            "payment_ref": text, "unique_import_id": f"SE000000-{journal.id}-00E34AB1D-{day}-{n}",
+        })
+
+    def test_look_alikes_of_enable_banking_lines_are_imported_and_counted(self):
+        """A row with the day and amount of a line Enable Banking brought in could be the same payment or
+        another: nothing is left out, the rows are counted for the notification; a journal without such a
+        line has none."""
+        journal = self.env["account.journal"].create({"name": "Swedbank test", "type": "bank", "code": "SWT1"})
+        self._eb_line(journal, "2026-09-15", 2000.0)
+        wizard, stmts = self._complete(_csv(ROWS), journal)
+        self.assertEqual(wizard._swedbank_look_alikes(stmts), 1)
+        self.assertEqual(len(stmts[0]["transactions"]), 3, "nothing left out")
+        self.assertEqual((stmts[0]["balance_start"], stmts[0]["balance_end_real"]), (10000.0, 11500.0))
+        other = self.env["account.journal"].create({"name": "Swedbank test 2", "type": "bank", "code": "SWT2"})
+        wizard, stmts = self._complete(_csv(ROWS), other)
+        self.assertEqual(wizard._swedbank_look_alikes(stmts), 0)
+
+    def test_look_alikes_are_imported_with_a_notification(self):
+        journal = self.env["account.journal"].create({"name": "Swedbank test", "type": "bank", "code": "SWT1"})
+        self._eb_line(journal, "2026-09-15", 2000.0)
+        self._eb_line(journal, "2026-09-10", -250.0, n=1)  # the other sign
+        self._eb_line(journal, "2026-09-11", 250.0, n=2)  # another day
+        wizard, stmts = self._complete(_csv(ROWS), journal)
+        result = {"statement_ids": [], "notifications": []}
+        wizard._create_bank_statements(stmts, result)
+        self.assertEqual(len(self.env["account.bank.statement"].browse(result["statement_ids"]).line_ids), 3)
+        (note,) = [n for n in result["notifications"] if "Enable Banking" in n]
+        self.assertTrue(note.startswith("1 rad(er) har samma dag och belopp"), note)
+        wizard, stmts = self._complete(_csv(ROWS), journal)
+        self.assertEqual(wizard._swedbank_look_alikes(stmts), 0, "rows already imported are not counted again")
+
+    def test_both_orders_fit_the_id_follows_the_earlier_import(self):
+        """+100 (A), -100, +100 (B) on one day fits the balances in either order. X came in with an export
+        made during the day; a later export sorted oldest first must give X its id again and bring in
+        B - not X again as -2, with B skipped as already imported."""
+        journal = self.env["account.journal"].create({"name": "Swedbank test", "type": "bank", "code": "SWT1"})
+        x = ("2026-09-15", "Swish", "Kund A", "100.00", "1100.00")
+        z = ("2026-09-15", "Swish", "Kund A", "-100.00", "1000.00")
+        y = ("2026-09-15", "Swish", "Kund B", "100.00", "1100.00")
+        for rows in ([x], [x, z, y]):
+            wizard, stmts = self._complete(_csv(rows), journal)
+            wizard._create_bank_statements(stmts, {"statement_ids": [], "notifications": []})
+        lines = self.env["account.bank.statement.line"].search([("journal_id", "=", journal.id)])
+        self.assertEqual(
+            sorted((line.amount, line.payment_ref) for line in lines),
+            [(-100.0, "Swish — Kund A"), (100.0, "Swish — Kund A"), (100.0, "Swish — Kund B")],
+        )
+
+    def test_one_day_oldest_first_export(self):
+        """All rows on one day, oldest first: the balance column tells the order (the dates cannot)."""
+        rows = [("2026-09-15", "A", "Insättning", "100.00", "1100.00"), ("2026-09-15", "B", "Insättning", "200.00", "1300.00")]
+        statement = self._statement(_csv(rows))
+        self.assertEqual([t["amount"] for t in statement["transactions"]], [100.0, 200.0])
+        self.assertEqual(statement["balance_start"], 1000.0)
+        self.assertEqual(statement["balance_end_real"], 1300.0)
+
     def test_statement_newest_first(self):
         self.assertEqual(self._parse(_csv(ROWS)), [("SEK", ACCOUNT, [STATEMENT])])
 

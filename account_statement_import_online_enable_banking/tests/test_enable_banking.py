@@ -580,6 +580,71 @@ class TestEnableBanking(TransactionCase):
             self.assertFalse(self.provider._enable_banking_finish_authorization("code"))
         self.assertEqual((savings.eb_session_id, savings.eb_account_uid), ("shared", "savings"))
 
+    # --- A journal also fed by the Swedbank CSV import ---------------------------------------
+
+    def _file_line(self, day, amount, text="Swish", n=0):
+        """A line the Swedbank CSV import made (its id carries SWED-)."""
+        stmt = self.env["account.bank.statement"].create({"journal_id": self.journal.id, "name": "Swedbank file"})
+        return self.env["account.bank.statement.line"].create({
+            "journal_id": self.journal.id, "statement_id": stmt.id, "date": day, "amount": amount,
+            "payment_ref": text, "unique_import_id": f"1234567890-{self.journal.id}-SWED-1234567890-{day}-{amount:.2f}-{n}",
+        })
+
+    def _look_alike_todos(self):
+        return self.provider.activity_ids.filtered(lambda a: "duplicates" in (a.summary or ""))
+
+    def test_look_alikes_of_file_lines_are_imported_and_reported(self):
+        """A line with the day and amount of a line from the Swedbank file could be the same payment or
+        another one: it is imported (nothing is lost) and the user is told to check - a note and one
+        to-do, which is not taken for the consent renewal to-do."""
+        self._file_line("2026-09-14", 1000.0)
+        lines, _ = self._pull([SWISH, BANKGIRO])
+        self.assertEqual(sorted(v["amount"] for v in lines), [1000.0, 2000.0], "nothing left out")
+        self.assertIn("1 with the day and amount of a line from a Swedbank file", self.provider.eb_last_pull_summary)
+        self.assertTrue(any("check that they are not the same payments" in m.body for m in self.provider.message_ids))
+        self.assertEqual(len(self._look_alike_todos()), 1)
+        self.assertFalse(self.provider._enable_banking_renewal_activities())
+        self._pull([SWISH, BANKGIRO])
+        self.assertEqual(len(self._look_alike_todos()), 1, "one open to-do at a time")
+
+    def test_look_alikes_only_among_the_lines_the_pull_imports(self):
+        """A line outside the period (the bank filters on its own date) or already imported is not
+        imported by this pull, so it is not reported either."""
+        self._file_line("2026-09-14", 1000.0)
+        self._pull([SWISH, BANKGIRO], since=datetime(2026, 9, 15))
+        self.assertNotIn("Swedbank file", self.provider.eb_last_pull_summary)
+        lines, _ = self._pull([SWISH])
+        probe = {"unique_import_id": lines[0]["unique_import_id"]}
+        self.journal._statement_line_import_update_unique_import_id(probe, self.provider.account_number)
+        stmt = self.env["account.bank.statement"].create({"journal_id": self.journal.id, "name": "Enable Banking"})
+        self.env["account.bank.statement.line"].create({
+            "journal_id": self.journal.id, "statement_id": stmt.id, "date": "2026-09-14", "amount": 1000.0,
+            "payment_ref": "Swish", "unique_import_id": probe["unique_import_id"]})
+        self._pull([SWISH])
+        self.assertNotIn("Swedbank file", self.provider.eb_last_pull_summary)
+
+    def test_look_alike_is_the_same_signed_amount_on_the_day(self):
+        self._file_line("2026-09-14", -1000.0)
+        self._file_line("2026-09-13", 1000.0)
+        self._file_line("2026-09-15", 1000.5)
+        self._pull([SWISH])
+        self.assertNotIn("Swedbank file", self.provider.eb_last_pull_summary)
+        self.assertFalse(self._look_alike_todos())
+
+    def test_look_alikes_by_value_date_look_a_few_days_either_way(self):
+        """The file has the booking day; a line dated by value day can be off by a weekend."""
+        self.provider.eb_date_type = "value_date"
+        self._file_line("2026-09-12", 1000.0)
+        (line,), _ = self._pull([dict(SWISH, booking_date="2026-09-12", value_date="2026-09-14")])
+        self.assertEqual(str(line["date"]), "2026-09-14")
+        self.assertIn("1 with the day and amount of a line from a Swedbank file", self.provider.eb_last_pull_summary)
+
+    def test_without_file_lines_nothing_is_reported(self):
+        lines, _ = self._pull([SWISH, dict(SWISH, remittance_information=["other text"])])
+        self.assertEqual(len(lines), 2)
+        self.assertNotIn("Swedbank file", self.provider.eb_last_pull_summary or "")
+        self.assertFalse(self._look_alike_todos())
+
     # --- Connecting an account -------------------------------------------------------------
 
     def test_account_in_another_currency_is_not_connected(self):

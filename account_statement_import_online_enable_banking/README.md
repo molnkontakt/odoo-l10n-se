@@ -95,6 +95,11 @@ more.
   provider on that session at once and gives the renewal user a to-do right away, instead of
   failing with only a note until the consent would have expired. It is detected on the
   scheduled pull. A 401/403 without such a code (a bad application key) does not count.
+- **A journal also fed by the Swedbank CSV import** (e.g. before the switch): the two channels
+  give one transaction different ids, so nothing is left out. New lines with the day and amount
+  of a line from the file are counted in the pull result and in the chatter, and the renewal
+  user gets a to-do to check them. Delete a duplicate on the file's side: a later pull can bring
+  the Enable Banking line back. Do not import files for days Enable Banking pulls.
 - **One consent, several accounts.** SEB allows one session per person: authorising one
   account ends the session of another. Select every account at the bank that Odoo pulls in the
   bank's consent screen; the authorisation then also connects the other providers for the same

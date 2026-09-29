@@ -116,6 +116,16 @@ one section per module. The format follows
 
 ## account_statement_import_online_enable_banking
 
+### [19.0.1.7.0] — 2026-09-29
+
+- A journal also fed by the Swedbank CSV import: new lines of a pull (in its period, not imported
+  yet) with the booking day and signed amount of a line from the file are counted in the pull
+  result, noted in the chatter and given one to-do for the renewal user, so they can be checked.
+  They are imported, not left out - the channels give one transaction different ids, and two real
+  payments of the same amount on one day (or a payment and its refund) cannot be told from one
+  payment seen twice; a lost payment would not be noticed, a duplicate is. With the value date as
+  line date, a line is compared four days either way.
+
 ### [19.0.1.6.0] — 2026-09-29
 
 - A session the bank has ended (401/403 with a session code such as `EXPIRED_SESSION`) disconnects
@@ -246,6 +256,20 @@ one section per module. The format follows
   even when the customer's e-mail is one of the system's own aliases.
 
 ## account_statement_import_swedbank_csv
+
+### [19.0.1.6.0] — 2026-09-29
+
+- New rows with the day and signed amount of a line Enable Banking (or another channel) brought
+  into the journal are reported in a notification, so they can be checked. They are imported, not
+  left out: the channels give one transaction different ids, and two real payments of the same
+  amount on one day cannot be told from one payment seen twice. When that provider dates its lines
+  by value date, a row is compared four days either way.
+- The order of the file (newest or oldest first) is read from the balance column, also within one
+  day. When every pair of rows cancels out (+100, -100, +100) the balances fit both orders; the
+  lines an earlier import stored under the ids those rows share then decide, so a payment imported
+  from an export made during the day keeps its id and a new one of the same amount is not skipped
+  in its place. The dates decide only when nothing else does. Start and end balance come from the
+  nearest rows that have a balance.
 
 ### [19.0.1.5.0] — 2026-09-29
 

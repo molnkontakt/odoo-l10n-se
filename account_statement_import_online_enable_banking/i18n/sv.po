@@ -49,6 +49,34 @@ msgstr "%(when)s: bankens bokförda saldo (%(bank).2f) saknar några av dagens r
 #. module: account_statement_import_online_enable_banking
 #. odoo-python
 #: code:addons/account_statement_import_online_enable_banking/models/online_bank_statement_provider.py:0
+msgid "; %s with the day and amount of a line from a Swedbank file - check for duplicates"
+msgstr "; %s med samma dag och belopp som en rad från en Swedbank-fil – kontrollera dubbletter"
+
+#. module: account_statement_import_online_enable_banking
+#. odoo-python
+#: code:addons/account_statement_import_online_enable_banking/models/online_bank_statement_provider.py:0
+msgid ""
+"Enable Banking: %s new line(s) have the same day and amount as lines the "
+"Swedbank CSV import brought into this journal. They are imported (a lost "
+"payment would not be noticed); check that they are not the same payments. "
+"Delete a duplicate on the file's side: a later pull can bring the Enable "
+"Banking line back."
+msgstr ""
+"Enable Banking: %s ny(a) rad(er) har samma dag och belopp som rader som "
+"Swedbank-CSV-importen lagt in i journalen. De importerades (en tappad "
+"betalning märks inte) – kontrollera att det inte är samma betalningar. Ta "
+"bort en dubblett på filens sida: en senare hämtning kan ta tillbaka raden "
+"från Enable Banking."
+
+#. module: account_statement_import_online_enable_banking
+#. odoo-python
+#: code:addons/account_statement_import_online_enable_banking/models/online_bank_statement_provider.py:0
+msgid "Check for duplicates: Swedbank file and Enable Banking"
+msgstr "Kontrollera dubbletter: Swedbank-fil och Enable Banking"
+
+#. module: account_statement_import_online_enable_banking
+#. odoo-python
+#: code:addons/account_statement_import_online_enable_banking/models/online_bank_statement_provider.py:0
 msgid "; balance unavailable (%s)"
 msgstr "; saldo saknas (%s)"
 
