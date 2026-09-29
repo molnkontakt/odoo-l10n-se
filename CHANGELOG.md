@@ -100,6 +100,31 @@ one section per module. The format follows
 
 ## account_statement_import_online_enable_banking
 
+### [19.0.1.5.0] — 2026-09-29
+
+- Fixed: a debit whose amount the bank also sent as negative became a credit; the sign now
+  comes from the credit/debit indicator whenever the bank sends one.
+- Fixed: a bank that sends `bank_transaction_code` as a string (not an object) stopped the whole
+  pull; a string `remittance_information` was read letter by letter. Both are read either way.
+  The id of already imported lines is unchanged.
+- Errors are fixed, translated texts by kind (daily limit - with "the connection does not need
+  to be renewed" -, temporarily unavailable, refused, rejected, network error, unreadable
+  answer) plus the HTTP status and error code, shown as a warning (plain `UserError`); the raw
+  answer, which can hold account numbers, only goes to the server log. A scheduled pull notes
+  the failure once in the chatter and the result field (the OCA base's own note, with the
+  exception text, is replaced for this provider). An Enable Banking error in the bank's
+  callback is posted in the chatter instead of an error page.
+- Fixed: after a failed scheduled pull the OCA base moved on and never pulled the failed period
+  again. For failures that go away by themselves or with a new consent (daily limit, 5xx,
+  network, unreadable answer, 401/403, expired or missing consent) the next scheduled pull now
+  starts at the failed period, for at most 14 days; the periods before it stay imported, and a
+  pull still stops at its first failure. Other failures skip only the failed period (the note
+  says so) and the next run continues right after it.
+- An expired or missing consent is a failure instead of an empty pull: one note per run instead
+  of one per period, and the periods are pulled after the new authorisation.
+- A pull stops after 100 pages or when a page repeats, instead of looping.
+- An account in another currency than the journal's is not connected.
+
 ### [19.0.1.4.1] — 2026-09-28
 
 - Swish payers on personal accounts are matched too: such accounts send no transaction type and

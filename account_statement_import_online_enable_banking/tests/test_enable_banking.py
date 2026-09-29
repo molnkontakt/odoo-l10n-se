@@ -1,13 +1,20 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
+import contextlib
+import hashlib
 from datetime import datetime, timedelta
 from unittest import mock
+
+import requests
 
 from odoo import fields
 from odoo.exceptions import UserError
 from odoo.tests import tagged
 from odoo.tests.common import TransactionCase
 
-PROVIDER = "odoo.addons.account_statement_import_online_enable_banking.models.online_bank_statement_provider.OnlineBankStatementProvider"
+from ..models.online_bank_statement_provider import _eb_error, _eb_short
+
+MODULE = "odoo.addons.account_statement_import_online_enable_banking.models.online_bank_statement_provider"
+PROVIDER = f"{MODULE}.OnlineBankStatementProvider"
 
 # Shapes as Enable Banking returns them for a Swedish business account (values
 # invented; the structure is what matters).
@@ -135,10 +142,21 @@ class TestEnableBanking(TransactionCase):
         self.assertNotIn("balance_end_real", values)
 
     def test_expired_consent_pulls_nothing(self):
+        """A failure, not an empty pull: a manual pull says so; a scheduled one notes it once and keeps
+        the period for when the bank is authorised again."""
         self.provider.eb_session_valid_until = fields.Datetime.now() - timedelta(days=1)
-        lines, values = self._pull([SWISH])
-        self.assertEqual((lines, values), ([], {}))
-        self.assertIn("expired", self.provider.message_ids[0].body)
+        with self.assertRaisesRegex(UserError, "expired"):
+            self._pull([SWISH])
+        since = datetime.combine(fields.Date.today() - timedelta(days=2), datetime.min.time())
+        until = since + timedelta(days=2)
+        self.provider.write({"statement_creation_mode": "daily", "last_successful_run": since, "next_run": until})
+        before = self.provider.message_ids
+        with self.assertLogs(MODULE, "WARNING"):
+            self.provider.with_context(scheduled=True)._pull(since, until)
+        notes = self.provider.message_ids - before
+        self.assertEqual(len(notes), 1, "one note per run, not one per period")
+        self.assertIn("expired", notes.body)
+        self.assertEqual(self.provider.last_successful_run, since, "kept until the bank is authorised again")
 
     def test_finish_authorization_picks_journal_iban(self):
         session = {
@@ -156,14 +174,14 @@ class TestEnableBanking(TransactionCase):
 
     def test_domestic_account_number_matches_iban(self):
         same = self.provider._enable_banking_same_account
-        self.assertTrue(same("SE38 8000 0830 5500 4537 3453", "8305-5 004 537 3453"))
-        self.assertTrue(same("SE3880000830550045373453", "SE3880000830550045373453"))
-        self.assertFalse(same("SE3880000830550045373453", "8305-5 004 509 2582"))
-        self.assertFalse(same("SE3880000830550045373453", "3453"), "too short to be an account number")
-        self.bank_account.acc_number = "8305-5 004 537 3453"
+        # Swedbank 8327-9, 123 456 789-7 and its IBAN (invented numbers)
+        self.assertTrue(same("SE72 8000 0832 7912 3456 7897", "8327-9 123 456 789-7"))
+        self.assertTrue(same("SE7280000832791234567897", "SE7280000832791234567897"))
+        self.assertFalse(same("SE7280000832791234567897", "8327-9 123 456 788-9"))
+        self.assertFalse(same("SE7280000832791234567897", "7897"), "too short to be an account number")
         # IBAN in the test data is all zeros; a domestic number that is its suffix must bind.
-        session = {"session_id": "s", "access": {}, "accounts": [{"uid": "mine", "account_id": {"iban": "SE00 0000 0000 0000 4537 3453"}}]}
-        self.bank_account.acc_number = "0000 4537 3453"
+        session = {"session_id": "s", "access": {}, "accounts": [{"uid": "mine", "account_id": {"iban": "SE00 0000 0000 0000 1234 5678"}}]}
+        self.bank_account.acc_number = "0000 1234 5678"
         with mock.patch(f"{PROVIDER}._eb_request", return_value=session):
             self.assertTrue(self.provider._enable_banking_finish_authorization("code"))
         self.assertEqual(self.provider.eb_account_uid, "mine")
@@ -216,17 +234,18 @@ class TestEnableBanking(TransactionCase):
         def fake_request(provider, method, path, params=None, body=None):
             if path.endswith("/transactions"):
                 return {"transactions": [SWISH], "continuation_key": None}
-            raise UserError("Enable Banking answered 429: rate limit")
+            raise _eb_error("Enable Banking: the bank's daily limit ...", status=429)
 
         with mock.patch(f"{PROVIDER}._eb_request", new=fake_request):
             lines, values = self.provider._obtain_statement_data(now - timedelta(days=1), now + timedelta(days=1))
         self.assertEqual(len(lines), 1)
         self.assertNotIn("balance_end_real", values)
-        self.assertIn("balance unavailable", self.provider.eb_last_pull_summary)
+        self.assertIn("balance unavailable (429)", self.provider.eb_last_pull_summary)
 
     def test_failed_pull_is_recorded(self):
+        """The chatter gets a fixed text; the details of an unexpected error stay in the server log."""
         def boom(provider, method, path, params=None, body=None):
-            raise RuntimeError("bank down")
+            raise RuntimeError("bank down SE0000000000000000000001")
         # Odoo's assertRaises rolls back to a savepoint, which would also undo the trace.
         raised = False
         with mock.patch(f"{PROVIDER}._eb_request", new=boom):
@@ -236,7 +255,243 @@ class TestEnableBanking(TransactionCase):
                 raised = True
         self.assertTrue(raised)
         self.assertIn("FAILED", self.provider.eb_last_pull_summary)
-        self.assertIn("bank down", self.provider.message_ids[0].body)
+        self.assertIn("unexpected error", self.provider.message_ids[0].body)
+        self.assertNotIn("SE0000000000000000000001", self.provider.message_ids[0].body)
+
+    # --- Scheduled pulls through the OCA base: one note, retry from the failed period -----------
+
+    def _scheduled(self, since, days, fake):
+        """A scheduled run as the OCA scheduler makes it, without _scheduled_pull (which would pull
+        every provider in the database)."""
+        until = since + timedelta(days=days)
+        self.provider.write({"statement_creation_mode": "daily", "last_successful_run": since, "next_run": until})
+        before = self.provider.message_ids
+        with mock.patch(f"{PROVIDER}._eb_request", new=fake), self.assertLogs(MODULE, "WARNING") as logs:
+            self.provider.with_context(scheduled=True)._pull(since, until)
+        return self.provider.message_ids - before, "\n".join(logs.output)
+
+    def test_scheduled_retry_resumes_at_the_failed_period(self):
+        since = datetime.combine(fields.Date.today() - timedelta(days=3), datetime.min.time())
+        day1, day2 = since.date(), since.date() + timedelta(days=1)
+        booked = dict(SWISH, booking_date=str(day1), value_date=str(day1), entry_reference="EB-RETRY-1")
+        requested = []
+
+        def fake(provider, method, path, params=None, body=None):
+            requested.append(params["date_from"])
+            if params["date_from"] == str(day1):
+                return {"transactions": [booked], "continuation_key": None}
+            raise _eb_error("Enable Banking or the bank is temporarily unavailable (503).", status=503)
+
+        notes, log = self._scheduled(since, 3, fake)
+        self.assertEqual(requested, [str(day1), str(day2)], "stops at the first failure")
+        failures = notes.filtered(lambda m: "failed" in m.body)
+        self.assertEqual(len(failures), 1, notes.mapped("body"))
+        self.assertIn("temporarily unavailable", failures.body)
+        self.assertEqual(len(notes), 2, "the failure and day 1's new transaction")
+        self.assertIn("503", log)
+        imported = self.env["account.bank.statement.line"].search([("journal_id", "=", self.journal.id), ("date", "=", day1)])
+        self.assertEqual(len(imported), 1, "the period before the failure is imported")
+        self.assertEqual(self.provider.last_successful_run, datetime.combine(day2, datetime.min.time()),
+                         "the next run starts at the failed period, not at the window start")
+        # the next scheduled run, from last_successful_run as the OCA scheduler does
+        requested.clear()
+        with mock.patch(f"{PROVIDER}._eb_request", return_value={"transactions": [booked], "continuation_key": None, "balances": []}):
+            self.provider.with_context(scheduled=True)._pull(self.provider.last_successful_run, self.provider.next_run)
+        self.assertFalse(self.provider.eb_resume_from)
+        self.assertGreater(self.provider.last_successful_run, datetime.combine(day2, datetime.min.time()))
+        imported = self.env["account.bank.statement.line"].search([("journal_id", "=", self.journal.id), ("date", "=", day1)])
+        self.assertEqual(len(imported), 1, "no duplicate")
+
+    def test_scheduled_failure_that_repeats_is_skipped(self):
+        """A failure that would repeat for the same data (here a page loop) must not block every later day."""
+        since = datetime.combine(fields.Date.today() - timedelta(days=2), datetime.min.time())
+
+        def loop(provider, method, path, params=None, body=None):
+            return {"transactions": [], "continuation_key": "same"}
+
+        notes, _log = self._scheduled(since, 2, loop)
+        self.assertEqual(len(notes), 1, notes.mapped("body"))
+        self.assertIn("same page twice", notes.body)
+        self.assertIn("will not be pulled again automatically", notes.body)
+        self.assertEqual(self.provider.last_successful_run, since + timedelta(days=1),
+                         "only the failed day is skipped: the next run continues with day 2, never tried")
+
+    def test_scheduled_retry_gives_up_after_14_days(self):
+        since = datetime.combine(fields.Date.today() - timedelta(days=20), datetime.min.time())
+
+        def limit(provider, method, path, params=None, body=None):
+            raise _eb_error("Enable Banking: the bank's daily limit ... (429).", status=429)
+
+        notes, _log = self._scheduled(since, 3, limit)
+        self.assertEqual(len(notes), 1, notes.mapped("body"))
+        self.assertIn("will not be pulled again automatically", notes.body)
+        self.assertEqual(self.provider.last_successful_run, since + timedelta(days=1), "gives up on that day only")
+
+    def test_scheduled_unexpected_error_outside_the_request(self):
+        """An error in the line processing (outside the module's own try) is noted by the OCA hook,
+        with a fixed text; the raw text only in the log."""
+        since = datetime.combine(fields.Date.today() - timedelta(days=2), datetime.min.time())
+        broken = dict(SWISH, booking_date=str(since.date()), transaction_amount={"currency": "SEK", "amount": "SE0000000000000000000001"})
+
+        def fake(provider, method, path, params=None, body=None):
+            return {"transactions": [broken], "continuation_key": None}
+
+        notes, log = self._scheduled(since, 1, fake)
+        self.assertEqual(len(notes), 1, notes.mapped("body"))
+        bodies = notes.body
+        self.assertIn("unexpected error", bodies)
+        self.assertIn("will not be pulled again automatically", bodies, "a data error would repeat: skipped")
+        self.assertNotIn("SE0000000000000000000001", bodies)
+        self.assertNotIn("Failed to obtain statement data", bodies, "not the OCA base's own note")
+        self.assertIn("SE0000000000000000000001", log)
+
+    def test_user_error_text_is_kept(self):
+        """A UserError is meant for the user (a missing key): its text is shown, not 'unexpected error'."""
+        def no_key(provider, method, path, params=None, body=None):
+            raise UserError("Enable Banking: application id and private key are required.")
+
+        # not assertRaises: its savepoint rollback would also undo the note
+        with mock.patch(f"{PROVIDER}._eb_request", new=no_key), contextlib.suppress(UserError):
+            self.provider._obtain_statement_data(datetime(2026, 9, 1), datetime(2026, 9, 2))
+        self.assertIn("private key are required", self.provider.message_ids[0].body)
+
+    def test_failed_pull_shows_the_fixed_error_text(self):
+        def limit(provider, method, path, params=None, body=None):
+            raise _eb_error("Enable Banking: the bank's daily limit ...", status=429, code="RATE_LIMIT")
+        raised = False
+        with mock.patch(f"{PROVIDER}._eb_request", new=limit):
+            try:
+                self.provider._obtain_statement_data(datetime(2026, 9, 1), datetime(2026, 9, 2))
+            except UserError:
+                raised = True
+        self.assertTrue(raised)
+        self.assertIn("daily limit", self.provider.message_ids[0].body)
+
+    # --- The API answer: errors never carry the bank's raw text into the chatter ----------------
+
+    def _answer(self, status, json_body=None, text=None, exception=None):
+        response = mock.Mock(status_code=status, text=text if text is not None else str(json_body))
+        if json_body is None:
+            response.json.side_effect = ValueError("not json")
+        else:
+            response.json.return_value = json_body
+        patchers = [
+            mock.patch(f"{PROVIDER}._eb_jwt", return_value="jwt"),
+            mock.patch(f"{MODULE}.requests.request", side_effect=exception, return_value=response),
+        ]
+        for patcher in patchers:
+            patcher.start()
+            self.addCleanup(patcher.stop)
+
+    def _error(self, **answer):
+        self._answer(**answer)
+        with self.assertLogs(MODULE, "WARNING") as logs, self.assertRaises(UserError) as caught:
+            self.provider._eb_request("GET", "/accounts/acc-uid/transactions")
+        return caught.exception, "\n".join(logs.output)
+
+    def test_error_daily_limit(self):
+        body = {"error": "ASPSP_RATE_LIMIT_EXCEEDED", "message": "limit for SE0000000000000000000001"}
+        err, log = self._error(status=429, json_body=body)
+        self.assertIn("daily limit", str(err))
+        self.assertIn("429 ASPSP_RATE_LIMIT_EXCEEDED", str(err))
+        self.assertIn("does not need to be renewed", str(err))
+        self.assertNotIn("SE0000000000000000000001", str(err))
+        self.assertIn("SE0000000000000000000001", log, "the raw answer is logged")
+        self.assertEqual(_eb_short(err), "429 ASPSP_RATE_LIMIT_EXCEEDED")
+        self.assertIs(type(err), UserError, "a plain UserError: the web client shows a warning, not a crash dialog")
+
+    def test_error_kinds(self):
+        err, _log = self._error(status=503, json_body={"error": "ASPSP_ERROR"})
+        self.assertIn("temporarily unavailable (503 ASPSP_ERROR)", str(err))
+
+    def test_error_refused_without_code(self):
+        err, _log = self._error(status=401, text="<html>unauthorised</html>")
+        self.assertIn("refused the request (401)", str(err))
+        self.assertNotIn("html", str(err))
+
+    def test_error_code_that_is_not_a_code_is_dropped(self):
+        err, _log = self._error(status=422, json_body={"error": "account SE0000000000000000000001 is closed"})
+        self.assertEqual(str(err), "Enable Banking rejected the request (422).")
+
+    def test_error_network(self):
+        err, _log = self._error(status=200, exception=requests.ConnectionError("host SE0000000000000000000001"))
+        self.assertIn("could not be reached", str(err))
+        self.assertNotIn("SE0", str(err))
+
+    def test_error_unreadable_answer(self):
+        err, _log = self._error(status=200, text="<html>maintenance</html>")
+        self.assertIn("could not be read", str(err))
+
+    def test_pagination_stops_on_a_repeated_page(self):
+        def same_key(provider, method, path, params=None, body=None):
+            return {"transactions": [SWISH], "continuation_key": "k"}
+
+        with (
+            mock.patch(f"{PROVIDER}._eb_request", new=same_key),
+            self.assertRaisesRegex(UserError, "same page twice"),
+        ):
+            self.provider._enable_banking_request_transactions(datetime(2026, 9, 1), datetime(2026, 9, 2))
+
+    def test_pagination_has_a_page_limit(self):
+        counter = iter(range(1000))
+
+        def new_key(provider, method, path, params=None, body=None):
+            return {"transactions": [], "continuation_key": f"k{next(counter)}"}
+
+        with (
+            mock.patch(f"{PROVIDER}._eb_request", new=new_key),
+            self.assertRaisesRegex(UserError, "more than 100 pages"),
+        ):
+            self.provider._enable_banking_request_transactions(datetime(2026, 9, 1), datetime(2026, 9, 2))
+        self.assertEqual(next(counter), 100, "exactly 100 calls")
+
+    # --- Shapes some banks send ------------------------------------------------------------
+
+    def test_signed_amounts_are_not_flipped_twice(self):
+        lines, _ = self._pull([
+            dict(DEBIT, transaction_amount={"currency": "SEK", "amount": "-44445.00"}),
+            dict(SWISH, transaction_amount={"currency": "SEK", "amount": "-1000.00"}),
+            dict(DEBIT, credit_debit_indicator=None, transaction_amount={"currency": "SEK", "amount": "-12.50"}),
+        ])
+        self.assertEqual([line["amount"] for line in lines], [-44445.0, 1000.0, -12.5])
+
+    def test_transaction_code_as_a_string(self):
+        lines, _ = self._pull([dict(SWISH, bank_transaction_code="Swish"), dict(DEBIT, bank_transaction_code=None)])
+        self.assertEqual(lines[0]["transaction_type"], "Swish")
+        self.assertEqual(lines[0]["payment_ref"], "1234567890 Swish +46700000000", "Swish still recognised")
+        self.assertEqual(lines[1]["transaction_type"], "")
+
+    def test_remittance_as_a_string(self):
+        lines, _ = self._pull([dict(BANKGIRO, remittance_information="Faktura 17")])
+        self.assertEqual(lines[0]["payment_ref"], "Bankgiro inbetalning Faktura 17")
+
+    def test_line_hash_is_unchanged(self):
+        """The id of a line imported by earlier versions must not change, or it is imported again."""
+        tr, day = SWISH, "2026-09-14"
+        amount = tr["transaction_amount"]
+        parts = [
+            day, tr["credit_debit_indicator"], str(amount["amount"]), amount["currency"],
+            "|".join(tr["remittance_information"]), tr["debtor"]["name"], tr["creditor"]["name"],
+            tr["debtor_account"]["other"]["identification"], tr["bank_transaction_code"]["description"],
+        ]
+        expected = hashlib.sha1("\x1f".join(parts).encode()).hexdigest()[:20]
+        self.assertEqual(self.provider._enable_banking_line_hash(tr, day), expected)
+
+    # --- Connecting an account -------------------------------------------------------------
+
+    def test_account_in_another_currency_is_not_connected(self):
+        journal_currency = (self.journal.currency_id or self.company.currency_id).name
+        other = "EUR" if journal_currency != "EUR" else "SEK"
+        session = {"session_id": "s", "access": {}, "accounts": [
+            {"uid": "mine", "currency": other, "account_id": {"iban": "SE0000000000000000000001"}}]}
+        with mock.patch(f"{PROVIDER}._eb_request", return_value=session):
+            self.assertFalse(self.provider._enable_banking_finish_authorization("code"))
+        self.assertFalse(self.provider.eb_account_uid)
+        self.assertIn(f"is in {other}", self.provider.message_ids[0].body)
+        session["accounts"][0]["currency"] = journal_currency
+        with mock.patch(f"{PROVIDER}._eb_request", return_value=session):
+            self.assertTrue(self.provider._enable_banking_finish_authorization("code"))
+        self.assertEqual(self.provider.eb_account_uid, "mine")
 
     def test_pagination(self):
         pages = [{"transactions": [SWISH], "continuation_key": "k2"}, {"transactions": [BANKGIRO], "continuation_key": None}]

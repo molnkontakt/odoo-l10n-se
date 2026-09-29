@@ -73,7 +73,28 @@ more.
 - Messages from scheduled pulls follow the company's language (Swedish included).
 - **PSD2 rate limit**: banks allow 4 unattended calls per day, account and service
   (transactions, balances). Keep the scheduled pull at once per day; each manual
-  pull eats into the same budget and the bank answers 429 beyond it.
+  pull eats into the same budget and the bank answers 429 beyond it. The chatter then
+  says the daily limit is reached and that the connection does not need to be renewed.
+- **Errors** are fixed, translated texts by kind (daily limit, temporarily unavailable,
+  refused, rejected, network error, unreadable answer) with the HTTP status and Enable
+  Banking's error code. A scheduled pull notes the failure once in the chatter and the
+  result field; a manual pull shows it as a warning (nothing is saved). The bank's raw
+  answer, which can contain account numbers, only goes to the server log.
+- **A failed scheduled pull is retried** when the failure goes away by itself or with a new
+  consent (daily limit, 5xx, network, an unreadable answer, 401/403, an expired or missing
+  consent): the next scheduled pull starts at the period that failed (the OCA base alone would
+  skip it), for at most 14 days. It still stops at its first failure, so a dead connection
+  costs one call per run. A failure that would repeat for the same data (a malformed
+  transaction, a page loop), or one older than 14 days, skips only that period - the note
+  says so - and the next run continues with the period after it (the OCA base alone would
+  skip the rest of the window too); pull the skipped period manually once the cause is fixed.
+- An expired or missing consent is a failure, not an empty pull: one note per run, and the
+  periods are pulled once the bank is authorised again.
+- **Robust to bank variations**: the sign comes from the credit/debit indicator even
+  when a bank also signs the amount; the transaction type and the remittance
+  information are read whether the bank sends an object/list or a plain string. A pull
+  stops after 100 pages or when a page repeats. An account is only connected when its
+  currency is the journal's.
 - The private key is stored on the provider (system administrators only,
   masked in the form). Anyone with database access can read it; treat the
   database as you would the key.

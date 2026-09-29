@@ -39,10 +39,33 @@ EB_DATE_FORMAT = "%Y-%m-%d"
 # Bank-side maximum for AIS consents under PSD2 (Enable Banking reports it per
 # ASPSP as `maximum_consent_validity`); used when the ASPSP lookup fails.
 EB_DEFAULT_CONSENT_DAYS = 90
+# A pull of a normal period is a page or two; more means a loop or a runaway window.
+EB_MAX_PAGES = 100
+EB_ERROR_CODE_RE = re.compile(r"^[A-Z][A-Z0-9_]{2,59}$")
+# A failed scheduled pull is retried from the failed period only for failures that go away by
+# themselves or with a new consent, and at most this long; a failure that repeats for the same
+# data (a malformed answer, a page loop) must not block every later day.
+EB_RETRY_CODES = ("NETWORK", "UNREADABLE", "NO_CONSENT")
+EB_RETRY_MAX_DAYS = 14
 SWISH_RE = re.compile(r"Swish\s+(\+?\d[\d \-]{6,})", re.I)
 # Personal accounts (Swedbank via Enable Banking): no transaction type and no counterparty id; the payer
 # number only appears first in the remittance, e.g. "+46701234567    1833000000000000 swish mottagen".
 SWISH_PERSONAL_RE = re.compile(r"^\s*(\+?\d{9,15})\s+\d+\s+swish\b", re.I)
+
+
+def _eb_error(message, status=None, code=None):
+    """A failed Enable Banking call: a fixed, translated text for the user and the chatter; the
+    bank's raw answer (which can hold account numbers) only goes to the server log. A plain
+    UserError, because the web client shows a warning (not a crash dialog) only for that exact
+    class; the HTTP status and error code ride along as attributes."""
+    err = UserError(message)
+    err.eb_status, err.eb_code = status, code
+    return err
+
+
+def _eb_short(err):
+    """'429 ASPSP_RATE_LIMIT_EXCEEDED' for an Enable Banking error, '' otherwise."""
+    return " ".join(str(x) for x in (getattr(err, "eb_status", None), getattr(err, "eb_code", None)) if x)
 
 
 class OnlineBankStatementProvider(models.Model):
@@ -82,6 +105,10 @@ class OnlineBankStatementProvider(models.Model):
     eb_bank_balance_at = fields.Datetime(string="Bank balance fetched", readonly=True, copy=False)
     eb_balance_check = fields.Char(string="Balance check", readonly=True, copy=False)
     eb_balance_warning_key = fields.Char(readonly=True, copy=False)
+    # Where the next scheduled pull starts after a failed one: the failed period (retried) or the
+    # period after it (skipped). The OCA base alone moves last_successful_run to the end of the
+    # window even after a failure, skipping every period from the failed one on.
+    eb_resume_from = fields.Datetime(readonly=True, copy=False)
 
     @api.model
     def _get_available_services(self):
@@ -118,13 +145,59 @@ class OnlineBankStatementProvider(models.Model):
             "Content-Type": "application/json",
             "User-Agent": "odoo-account_statement_import_online_enable_banking/19.0",
         }
-        response = requests.request(method, url, params=params, json=body, headers=headers, timeout=60)
+        me = self if self.env.lang else self.with_context(lang=self._enable_banking_lang())  # cron: no language
+        try:
+            response = requests.request(method, url, params=params, json=body, headers=headers, timeout=60)
+        except requests.RequestException as err:
+            _logger.warning("Enable Banking %s %s: %s", method, path, err)
+            raise _eb_error(
+                me.env._("Enable Banking could not be reached (network error). Try again later."), code="NETWORK"
+            ) from None
         if response.status_code >= 400:
-            detail = response.text[:500]
-            _logger.warning("Enable Banking %s %s -> %s %s", method, path, response.status_code, detail)
-            me = self if self.env.lang else self.with_context(lang=self._enable_banking_lang())  # cron: no language
-            raise UserError(me.env._("Enable Banking answered %(status)s: %(detail)s", status=response.status_code, detail=detail))
-        return response.json()
+            _logger.warning("Enable Banking %s %s -> %s %s", method, path, response.status_code, response.text[:500])
+            code = self._enable_banking_error_code(response)
+            raise _eb_error(
+                self._enable_banking_error_text(me, response.status_code, code),
+                status=response.status_code, code=code,
+            )
+        try:
+            return response.json()
+        except ValueError:
+            _logger.warning("Enable Banking %s %s: unreadable answer %s", method, path, response.text[:200])
+            raise _eb_error(
+                me.env._("Enable Banking sent an answer that could not be read. Try again later."),
+                status=response.status_code, code="UNREADABLE",
+            ) from None
+
+    @staticmethod
+    def _enable_banking_error_code(response):
+        """The error code of an Enable Banking error answer ("ASPSP_ERROR"), when it has one."""
+        try:
+            data = response.json()
+        except ValueError:
+            return None
+        code = data.get("error") if isinstance(data, dict) else None
+        return code if isinstance(code, str) and EB_ERROR_CODE_RE.match(code) else None
+
+    @staticmethod
+    def _enable_banking_error_text(me, status, code):
+        ref = f"{status} {code}" if code else str(status)
+        _ = me.env._
+        if status == 429:
+            return _(
+                "Enable Banking: the bank's daily limit for account information is reached (%(ref)s). "
+                "Try again later; the connection does not need to be renewed.",
+                ref=ref,
+            )
+        if status in (401, 403):
+            return _(
+                "Enable Banking refused the request (%(ref)s). If it keeps happening, authorise with the bank "
+                "again.",
+                ref=ref,
+            )
+        if status >= 500:
+            return _("Enable Banking or the bank is temporarily unavailable (%(ref)s). Try again later.", ref=ref)
+        return _("Enable Banking rejected the request (%(ref)s).", ref=ref)
 
     # ------------------------------------------------------------ authorise
     def action_enable_banking_check_aspsp(self):
@@ -213,6 +286,18 @@ class OnlineBankStatementProvider(models.Model):
             "eb_session_id": session.get("session_id"),
             "eb_session_valid_until": self._eb_parse_datetime((session.get("access") or {}).get("valid_until")),
         }
+        journal_currency = (self.journal_id.currency_id or self.journal_id.company_id.currency_id).name
+        if chosen and chosen.get("currency") and journal_currency and chosen["currency"] != journal_currency:
+            self.write(dict(vals, eb_account_uid=False, eb_account_iban=False))
+            self.message_post(
+                body=self.env._(
+                    "Enable Banking: the account %(account)s is in %(currency)s, the journal in %(journal)s. "
+                    "It was not connected.",
+                    account=(chosen.get("account_id") or {}).get("iban") or chosen.get("uid"),
+                    currency=chosen["currency"], journal=journal_currency,
+                )
+            )
+            return False
         if chosen:
             vals.update({"eb_account_uid": chosen["uid"], "eb_account_iban": (chosen.get("account_id") or {}).get("iban")})
             self.write(vals)
@@ -295,13 +380,25 @@ class OnlineBankStatementProvider(models.Model):
         last = min(date_until - timedelta(days=1), fields.Datetime.now())
         if last >= date_since:
             params["date_to"] = last.strftime(EB_DATE_FORMAT)
-        transactions = []
-        while True:
+        me = self if self.env.lang else self.with_context(lang=self._enable_banking_lang())
+        transactions, keys = [], set()
+        for _page in range(EB_MAX_PAGES):
             data = self._eb_request("GET", f"/accounts/{self.eb_account_uid}/transactions", params=params)
             transactions += data.get("transactions") or []
-            if not data.get("continuation_key"):
+            key = data.get("continuation_key")
+            if not key:
                 return transactions
-            params = dict(params, continuation_key=data["continuation_key"])
+            if key in keys:
+                raise _eb_error(me.env._("Enable Banking sent the same page twice; the pull was stopped."))
+            keys.add(key)
+            params = dict(params, continuation_key=key)
+        raise _eb_error(
+            me.env._(
+                "Enable Banking sent more than %(pages)s pages of transactions; the pull was stopped. Pull a "
+                "shorter period.",
+                pages=EB_MAX_PAGES,
+            )
+        )
 
     def _enable_banking_request_balances(self):
         data = self._eb_request("GET", f"/accounts/{self.eb_account_uid}/balances")
@@ -311,18 +408,18 @@ class OnlineBankStatementProvider(models.Model):
         self.ensure_one()
         # Scheduled pulls run with an empty context (no language); texts follow the company.
         me = self.sudo().with_context(lang=self._enable_banking_lang(), tz=self._enable_banking_tz())
+        # A failure, not an empty pull: one note per run, and the periods are pulled once the bank is
+        # authorised again (an empty result would count as done).
+        tr = self if self.env.lang else me  # a manual pull shows it to the user in their language
         if not self.eb_account_uid or not self.eb_session_id:
-            me.message_post(body=me.env._("Enable Banking: no account connected. Authorise with the bank first."))
-            return [], {}
+            raise _eb_error(tr.env._("Enable Banking: no account connected. Authorise with the bank first."), code="NO_CONSENT")
         if self.eb_session_valid_until and self.eb_session_valid_until <= fields.Datetime.now():
-            me.message_post(body=me.env._("Enable Banking: the bank consent has expired. Authorise with the bank again."))
-            return [], {}
+            raise _eb_error(tr.env._("Enable Banking: the bank consent has expired. Authorise with the bank again."), code="NO_CONSENT")
         try:
             transactions = self._enable_banking_request_transactions(date_since, date_until)
         except Exception as err:
-            self.sudo().write({"eb_last_pull": fields.Datetime.now(), "eb_last_pull_summary": me.env._("FAILED: %s", err)[:250]})
-            me.message_post(body=me.env._("Enable Banking: pull for %(since)s – %(until)s failed: %(err)s",
-                                                     since=date_since.date(), until=(date_until - timedelta(days=1)).date(), err=err))
+            if not self.env.context.get("scheduled"):  # a scheduled failure is noted by _log_provider_exception
+                self._enable_banking_post_failure(err, date_since, date_until)
             raise
         own_iban = self.journal_id.bank_account_id.sanitized_acc_number or ""
         lines = []
@@ -360,10 +457,64 @@ class OnlineBankStatementProvider(models.Model):
                     })
             except Exception as err:  # noqa: BLE001 - transactions are already in hand
                 _logger.warning("Enable Banking: balance call failed, statement imported without closing balance: %s", err)
-                note = me.env._("; balance unavailable (%s)", str(err)[:80])
+                note = me.env._("; balance unavailable (%s)", _eb_short(err) or me.env._("error"))
         self._enable_banking_match_swish_partners(lines)
         self._enable_banking_record_pull(date_since, date_until, transactions, lines, note)
         return lines, statement_values
+
+    def _enable_banking_post_failure(self, err, date_since, date_until, skipped=False):
+        """One chatter note and the result field for a failed pull. A UserError carries a text meant
+        for the user (the fixed Enable Banking texts, a missing key); anything else is only named,
+        its details are in the server log."""
+        me = self.sudo().with_context(lang=self._enable_banking_lang(), tz=self._enable_banking_tz())
+        reason = str(err) if isinstance(err, UserError) else me.env._("unexpected error, see the server log")
+        period = {"since": date_since.date(), "until": (date_until - timedelta(days=1)).date()}
+        self.sudo().write({"eb_last_pull": fields.Datetime.now(), "eb_last_pull_summary": me.env._("FAILED: %s", reason)[:250]})
+        body = me.env._("Enable Banking: pull for %(since)s – %(until)s failed: %(err)s", err=reason, **period)
+        if skipped:
+            body += " " + me.env._(
+                "This period will not be pulled again automatically; pull it manually once the cause is fixed.")
+        me.message_post(body=body)
+
+    @staticmethod
+    def _enable_banking_retryable(exception):
+        """Failures that go away by themselves (daily limit, 5xx, network, an unreadable answer) or with a
+        new consent (401/403, expired or missing consent)."""
+        status = getattr(exception, "eb_status", None)
+        return (
+            getattr(exception, "eb_code", None) in EB_RETRY_CODES
+            or status in (401, 403, 429)
+            or (isinstance(status, int) and status >= 500)
+        )
+
+    def _log_provider_exception(self, exception, statement_date_since, statement_date_until):
+        """The OCA base posts str(exception) - which could be a bank's raw text - and moves on to the
+        next period for good. For Enable Banking: log with the traceback, note the failure once with a
+        fixed text, and pull the failed period again at the next scheduled run when the failure is
+        retryable and at most EB_RETRY_MAX_DAYS old; otherwise skip only that period and say so."""
+        if self.service != "enable_banking":
+            return super()._log_provider_exception(exception, statement_date_since, statement_date_until)
+        self.ensure_one()
+        _logger.warning("Enable Banking: provider %s failed to obtain statement data since %s until %s",
+                        self.id, statement_date_since, statement_date_until, exc_info=True)
+        # age by the period's end: a month-long period is recent when its last days are
+        retry = self._enable_banking_retryable(exception) and (
+            statement_date_until >= fields.Datetime.now() - timedelta(days=EB_RETRY_MAX_DAYS)
+        )
+        # retried: start again at the failed period; skipped: continue right after it, so the later
+        # periods of the window (never tried, the OCA loop stops at the first failure) are not lost
+        self.sudo().write({"eb_resume_from": statement_date_since if retry else statement_date_until})
+        self._enable_banking_post_failure(exception, statement_date_since, statement_date_until, skipped=not retry)
+
+    def _schedule_next_run(self):
+        """After a failed scheduled pull, start the next one at eb_resume_from (the failed period, or
+        the one after a skipped period); the OCA base would jump to the end of the window."""
+        self.ensure_one()
+        resume_from = self.eb_resume_from if self.service == "enable_banking" else False
+        res = super()._schedule_next_run()
+        if resume_from:
+            self.last_successful_run = resume_from
+        return res
 
     def _statement_create_or_write(self, statement_values):
         """The bank's booked balance can lag its own booked transactions within the day.
@@ -418,6 +569,8 @@ class OnlineBankStatementProvider(models.Model):
         return missing in sums
 
     def _pull(self, date_since, date_until):
+        # a failure of this pull sets it again (_log_provider_exception)
+        self.filtered(lambda p: p.service == "enable_banking" and p.eb_resume_from).sudo().write({"eb_resume_from": False})
         started = fields.Datetime.now()
         res = super()._pull(date_since, date_until)
         if not self.env.context.get("account_statement_online_import_debug"):
@@ -456,7 +609,7 @@ class OnlineBankStatementProvider(models.Model):
             return
         today = fields.Date.context_today(self)
         odoo_balance = last.balance_end
-        today_amounts = last.line_ids.filtered(lambda l: l.date == today).mapped("amount")
+        today_amounts = last.line_ids.filtered(lambda line: line.date == today).mapped("amount")
         booked = self.eb_bank_booked_balance
         available = self.eb_bank_available_balance if self.eb_bank_has_available else None
         when = fields.Datetime.context_timestamp(me, self.eb_bank_balance_at).strftime("%Y-%m-%d %H:%M")
@@ -521,8 +674,12 @@ class OnlineBankStatementProvider(models.Model):
 
     def _enable_banking_line_vals(self, tr, own_iban):
         amount = float((tr.get("transaction_amount") or {}).get("amount") or 0)
-        if (tr.get("credit_debit_indicator") or "CRDT") == "DBIT":
-            amount = -amount
+        # The indicator gives the sign; some banks also sign the amount, which must not flip it twice.
+        indicator = tr.get("credit_debit_indicator")
+        if indicator == "DBIT":
+            amount = -abs(amount)
+        elif indicator == "CRDT":
+            amount = abs(amount)
         other, other_account = (tr.get("debtor"), tr.get("debtor_account")) if amount >= 0 else (tr.get("creditor"), tr.get("creditor_account"))
         other = other or {}
         other_account = other_account or {}
@@ -530,8 +687,8 @@ class OnlineBankStatementProvider(models.Model):
         account_number = (other_account.get("iban") or "").replace(" ", "") or False
         if account_number and self._enable_banking_same_account(account_number, own_iban):
             account_number = False
-        description = ((tr.get("bank_transaction_code") or {}).get("description") or "").strip()
-        remittance = " ".join(part.strip() for part in (tr.get("remittance_information") or []) if part and part.strip())
+        description = self._enable_banking_transaction_type(tr)
+        remittance = " ".join(self._enable_banking_remittance(tr))
         phone = ""
         other_id = (other_account.get("other") or {}).get("identification") or ""
         if description.lower() == "swish" and other_id.startswith("+"):
@@ -564,14 +721,32 @@ class OnlineBankStatementProvider(models.Model):
         }
 
     @staticmethod
+    def _enable_banking_transaction_type(tr):
+        """bank_transaction_code is an object ({description, code, sub_code}); some banks send a string."""
+        code = tr.get("bank_transaction_code")
+        if isinstance(code, dict):
+            return (code.get("description") or "").strip()
+        return code.strip() if isinstance(code, str) else ""
+
+    @staticmethod
+    def _enable_banking_remittance(tr):
+        """remittance_information is a list of strings; a bank that sends one string must not be read letter by letter."""
+        value = tr.get("remittance_information") or []
+        if isinstance(value, str):
+            value = [value]
+        return [part.strip() for part in value if isinstance(part, str) and part.strip()]
+
+    @staticmethod
     def _enable_banking_line_hash(tr, date_string):
+        # Unchanged since the first import: the id of an imported line must stay the same.
         amount = tr.get("transaction_amount") or {}
+        code = tr.get("bank_transaction_code")
         parts = [
             date_string, tr.get("credit_debit_indicator") or "", str(amount.get("amount") or ""), amount.get("currency") or "",
             "|".join(tr.get("remittance_information") or []),
             (tr.get("debtor") or {}).get("name") or "", (tr.get("creditor") or {}).get("name") or "",
             ((tr.get("debtor_account") or {}).get("other") or {}).get("identification") or "",
-            (tr.get("bank_transaction_code") or {}).get("description") or "",
+            ((code.get("description") or "") if isinstance(code, dict) else (code if isinstance(code, str) else "")),
         ]
         return hashlib.sha1("\x1f".join(parts).encode()).hexdigest()[:20]
 

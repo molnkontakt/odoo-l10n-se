@@ -202,8 +202,105 @@ msgstr "Enable Banking"
 #. module: account_statement_import_online_enable_banking
 #. odoo-python
 #: code:addons/account_statement_import_online_enable_banking/models/online_bank_statement_provider.py:0
-msgid "Enable Banking answered %(status)s: %(detail)s"
-msgstr "Enable Banking svarade %(status)s: %(detail)s"
+msgid "Enable Banking could not be reached (network error). Try again later."
+msgstr "Enable Banking gick inte att nå (nätverksfel). Försök igen senare."
+
+#. module: account_statement_import_online_enable_banking
+#. odoo-python
+#: code:addons/account_statement_import_online_enable_banking/models/online_bank_statement_provider.py:0
+msgid ""
+"Enable Banking or the bank is temporarily unavailable (%(ref)s). Try again "
+"later."
+msgstr ""
+"Enable Banking eller banken är tillfälligt otillgänglig (%(ref)s). Försök "
+"igen senare."
+
+#. module: account_statement_import_online_enable_banking
+#. odoo-python
+#: code:addons/account_statement_import_online_enable_banking/models/online_bank_statement_provider.py:0
+msgid ""
+"Enable Banking refused the request (%(ref)s). If it keeps happening, "
+"authorise with the bank again."
+msgstr ""
+"Enable Banking nekade anropet (%(ref)s). Om det fortsätter, godkänn hos "
+"banken igen."
+
+#. module: account_statement_import_online_enable_banking
+#. odoo-python
+#: code:addons/account_statement_import_online_enable_banking/models/online_bank_statement_provider.py:0
+msgid "Enable Banking rejected the request (%(ref)s)."
+msgstr "Enable Banking avvisade anropet (%(ref)s)."
+
+#. module: account_statement_import_online_enable_banking
+#. odoo-python
+#: code:addons/account_statement_import_online_enable_banking/models/online_bank_statement_provider.py:0
+msgid "Enable Banking sent an answer that could not be read. Try again later."
+msgstr ""
+"Enable Banking skickade ett svar som inte gick att läsa. Försök igen senare."
+
+#. module: account_statement_import_online_enable_banking
+#. odoo-python
+#: code:addons/account_statement_import_online_enable_banking/models/online_bank_statement_provider.py:0
+msgid ""
+"Enable Banking sent more than %(pages)s pages of transactions; the pull was "
+"stopped. Pull a shorter period."
+msgstr ""
+"Enable Banking skickade fler än %(pages)s sidor transaktioner; hämtningen "
+"stoppades. Hämta en kortare period."
+
+#. module: account_statement_import_online_enable_banking
+#. odoo-python
+#: code:addons/account_statement_import_online_enable_banking/models/online_bank_statement_provider.py:0
+msgid "Enable Banking sent the same page twice; the pull was stopped."
+msgstr "Enable Banking skickade samma sida två gånger; hämtningen stoppades."
+
+#. module: account_statement_import_online_enable_banking
+#. odoo-python
+#: code:addons/account_statement_import_online_enable_banking/models/online_bank_statement_provider.py:0
+msgid ""
+"Enable Banking: the account %(account)s is in %(currency)s, the journal in "
+"%(journal)s. It was not connected."
+msgstr ""
+"Enable Banking: kontot %(account)s är i %(currency)s, journalen i "
+"%(journal)s. Det kopplades inte."
+
+#. module: account_statement_import_online_enable_banking
+#. odoo-python
+#: code:addons/account_statement_import_online_enable_banking/models/online_bank_statement_provider.py:0
+msgid ""
+"Enable Banking: the bank's daily limit for account information is reached "
+"(%(ref)s). Try again later; the connection does not need to be renewed."
+msgstr ""
+"Enable Banking: bankens dagliga gräns för kontoinformation är nådd "
+"(%(ref)s). Försök igen senare; kopplingen behöver inte förnyas."
+
+#. module: account_statement_import_online_enable_banking
+#. odoo-python
+#: code:addons/account_statement_import_online_enable_banking/models/online_bank_statement_provider.py:0
+msgid ""
+"This period will not be pulled again automatically; pull it manually once the "
+"cause is fixed."
+msgstr ""
+"Perioden hämtas inte igen automatiskt; hämta den manuellt när orsaken är "
+"åtgärdad."
+
+#. module: account_statement_import_online_enable_banking
+#. odoo-python
+#: code:addons/account_statement_import_online_enable_banking/models/online_bank_statement_provider.py:0
+msgid "error"
+msgstr "fel"
+
+#. module: account_statement_import_online_enable_banking
+#. odoo-python
+#: code:addons/account_statement_import_online_enable_banking/models/online_bank_statement_provider.py:0
+msgid "unexpected error, see the server log"
+msgstr "oväntat fel, se serverloggen"
+
+#. module: account_statement_import_online_enable_banking
+#. odoo-python
+#: code:addons/account_statement_import_online_enable_banking/controllers/main.py:0
+msgid "no code"
+msgstr "ingen kod"
 
 #. module: account_statement_import_online_enable_banking
 #. odoo-python

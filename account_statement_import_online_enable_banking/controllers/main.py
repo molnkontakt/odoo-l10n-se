@@ -3,6 +3,7 @@ import werkzeug
 from werkzeug.urls import url_encode
 
 from odoo import http
+from odoo.exceptions import UserError
 from odoo.http import request
 
 
@@ -26,10 +27,13 @@ class EnableBankingController(http.Controller):
         }
         if provider:
             if code and not error:
-                provider._enable_banking_finish_authorization(code)
+                try:
+                    provider._enable_banking_finish_authorization(code)
+                except UserError as err:  # fixed texts; the raw answer is in the server log
+                    provider.message_post(body=str(err))
             else:
                 provider.message_post(
-                    body=request.env._("Enable Banking authorisation failed: %s", error or "no code")
+                    body=request.env._("Enable Banking authorisation failed: %s", (error or request.env._("no code"))[:100])
                 )
             params.update({"view_type": "form", "id": provider.id})
         return werkzeug.utils.redirect("/web#" + url_encode(params), 303)
