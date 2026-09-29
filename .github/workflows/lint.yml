@@ -43,11 +43,14 @@ jobs:
         run: |
           python - <<'PY'
           import ast, pathlib
+          # AGPL-3 only where the module extends an AGPL-3 module (OCA account_statement_import_online)
+          AGPL = {'account_statement_import_online_enable_banking'}
           for m in sorted(pathlib.Path('.').glob('*/__manifest__.py')):
               d = ast.literal_eval(m.read_text())
               assert d['name'], f'{m}: name required'
               assert d['version'].startswith('19.0.') and d['version'].count('.') == 4, f'{m}: version must be 19.0.x.y.z, got {d["version"]}'
-              assert d['license'] == 'LGPL-3', f'{m}: license must be LGPL-3'
+              expected = 'AGPL-3' if m.parent.name in AGPL else 'LGPL-3'
+              assert d['license'] == expected, f'{m}: license must be {expected}'
               assert d.get('author') == 'Molnkontakt AB', f'{m}: author'
               print('manifest OK:', m.parent.name, d['version'])
           PY

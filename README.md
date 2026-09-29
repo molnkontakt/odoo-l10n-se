@@ -53,4 +53,6 @@ avstämning, påminnelser och avgifter som kan uppstå vid användning.
 
 ## License
 
-LGPL-3, same as the surrounding Odoo CE ecosystem.
+LGPL-3, same as the surrounding Odoo CE ecosystem, except
+`account_statement_import_online_enable_banking`: AGPL-3, because the OCA module it extends
+(`account_statement_import_online`) is AGPL-3.
