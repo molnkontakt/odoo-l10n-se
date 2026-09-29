@@ -329,6 +329,30 @@ msgstr "Enable Banking: banksamtycket har gått ut, godkänn igen"
 #. module: account_statement_import_online_enable_banking
 #. odoo-python
 #: code:addons/account_statement_import_online_enable_banking/models/online_bank_statement_provider.py:0
+msgid "Enable Banking: the bank ended the connection, authorise again"
+msgstr "Enable Banking: banken har avslutat kopplingen, godkänn igen"
+
+#. module: account_statement_import_online_enable_banking
+#. odoo-python
+#: code:addons/account_statement_import_online_enable_banking/models/online_bank_statement_provider.py:0
+msgid "The bank answered %(ref)s for %(journal)s: the connection has ended before its consent expired. Open the provider and click <i>Authorise with the bank</i>, and select every account at this bank that Odoo pulls: some banks (SEB) allow one connection per person, so authorising one account ends the connection of another."
+msgstr "Banken svarade %(ref)s för %(journal)s: kopplingen har avslutats innan samtycket gick ut. Öppna leverantören och klicka på <i>Godkänn hos banken</i>, och välj alla konton hos banken som Odoo hämtar: vissa banker (SEB) tillåter en koppling per person, så att godkänna ett konto avslutar kopplingen för ett annat."
+
+#. module: account_statement_import_online_enable_banking
+#. odoo-python
+#: code:addons/account_statement_import_online_enable_banking/models/online_bank_statement_provider.py:0
+msgid "Enable Banking: connected to account %(account)s through the authorisation on %(journal)s (same consent)."
+msgstr "Enable Banking: kopplad till kontot %(account)s genom godkännandet på %(journal)s (samma samtycke)."
+
+#. module: account_statement_import_online_enable_banking
+#. odoo-python
+#: code:addons/account_statement_import_online_enable_banking/models/online_bank_statement_provider.py:0
+msgid "Enable Banking: the same consent also connected %s."
+msgstr "Enable Banking: samma samtycke kopplade även %s."
+
+#. module: account_statement_import_online_enable_banking
+#. odoo-python
+#: code:addons/account_statement_import_online_enable_banking/models/online_bank_statement_provider.py:0
 msgid "Enable Banking: connected to account %s."
 msgstr "Enable Banking: kopplad till kontot %s."
 

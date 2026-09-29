@@ -27,6 +27,7 @@ import time
 from datetime import UTC, datetime, timedelta
 
 import requests
+from markupsafe import Markup
 from werkzeug.urls import url_join
 
 from odoo import api, fields, models
@@ -47,6 +48,13 @@ EB_ERROR_CODE_RE = re.compile(r"^[A-Z][A-Z0-9_]{2,59}$")
 # data (a malformed answer, a page loop) must not block every later day.
 EB_RETRY_CODES = ("NETWORK", "UNREADABLE", "NO_CONSENT")
 EB_RETRY_MAX_DAYS = 14
+# A 401/403 with one of these codes means the bank has ended the session: no retry helps, the
+# signatory must authorise again. A 401/403 without one (a bad application key) is not that.
+# SEB allows one session per person: authorising one account ends the session of another.
+EB_DEAD_SESSION_CODES = {
+    "CLOSED_SESSION", "EXPIRED_SESSION", "SESSION_EXPIRED", "INVALID_SESSION", "SESSION_NOT_FOUND",
+    "WRONG_SESSION_STATUS",
+}
 SWISH_RE = re.compile(r"Swish\s+(\+?\d[\d \-]{6,})", re.I)
 # Personal accounts (Swedbank via Enable Banking): no transaction type and no counterparty id; the payer
 # number only appears first in the remittance, e.g. "+46701234567    1833000000000000 swish mottagen".
@@ -177,7 +185,8 @@ class OnlineBankStatementProvider(models.Model):
         except ValueError:
             return None
         code = data.get("error") if isinstance(data, dict) else None
-        return code if isinstance(code, str) and EB_ERROR_CODE_RE.match(code) else None
+        code = code.strip().upper() if isinstance(code, str) else None
+        return code if code and EB_ERROR_CODE_RE.match(code) else None
 
     @staticmethod
     def _enable_banking_error_text(me, status, code):
@@ -297,12 +306,14 @@ class OnlineBankStatementProvider(models.Model):
                     currency=chosen["currency"], journal=journal_currency,
                 )
             )
+            self._enable_banking_connect_siblings(session, [a for a in accounts if a is not chosen])
             return False
         if chosen:
             vals.update({"eb_account_uid": chosen["uid"], "eb_account_iban": (chosen.get("account_id") or {}).get("iban")})
             self.write(vals)
             self.message_post(body=self.env._("Enable Banking: connected to account %s.", vals["eb_account_iban"] or chosen["uid"]))
             self._enable_banking_renewal_activities().action_feedback(feedback=self.env._("Consent renewed."))
+            self._enable_banking_connect_siblings(session, [a for a in accounts if a is not chosen])
         else:
             vals.update({"eb_account_uid": False, "eb_account_iban": False})
             self.write(vals)
@@ -313,7 +324,48 @@ class OnlineBankStatementProvider(models.Model):
                     n=len(accounts), ibans=ibans, own=f" ({own_iban})" if own_iban else "",
                 )
             )
+            self._enable_banking_connect_siblings(session, accounts)
         return chosen is not None
+
+    def _enable_banking_connect_siblings(self, session, accounts):
+        """One consent can cover several accounts at the bank. Connect the other providers for the same bank
+        whose journal account is among them to this session: some banks (SEB) allow one session per person,
+        so a separate authorisation for each would end the previous one."""
+        self.ensure_one()
+        if not accounts:
+            return
+        # The session belongs to this Enable Banking application: only providers signing with the same one
+        # can use it. Across companies on purpose: SEB's one session per person spans companies too.
+        siblings = self.sudo().search([
+            ("service", "=", "enable_banking"), ("id", "!=", self.id),
+            ("eb_aspsp_name", "=ilike", self.eb_aspsp_name), ("eb_aspsp_country", "=", self.eb_aspsp_country),
+            ("username", "=", self.username), ("api_base", "=", self.api_base),
+        ]).filtered(lambda p: p.certificate_private_key == self.certificate_private_key)
+        connected = []
+        for sibling in siblings:
+            own = sibling.journal_id.bank_account_id.sanitized_acc_number or ""
+            currency = (sibling.journal_id.currency_id or sibling.journal_id.company_id.currency_id).name
+            match = next((a for a in accounts if own and self._enable_banking_same_account((a.get("account_id") or {}).get("iban"), own)), None)
+            if not match or (match.get("currency") and currency and match["currency"] != currency):
+                continue
+            iban = (match.get("account_id") or {}).get("iban")
+            sibling.write({
+                "eb_session_id": session.get("session_id"), "eb_account_uid": match["uid"], "eb_account_iban": iban,
+                "eb_session_valid_until": self.eb_session_valid_until, "eb_auth_state": False,
+            })
+            me = sibling.with_context(lang=sibling._enable_banking_lang())
+            sibling.message_post(body=me.env._(
+                "Enable Banking: connected to account %(account)s through the authorisation on %(journal)s (same consent).",
+                account=iban or match["uid"], journal=self._enable_banking_journal_label()))
+            sibling._enable_banking_renewal_activities().action_feedback(feedback=me.env._("Consent renewed."))
+            connected.append(sibling._enable_banking_journal_label())
+        if connected:
+            self.message_post(body=self.env._(
+                "Enable Banking: the same consent also connected %s.", ", ".join(connected)))
+
+    def _enable_banking_journal_label(self):
+        """'Bank (Company)': journals of different companies often share a name."""
+        return f"{self.journal_id.display_name} ({self.journal_id.company_id.name})"
 
     # -------------------------------------------------------------- renewal
     def _enable_banking_renewal_activities(self):
@@ -333,23 +385,54 @@ class OnlineBankStatementProvider(models.Model):
                 continue
             if provider._enable_banking_renewal_activities():
                 continue
-            user = provider.eb_renewal_user_id or provider.create_uid
             me = provider.with_context(lang=provider._enable_banking_lang())
             if days_left >= 0:
                 summary = me.env._("Enable Banking: renew the bank consent (expires in %s days)", days_left)
             else:
                 summary = me.env._("Enable Banking: bank consent expired, authorise again")
-            note = me.env._(
+            note = Markup(me.env._(
                 "The consent for %(journal)s expires %(when)s. Open the provider and click "
-                "<i>Authorise with the bank</i> (BankID as the account's signatory).",
-                journal=provider.journal_id.display_name, when=fields.Datetime.to_string(provider.eb_session_valid_until),
-            )
-            provider.activity_schedule(
-                "mail.mail_activity_data_todo", summary=summary, note=note, user_id=user.id,
-                date_deadline=max(provider.eb_session_valid_until.date(), now.date()),
-            )
-            provider.message_post(body=summary + ". " + note, partner_ids=user.partner_id.ids)
+                "<i>Authorise with the bank</i> (BankID as the account's signatory)."
+            )) % {"journal": provider.journal_id.display_name, "when": fields.Datetime.to_string(provider.eb_session_valid_until)}
+            provider._enable_banking_schedule_renewal(summary, note, max(provider.eb_session_valid_until.date(), now.date()))
         return True
+
+    def _enable_banking_schedule_renewal(self, summary, note, deadline, urgent=False):
+        """A to-do for the renewal user and a chatter note that mentions them; one open to-do at a time.
+        `note` is HTML (Markup). Urgent (the bank ended the session): an open to-do - typically the
+        reminder before expiry, due later - is updated to this text and today."""
+        self.ensure_one()
+        user = self.eb_renewal_user_id or self.create_uid
+        open_todos = self._enable_banking_renewal_activities()
+        if not open_todos:
+            self.activity_schedule("mail.mail_activity_data_todo", summary=summary, note=note, user_id=user.id, date_deadline=deadline)
+        elif urgent:
+            open_todos.write({"summary": summary, "note": note, "date_deadline": deadline})
+        else:
+            return
+        self.message_post(body=Markup("%s. %s") % (summary, note), partner_ids=user.partner_id.ids)
+
+    @staticmethod
+    def _enable_banking_session_ended(exception):
+        return getattr(exception, "eb_status", None) in (401, 403) and getattr(exception, "eb_code", None) in EB_DEAD_SESSION_CODES
+
+    def _enable_banking_mark_session_ended(self, exception):
+        """The bank ended the session: every provider on it is disconnected from now on, and the renewal
+        user gets a to-do at once instead of when the consent would have expired."""
+        self.ensure_one()
+        now = fields.Datetime.now()
+        on_session = self.search([("service", "=", "enable_banking"), ("eb_session_id", "=", self.eb_session_id)]) if self.eb_session_id else self
+        for provider in on_session.sudo():
+            provider.write({"eb_session_valid_until": now})
+            me = provider.with_context(lang=provider._enable_banking_lang())
+            summary = me.env._("Enable Banking: the bank ended the connection, authorise again")
+            note = Markup(me.env._(
+                "The bank answered %(ref)s for %(journal)s: the connection has ended before its consent expired. "
+                "Open the provider and click <i>Authorise with the bank</i>, and select every account at this bank "
+                "that Odoo pulls: some banks (SEB) allow one connection per person, so authorising one account "
+                "ends the connection of another."
+            )) % {"ref": _eb_short(exception), "journal": provider.journal_id.display_name}
+            provider._enable_banking_schedule_renewal(summary, note, now.date(), urgent=True)
 
     def action_enable_banking_reset(self):
         self.write({"eb_auth_state": False, "eb_session_id": False, "eb_session_valid_until": False, "eb_account_uid": False, "eb_account_iban": False})
@@ -505,6 +588,8 @@ class OnlineBankStatementProvider(models.Model):
         # periods of the window (never tried, the OCA loop stops at the first failure) are not lost
         self.sudo().write({"eb_resume_from": statement_date_since if retry else statement_date_until})
         self._enable_banking_post_failure(exception, statement_date_since, statement_date_until, skipped=not retry)
+        if self._enable_banking_session_ended(exception):
+            self._enable_banking_mark_session_ended(exception)
 
     def _schedule_next_run(self):
         """After a failed scheduled pull, start the next one at eb_resume_from (the failed period, or

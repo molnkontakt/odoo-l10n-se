@@ -90,6 +90,16 @@ more.
   skip the rest of the window too); pull the skipped period manually once the cause is fixed.
 - An expired or missing consent is a failure, not an empty pull: one note per run, and the
   periods are pulled once the bank is authorised again.
+- **A session the bank has ended** (401/403 with `EXPIRED_SESSION`, `CLOSED_SESSION`,
+  `INVALID_SESSION` and the like, long before the consent's end date) disconnects every
+  provider on that session at once and gives the renewal user a to-do right away, instead of
+  failing with only a note until the consent would have expired. It is detected on the
+  scheduled pull. A 401/403 without such a code (a bad application key) does not count.
+- **One consent, several accounts.** SEB allows one session per person: authorising one
+  account ends the session of another. Select every account at the bank that Odoo pulls in the
+  bank's consent screen; the authorisation then also connects the other providers for the same
+  bank and the same Enable Banking application whose journal account is in the consent (same
+  currency) - in any company, as the consent does - and closes their renewal to-dos.
 - **Robust to bank variations**: the sign comes from the credit/debit indicator even
   when a bank also signs the amount; the transaction type and the remittance
   information are read whether the bank sends an object/list or a plain string. A pull

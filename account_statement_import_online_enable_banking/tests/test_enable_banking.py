@@ -477,6 +477,109 @@ class TestEnableBanking(TransactionCase):
         expected = hashlib.sha1("\x1f".join(parts).encode()).hexdigest()[:20]
         self.assertEqual(self.provider._enable_banking_line_hash(tr, day), expected)
 
+    # --- A session the bank has ended; one consent for several accounts ------------------------
+
+    def _sibling(self, iban, code, aspsp="Mock ASPSP", currency=None, app="app-id"):
+        bank = self.env["res.partner.bank"].create({"acc_number": iban, "partner_id": self.company.partner_id.id})
+        journal = self.env["account.journal"].create({
+            "name": f"EB {code}", "type": "bank", "code": code, "company_id": self.company.id,
+            "bank_account_id": bank.id, **({"currency_id": currency.id} if currency else {}),
+        })
+        return self.env["online.bank.statement.provider"].create({
+            "journal_id": journal.id, "service": "enable_banking", "username": app,
+            "certificate_private_key": "-----BEGIN PRIVATE KEY-----\nnot-a-key\n-----END PRIVATE KEY-----",
+            "eb_aspsp_name": aspsp, "eb_session_id": "old", "eb_account_uid": "old-uid",
+            "eb_session_valid_until": fields.Datetime.now() + timedelta(days=30),
+        })
+
+    def test_ended_session_is_marked_at_once(self):
+        """401 EXPIRED_SESSION: every provider on the session gets a to-do now, not when the consent expires."""
+        sibling = self._sibling("SE0000000000000000000002", "EBS")
+        sibling.eb_session_id = self.provider.eb_session_id
+
+        def ended(provider, method, path, params=None, body=None):
+            raise _eb_error("Enable Banking refused the request (401 EXPIRED_SESSION).", status=401, code="EXPIRED_SESSION")
+
+        since = datetime.combine(fields.Date.today() - timedelta(days=1), datetime.min.time())
+        notes, _log = self._scheduled(since, 1, ended)
+        now = fields.Datetime.now()
+        for provider in self.provider | sibling:
+            self.assertLessEqual(provider.eb_session_valid_until, now)
+            self.assertTrue(provider._enable_banking_renewal_activities(), provider.journal_id.code)
+            self.assertIn("ended the connection", provider.message_ids[0].body)
+        self.assertEqual(self.provider.last_successful_run, since, "pulled again after the new authorisation")
+        # the next run does not call the bank: no account data without a consent
+        with mock.patch(f"{PROVIDER}._eb_request", side_effect=AssertionError("no call")), contextlib.suppress(UserError):
+            self.provider._obtain_statement_data(since, since + timedelta(days=1))
+
+    def test_ended_session_makes_the_open_reminder_urgent(self):
+        """The reminder before expiry (due at the old end date) becomes the ended-connection to-do, due today."""
+        self.provider.activity_schedule("mail.mail_activity_data_todo", summary="Enable Banking: renew the bank consent (expires in 10 days)",
+                                        user_id=self.env.uid, date_deadline=fields.Date.today() + timedelta(days=10))
+
+        def ended(provider, method, path, params=None, body=None):
+            raise _eb_error("Enable Banking refused the request (401 EXPIRED_SESSION).", status=401, code="EXPIRED_SESSION")
+
+        since = datetime.combine(fields.Date.today() - timedelta(days=1), datetime.min.time())
+        self._scheduled(since, 1, ended)
+        todo = self.provider._enable_banking_renewal_activities()
+        self.assertEqual(len(todo), 1)
+        self.assertIn("ended the connection", todo.summary)
+        self.assertEqual(todo.date_deadline, fields.Date.today())
+        body = self.provider.message_ids[0].body
+        self.assertIn("<i>", body, "the note is HTML, not escaped text")
+        self.assertNotIn("&lt;i&gt;", body)
+
+    def test_error_code_is_read_case_insensitively(self):
+        err, _log = self._error(status=401, json_body={"error": "expired_session"})
+        self.assertEqual(err.eb_code, "EXPIRED_SESSION")
+
+    def test_refused_without_a_session_code_is_not_an_ended_session(self):
+        """A 401 without a session code (a bad application key) keeps the consent and makes no to-do."""
+        valid_until = self.provider.eb_session_valid_until
+
+        def refused(provider, method, path, params=None, body=None):
+            raise _eb_error("Enable Banking refused the request (401).", status=401)
+
+        since = datetime.combine(fields.Date.today() - timedelta(days=1), datetime.min.time())
+        self._scheduled(since, 1, refused)
+        self.assertEqual(self.provider.eb_session_valid_until, valid_until)
+        self.assertFalse(self.provider._enable_banking_renewal_activities())
+
+    def test_one_consent_connects_the_other_accounts(self):
+        """SEB allows one session per person: the other providers whose account is in the consent join it."""
+        savings = self._sibling("SE0000000000000000000002", "EBS")
+        other_currency = self._sibling("SE0000000000000000000003", "EBE", currency=self.env.ref("base.EUR"))
+        other_bank = self._sibling("SE0000000000000000000004", "EBO", aspsp="Other Bank")
+        other_app = self._sibling("SE0000000000000000000005", "EBA", app="another-app")
+        savings.activity_schedule("mail.mail_activity_data_todo", summary="Enable Banking: renew", user_id=self.env.uid)
+        session = {"session_id": "shared", "access": {"valid_until": "2027-03-01T10:00:00+00:00"}, "accounts": [
+            {"uid": "mine", "account_id": {"iban": "SE0000000000000000000001"}},
+            {"uid": "savings", "account_id": {"iban": "SE0000000000000000000002"}},
+            {"uid": "eur", "currency": "SEK", "account_id": {"iban": "SE0000000000000000000003"}},
+            {"uid": "elsewhere", "account_id": {"iban": "SE0000000000000000000004"}},
+            {"uid": "other-app", "account_id": {"iban": "SE0000000000000000000005"}},
+        ]}
+        with mock.patch(f"{PROVIDER}._eb_request", return_value=session):
+            self.assertTrue(self.provider._enable_banking_finish_authorization("code"))
+        self.assertEqual((savings.eb_session_id, savings.eb_account_uid), ("shared", "savings"))
+        self.assertEqual(savings.eb_session_valid_until, self.provider.eb_session_valid_until)
+        self.assertFalse(savings._enable_banking_renewal_activities(), "its to-do is done")
+        self.assertTrue(any("same consent" in m.body for m in savings.message_ids), savings.message_ids.mapped("body"))
+        self.assertIn("EB EBS", self.provider.message_ids[0].body)
+        self.assertEqual(other_currency.eb_session_id, "old", "another currency is not connected")
+        self.assertEqual(other_bank.eb_session_id, "old", "another bank is not connected")
+        self.assertEqual(other_app.eb_session_id, "old", "a session belongs to its Enable Banking application")
+
+    def test_consent_without_this_account_still_connects_the_others(self):
+        """Authorised from a provider whose own account is not in the consent: the others still join."""
+        savings = self._sibling("SE0000000000000000000002", "EBS")
+        session = {"session_id": "shared", "access": {}, "accounts": [
+            {"uid": "savings", "account_id": {"iban": "SE0000000000000000000002"}}]}
+        with mock.patch(f"{PROVIDER}._eb_request", return_value=session):
+            self.assertFalse(self.provider._enable_banking_finish_authorization("code"))
+        self.assertEqual((savings.eb_session_id, savings.eb_account_uid), ("shared", "savings"))
+
     # --- Connecting an account -------------------------------------------------------------
 
     def test_account_in_another_currency_is_not_connected(self):

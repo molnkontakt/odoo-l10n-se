@@ -100,6 +100,15 @@ one section per module. The format follows
 
 ## account_statement_import_online_enable_banking
 
+### [19.0.1.6.0] — 2026-09-29
+
+- A session the bank has ended (401/403 with a session code such as `EXPIRED_SESSION`) disconnects
+  every provider on that session and gives the renewal user a to-do at once; before, the pulls
+  failed until the consent's end date. A 401/403 without such a code is not treated as that.
+- One consent for several accounts at the same bank connects the other providers whose journal
+  account is in it (same currency). SEB allows one session per person, so a separate
+  authorisation per account ended the previous one.
+
 ### [19.0.1.5.0] — 2026-09-29
 
 - Fixed: a debit whose amount the bank also sent as negative became a credit; the sign now
