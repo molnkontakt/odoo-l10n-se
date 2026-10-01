@@ -1,0 +1,1104 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* l10n_se_compliance_calendar
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-01 11:00+0000\n"
+"PO-Revision-Date: 2026-10-01 11:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: sv\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. module: l10n_se_compliance_calendar
+#. odoo-python
+#: code:addons/l10n_se_compliance_calendar/models/compliance_custom_rule.py:0
+msgid "%(amount)s %(unit)s %(direction)s %(anchor)s (%(date)s)."
+msgstr "%(amount)s %(unit)s %(direction)s %(anchor)s (%(date)s)."
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.constraint,message:l10n_se_compliance_calendar.constraint_calendar_event_l10n_se_cc_key_uniq
+msgid "A compliance calendar key must be unique per company."
+msgstr "En årshjulsnyckel måste vara unik per bolag."
+
+#. module: l10n_se_compliance_calendar
+#: model_terms:ir.actions.act_window,help:l10n_se_compliance_calendar.action_l10n_se_compliance_anchor
+msgid ""
+"A date that is decided each year, such as the annual meeting. Relative custom rules\n"
+"                point to it by name."
+msgstr ""
+"Ett datum som bestäms varje år, till exempel årsmötet. Relativa egna regler "
+"pekar på det med namn."
+
+#. module: l10n_se_compliance_calendar
+#: model_terms:ir.actions.act_window,help:l10n_se_compliance_calendar.action_l10n_se_compliance_custom_rule
+msgid ""
+"A fixed day every year (e.g. year-end accounts by 15 February), or a number of days,\n"
+"                weeks or months before or after an anchor date (e.g. notice of the annual meeting\n"
+"                14 days before it)."
+msgstr ""
+"En fast dag varje år (t.ex. bokslut senast 15 februari), eller ett antal "
+"dagar, veckor eller månader före eller efter ett ankardatum (t.ex. kallelse "
+"till årsmötet 14 dagar före)."
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_l10n_se_compliance_anchor__active
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_l10n_se_compliance_custom_rule__active
+msgid "Active"
+msgstr "Aktiv"
+
+#. module: l10n_se_compliance_calendar
+#: model_terms:ir.actions.act_window,help:l10n_se_compliance_calendar.action_l10n_se_compliance_custom_rule
+msgid "Add a date of your own"
+msgstr "Lägg till ett eget datum"
+
+#. module: l10n_se_compliance_calendar
+#: model_terms:ir.actions.act_window,help:l10n_se_compliance_calendar.action_l10n_se_compliance_anchor
+msgid "Add an anchor date"
+msgstr "Lägg till ett ankardatum"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields.selection,name:l10n_se_compliance_calendar.selection__l10n_se_compliance_custom_rule__offset_direction__after
+msgid "After"
+msgstr "Efter"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,help:l10n_se_compliance_calendar.field_l10n_se_compliance_anchor__show_in_calendar
+msgid "Also show the anchor date itself as an all-day event."
+msgstr "Visa också själva ankardatumet som en heldagshändelse."
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_l10n_se_compliance_custom_rule__offset
+msgid "Amount"
+msgstr "Antal"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_l10n_se_compliance_custom_rule__anchor_name
+msgid "Anchor"
+msgstr "Ankare"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields.selection,name:l10n_se_compliance_calendar.selection__calendar_event__l10n_se_cc_kind__anchor
+msgid "Anchor Date"
+msgstr "Ankardatum"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.actions.act_window,name:l10n_se_compliance_calendar.action_l10n_se_compliance_anchor
+#: model:ir.ui.menu,name:l10n_se_compliance_calendar.menu_l10n_se_cc_anchors
+#: model_terms:ir.ui.view,arch_db:l10n_se_compliance_calendar.l10n_se_compliance_anchor_view_list
+msgid "Anchor Dates"
+msgstr "Ankardatum"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_res_company__l10n_se_cc_show_agm
+#: model:ir.model.fields.selection,name:l10n_se_compliance_calendar.selection__calendar_event__l10n_se_cc_kind__agm
+msgid "Annual General Meeting"
+msgstr "Årsstämma"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_res_company__l10n_se_cc_show_annual_report
+#: model:ir.model.fields.selection,name:l10n_se_compliance_calendar.selection__calendar_event__l10n_se_cc_kind__annual_report
+msgid "Annual Report"
+msgstr "Årsredovisning"
+
+#. module: l10n_se_compliance_calendar
+#. odoo-python
+#: code:addons/l10n_se_compliance_calendar/rules.py:0
+msgid "Annual VAT return, financial year ending %(date)s"
+msgstr "Årsmoms, räkenskapsåret som slutar %(date)s"
+
+#. module: l10n_se_compliance_calendar
+#. odoo-python
+#: code:addons/l10n_se_compliance_calendar/rules.py:0
+msgid "Annual general meeting, financial year ending %(date)s"
+msgstr "Årsstämma, räkenskapsåret som slutar %(date)s"
+
+#. module: l10n_se_compliance_calendar
+#. odoo-python
+#: code:addons/l10n_se_compliance_calendar/rules.py:0
+msgid ""
+"Annual report to the Companies Registration Office, financial year ending "
+"%(date)s"
+msgstr "Årsredovisning till Bolagsverket, räkenskapsåret som slutar %(date)s"
+
+#. module: l10n_se_compliance_calendar
+#. odoo-python
+#: code:addons/l10n_se_compliance_calendar/rules.py:0
+#: model:ir.model.fields.selection,name:l10n_se_compliance_calendar.selection__l10n_se_compliance_custom_rule__month__4
+msgid "April"
+msgstr "april"
+
+#. module: l10n_se_compliance_calendar
+#. odoo-python
+#: code:addons/l10n_se_compliance_calendar/rules.py:0
+msgid "April–June %(year)s"
+msgstr "april–juni %(year)s"
+
+#. module: l10n_se_compliance_calendar
+#: model_terms:ir.ui.view,arch_db:l10n_se_compliance_calendar.l10n_se_compliance_custom_rule_view_form
+#: model_terms:ir.ui.view,arch_db:l10n_se_compliance_calendar.l10n_se_compliance_custom_rule_view_search
+msgid "Archived"
+msgstr "Arkiverad"
+
+#. module: l10n_se_compliance_calendar
+#. odoo-python
+#: code:addons/l10n_se_compliance_calendar/rules.py:0
+#: model:ir.model.fields.selection,name:l10n_se_compliance_calendar.selection__l10n_se_compliance_custom_rule__month__8
+msgid "August"
+msgstr "augusti"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields.selection,name:l10n_se_compliance_calendar.selection__l10n_se_compliance_custom_rule__offset_direction__before
+msgid "Before"
+msgstr "Före"
+
+#. module: l10n_se_compliance_calendar
+#: model_terms:ir.ui.view,arch_db:l10n_se_compliance_calendar.res_company_view_form_l10n_se_cc
+msgid "Calendar"
+msgstr "Kalender"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_res_company__l10n_se_cc_partner_id
+msgid "Calendar Contact"
+msgstr "Kalenderkontakt"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model,name:l10n_se_compliance_calendar.model_calendar_event
+msgid "Calendar Event"
+msgstr "Kalenderhändelse"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model,name:l10n_se_compliance_calendar.model_res_company
+msgid "Companies"
+msgstr "Bolag"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_l10n_se_compliance_anchor__company_id
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_l10n_se_compliance_custom_rule__company_id
+#: model_terms:ir.ui.view,arch_db:l10n_se_compliance_calendar.calendar_event_view_search_l10n_se_cc
+#: model_terms:ir.ui.view,arch_db:l10n_se_compliance_calendar.res_company_view_form_l10n_se_cc
+msgid "Company"
+msgstr "Bolag"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_res_company__l10n_se_cc_company_form
+msgid "Company Form"
+msgstr "Företagsform"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.actions.act_window,name:l10n_se_compliance_calendar.action_l10n_se_cc_events
+#: model:ir.ui.menu,name:l10n_se_compliance_calendar.menu_l10n_se_cc_root
+#: model_terms:ir.ui.view,arch_db:l10n_se_compliance_calendar.calendar_event_view_list_l10n_se_cc
+#: model_terms:ir.ui.view,arch_db:l10n_se_compliance_calendar.calendar_event_view_search_l10n_se_cc
+msgid "Compliance Calendar"
+msgstr "Årshjul"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model,name:l10n_se_compliance_calendar.model_l10n_se_compliance_anchor
+msgid "Compliance Calendar Anchor Date"
+msgstr "Ankardatum för årshjulet"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_calendar_event__l10n_se_cc_company_id
+msgid "Compliance Calendar Company"
+msgstr "Årshjulets bolag"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model,name:l10n_se_compliance_calendar.model_l10n_se_compliance_custom_rule
+msgid "Compliance Calendar Custom Rule"
+msgstr "Egen regel i årshjulet"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_calendar_event__l10n_se_cc_hash
+msgid "Compliance Calendar Hash"
+msgstr "Årshjulets kontrollsumma"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_calendar_event__l10n_se_cc_key
+msgid "Compliance Calendar Key"
+msgstr "Årshjulsnyckel"
+
+#. module: l10n_se_compliance_calendar
+#. odoo-python
+#: code:addons/l10n_se_compliance_calendar/models/res_company.py:0
+#: model:ir.actions.server,name:l10n_se_compliance_calendar.action_l10n_se_cc_settings
+#: model_terms:ir.ui.view,arch_db:l10n_se_compliance_calendar.res_company_view_form_l10n_se_cc
+msgid "Compliance Calendar Settings"
+msgstr "Inställningar för årshjulet"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_res_partner__l10n_se_cc_company_id
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_res_users__l10n_se_cc_company_id
+msgid "Compliance Calendar of"
+msgstr "Årshjul för"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.actions.server,name:l10n_se_compliance_calendar.ir_cron_l10n_se_cc_sync_ir_actions_server
+msgid "Compliance Calendar: update dates"
+msgstr "Årshjul: uppdatera datum"
+
+#. module: l10n_se_compliance_calendar
+#. odoo-python
+#: code:addons/l10n_se_compliance_calendar/models/res_company.py:0
+msgid "Compliance calendar – %(company)s"
+msgstr "Årshjul – %(company)s"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model,name:l10n_se_compliance_calendar.model_res_partner
+msgid "Contact"
+msgstr "Kontakt"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,help:l10n_se_compliance_calendar.field_res_company__l10n_se_cc_active
+msgid ""
+"Create the company's statutory dates in Calendar. When switched off, the "
+"next update removes the company's current and future dates."
+msgstr ""
+"Skapa bolagets lagstadgade datum i Kalender. När det stängs av tar nästa "
+"uppdatering bort bolagets datum för i år och framåt."
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_l10n_se_compliance_anchor__create_uid
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_l10n_se_compliance_custom_rule__create_uid
+msgid "Created by"
+msgstr "Skapad av"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_l10n_se_compliance_anchor__create_date
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_l10n_se_compliance_custom_rule__create_date
+msgid "Created on"
+msgstr "Skapad den"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields.selection,name:l10n_se_compliance_calendar.selection__calendar_event__l10n_se_cc_kind__custom
+#: model_terms:ir.ui.view,arch_db:l10n_se_compliance_calendar.l10n_se_compliance_custom_rule_view_form
+msgid "Custom Rule"
+msgstr "Egen regel"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.actions.act_window,name:l10n_se_compliance_calendar.action_l10n_se_compliance_custom_rule
+#: model:ir.ui.menu,name:l10n_se_compliance_calendar.menu_l10n_se_cc_custom_rules
+#: model_terms:ir.ui.view,arch_db:l10n_se_compliance_calendar.l10n_se_compliance_custom_rule_view_list
+msgid "Custom Rules"
+msgstr "Egna regler"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_res_company__l10n_se_cc_show_custom
+msgid "Custom Rules and Anchor Dates"
+msgstr "Egna regler och ankardatum"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_l10n_se_compliance_anchor__date
+#: model_terms:ir.ui.view,arch_db:l10n_se_compliance_calendar.calendar_event_view_list_l10n_se_cc
+msgid "Date"
+msgstr "Datum"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_calendar_event__l10n_se_cc_kind
+#: model_terms:ir.ui.view,arch_db:l10n_se_compliance_calendar.calendar_event_view_search_l10n_se_cc
+msgid "Date Type"
+msgstr "Datumtyp"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.ui.menu,name:l10n_se_compliance_calendar.menu_l10n_se_cc_events
+msgid "Dates"
+msgstr "Datum"
+
+#. module: l10n_se_compliance_calendar
+#: model_terms:ir.ui.view,arch_db:l10n_se_compliance_calendar.res_company_view_form_l10n_se_cc
+msgid "Dates to Show"
+msgstr "Datum som visas"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_l10n_se_compliance_custom_rule__day
+msgid "Day"
+msgstr "Dag"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,help:l10n_se_compliance_calendar.field_l10n_se_compliance_custom_rule__day
+msgid ""
+"Day of the month. A day after the end of the month means its last day (31 = "
+"the last day of every month)."
+msgstr ""
+"Dag i månaden. En dag efter månadens slut betyder dess sista dag (31 = sista "
+"dagen i varje månad)."
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields.selection,name:l10n_se_compliance_calendar.selection__l10n_se_compliance_custom_rule__offset_unit__days
+msgid "Days"
+msgstr "Dagar"
+
+#. module: l10n_se_compliance_calendar
+#. odoo-python
+#: code:addons/l10n_se_compliance_calendar/rules.py:0
+#: model:ir.model.fields.selection,name:l10n_se_compliance_calendar.selection__l10n_se_compliance_custom_rule__month__12
+msgid "December"
+msgstr "december"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_res_company__l10n_se_cc_alarm_id
+msgid "Default Reminder"
+msgstr "Standardpåminnelse"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_l10n_se_compliance_custom_rule__description
+msgid "Description"
+msgstr "Beskrivning"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_l10n_se_compliance_custom_rule__offset_direction
+msgid "Direction"
+msgstr "Riktning"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_calendar_event__display_name
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_l10n_se_compliance_anchor__display_name
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_l10n_se_compliance_custom_rule__display_name
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_res_company__display_name
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_res_partner__display_name
+msgid "Display Name"
+msgstr "Visningsnamn"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_res_company__l10n_se_cc_ec_sales_list
+#: model:ir.model.fields.selection,name:l10n_se_compliance_calendar.selection__calendar_event__l10n_se_cc_kind__ec_sales_list
+msgid "EC Sales List"
+msgstr "Periodisk sammanställning"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_res_company__l10n_se_cc_show_ec_sales_list
+msgid "EC Sales Lists"
+msgstr "Periodiska sammanställningar"
+
+#. module: l10n_se_compliance_calendar
+#. odoo-python
+#: code:addons/l10n_se_compliance_calendar/rules.py:0
+msgid "EC sales list for %(period)s"
+msgstr "Periodisk sammanställning för %(period)s"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_res_company__l10n_se_cc_eu_trade
+msgid "EU Trade"
+msgstr "EU-handel"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields.selection,name:l10n_se_compliance_calendar.selection__res_company__l10n_se_cc_company_form__ek_forening
+msgid "Economic association"
+msgstr "Ekonomisk förening"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_res_company__l10n_se_cc_employer
+#: model:ir.model.fields.selection,name:l10n_se_compliance_calendar.selection__calendar_event__l10n_se_cc_kind__employer
+msgid "Employer"
+msgstr "Arbetsgivare"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_res_company__l10n_se_cc_show_employer
+msgid "Employer Declarations"
+msgstr "Arbetsgivardeklarationer"
+
+#. module: l10n_se_compliance_calendar
+#. odoo-python
+#: code:addons/l10n_se_compliance_calendar/rules.py:0
+msgid "Employer contributions and tax for %(period)s"
+msgstr "Arbetsgivaravgifter och skatt för %(period)s"
+
+#. module: l10n_se_compliance_calendar
+#. odoo-python
+#: code:addons/l10n_se_compliance_calendar/rules.py:0
+msgid "Employer contributions and tax withheld for %(period)s must be paid."
+msgstr ""
+"Arbetsgivaravgifter och avdragen skatt för %(period)s ska vara betalda."
+
+#. module: l10n_se_compliance_calendar
+#. odoo-python
+#: code:addons/l10n_se_compliance_calendar/rules.py:0
+msgid "Employer declaration for %(period)s"
+msgstr "Arbetsgivardeklaration för %(period)s"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields.selection,name:l10n_se_compliance_calendar.selection__calendar_event__l10n_se_cc_kind__f_tax
+msgid "F-tax"
+msgstr "F-skatt"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_res_company__l10n_se_cc_show_f_tax
+msgid "F-tax Payments"
+msgstr "F-skatt"
+
+#. module: l10n_se_compliance_calendar
+#. odoo-python
+#: code:addons/l10n_se_compliance_calendar/rules.py:0
+#: model:ir.model.fields.selection,name:l10n_se_compliance_calendar.selection__l10n_se_compliance_custom_rule__month__2
+msgid "February"
+msgstr "februari"
+
+#. module: l10n_se_compliance_calendar
+#: model_terms:ir.ui.view,arch_db:l10n_se_compliance_calendar.res_company_view_form_l10n_se_cc
+msgid "Financial Year Ends"
+msgstr "Räkenskapsåret slutar"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields.selection,name:l10n_se_compliance_calendar.selection__res_company__l10n_se_cc_vat_period__year
+msgid "Financial year"
+msgstr "Räkenskapsår"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields.selection,name:l10n_se_compliance_calendar.selection__l10n_se_compliance_custom_rule__rule_type__fixed
+msgid "Fixed day every year"
+msgstr "Fast dag varje år"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_calendar_event__id
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_l10n_se_compliance_anchor__id
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_l10n_se_compliance_custom_rule__id
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_res_company__id
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_res_partner__id
+msgid "ID"
+msgstr "ID"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_res_company__l10n_se_cc_show_income_tax
+#: model:ir.model.fields.selection,name:l10n_se_compliance_calendar.selection__calendar_event__l10n_se_cc_kind__income_tax
+msgid "Income Tax Return"
+msgstr "Inkomstdeklaration"
+
+#. module: l10n_se_compliance_calendar
+#. odoo-python
+#: code:addons/l10n_se_compliance_calendar/rules.py:0
+msgid "Income tax return (%(form)s), financial year ending %(date)s"
+msgstr "Inkomstdeklaration (%(form)s), räkenskapsåret som slutar %(date)s"
+
+#. module: l10n_se_compliance_calendar
+#. odoo-python
+#: code:addons/l10n_se_compliance_calendar/rules.py:0
+msgid "Income tax return (INK1 with NE) for %(year)s"
+msgstr "Inkomstdeklaration (INK1 med NE) för %(year)s"
+
+#. module: l10n_se_compliance_calendar
+#. odoo-python
+#: code:addons/l10n_se_compliance_calendar/rules.py:0
+#: model:ir.model.fields.selection,name:l10n_se_compliance_calendar.selection__l10n_se_compliance_custom_rule__month__1
+msgid "January"
+msgstr "januari"
+
+#. module: l10n_se_compliance_calendar
+#. odoo-python
+#: code:addons/l10n_se_compliance_calendar/rules.py:0
+msgid "January–March %(year)s"
+msgstr "januari–mars %(year)s"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields.selection,name:l10n_se_compliance_calendar.selection__res_company__l10n_se_cc_company_form__samfallighet
+msgid "Joint property association"
+msgstr "Samfällighetsförening"
+
+#. module: l10n_se_compliance_calendar
+#. odoo-python
+#: code:addons/l10n_se_compliance_calendar/rules.py:0
+#: model:ir.model.fields.selection,name:l10n_se_compliance_calendar.selection__l10n_se_compliance_custom_rule__month__7
+msgid "July"
+msgstr "juli"
+
+#. module: l10n_se_compliance_calendar
+#. odoo-python
+#: code:addons/l10n_se_compliance_calendar/rules.py:0
+msgid "July–September %(year)s"
+msgstr "juli–september %(year)s"
+
+#. module: l10n_se_compliance_calendar
+#. odoo-python
+#: code:addons/l10n_se_compliance_calendar/rules.py:0
+#: model:ir.model.fields.selection,name:l10n_se_compliance_calendar.selection__l10n_se_compliance_custom_rule__month__6
+msgid "June"
+msgstr "juni"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields.selection,name:l10n_se_compliance_calendar.selection__l10n_se_compliance_custom_rule__non_business_day__keep
+msgid "Keep the date"
+msgstr "Behåll datumet"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_res_company__l10n_se_cc_last_sync
+msgid "Last Updated"
+msgstr "Senast uppdaterad"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_l10n_se_compliance_anchor__write_uid
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_l10n_se_compliance_custom_rule__write_uid
+msgid "Last Updated by"
+msgstr "Senast uppdaterad av"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_l10n_se_compliance_anchor__write_date
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_l10n_se_compliance_custom_rule__write_date
+msgid "Last Updated on"
+msgstr "Senast uppdaterad den"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,help:l10n_se_compliance_calendar.field_l10n_se_compliance_custom_rule__company_id
+msgid ""
+"Leave empty to apply the rule to every company that uses the compliance "
+"calendar."
+msgstr "Lämna tomt för att regeln ska gälla alla bolag som använder årshjulet."
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,help:l10n_se_compliance_calendar.field_l10n_se_compliance_anchor__company_id
+msgid "Leave empty to use the date for every company."
+msgstr "Lämna tomt för att datumet ska gälla alla bolag."
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_calendar_event__l10n_se_cc_legal_ref
+msgid "Legal Basis"
+msgstr "Lagrum"
+
+#. module: l10n_se_compliance_calendar
+#. odoo-python
+#: code:addons/l10n_se_compliance_calendar/models/res_company.py:0
+msgid "Legal basis:"
+msgstr "Lagrum:"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields.selection,name:l10n_se_compliance_calendar.selection__res_company__l10n_se_cc_company_form__ab
+msgid "Limited company (AB)"
+msgstr "Aktiebolag (AB)"
+
+#. module: l10n_se_compliance_calendar
+#. odoo-python
+#: code:addons/l10n_se_compliance_calendar/rules.py:0
+#: model:ir.model.fields.selection,name:l10n_se_compliance_calendar.selection__l10n_se_compliance_custom_rule__month__3
+msgid "March"
+msgstr "mars"
+
+#. module: l10n_se_compliance_calendar
+#. odoo-python
+#: code:addons/l10n_se_compliance_calendar/rules.py:0
+#: model:ir.model.fields.selection,name:l10n_se_compliance_calendar.selection__l10n_se_compliance_custom_rule__month__5
+msgid "May"
+msgstr "maj"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_l10n_se_compliance_custom_rule__month
+#: model:ir.model.fields.selection,name:l10n_se_compliance_calendar.selection__res_company__l10n_se_cc_ec_sales_list__month
+#: model:ir.model.fields.selection,name:l10n_se_compliance_calendar.selection__res_company__l10n_se_cc_vat_period__month
+#: model_terms:ir.ui.view,arch_db:l10n_se_compliance_calendar.calendar_event_view_search_l10n_se_cc
+msgid "Month"
+msgstr "Månad"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields.selection,name:l10n_se_compliance_calendar.selection__l10n_se_compliance_custom_rule__offset_unit__months
+msgid "Months"
+msgstr "Månader"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_l10n_se_compliance_anchor__name
+#: model_terms:ir.ui.view,arch_db:l10n_se_compliance_calendar.l10n_se_compliance_anchor_view_search
+msgid "Name"
+msgstr "Namn"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,help:l10n_se_compliance_calendar.field_l10n_se_compliance_custom_rule__anchor_name
+msgid ""
+"Name of the anchor dates this rule is relative to, e.g. “Annual meeting”. "
+"One date is computed for each anchor date with this name."
+msgstr ""
+"Namnet på de ankardatum som regeln utgår från, t.ex. ”Årsmöte”. Ett datum "
+"räknas fram för varje ankardatum med det namnet."
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields.selection,name:l10n_se_compliance_calendar.selection__l10n_se_compliance_custom_rule__non_business_day__next
+msgid "Next weekday"
+msgstr "Nästa vardag"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields.selection,name:l10n_se_compliance_calendar.selection__res_company__l10n_se_cc_ec_sales_list__none
+msgid "No"
+msgstr "Nej"
+
+#. module: l10n_se_compliance_calendar
+#: model_terms:ir.actions.act_window,help:l10n_se_compliance_calendar.action_l10n_se_cc_events
+msgid "No compliance dates yet"
+msgstr "Inga datum i årshjulet ännu"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields.selection,name:l10n_se_compliance_calendar.selection__res_company__l10n_se_cc_company_form__ideell_forening
+msgid "Non-profit association"
+msgstr "Ideell förening"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields.selection,name:l10n_se_compliance_calendar.selection__res_company__l10n_se_cc_vat_period__none
+msgid "Not registered for VAT"
+msgstr "Inte momsregistrerad"
+
+#. module: l10n_se_compliance_calendar
+#. odoo-python
+#: code:addons/l10n_se_compliance_calendar/rules.py:0
+#: model:ir.model.fields.selection,name:l10n_se_compliance_calendar.selection__l10n_se_compliance_custom_rule__month__11
+msgid "November"
+msgstr "november"
+
+#. module: l10n_se_compliance_calendar
+#. odoo-python
+#: code:addons/l10n_se_compliance_calendar/rules.py:0
+#: model:ir.model.fields.selection,name:l10n_se_compliance_calendar.selection__l10n_se_compliance_custom_rule__month__10
+msgid "October"
+msgstr "oktober"
+
+#. module: l10n_se_compliance_calendar
+#. odoo-python
+#: code:addons/l10n_se_compliance_calendar/rules.py:0
+msgid "October–December %(year)s"
+msgstr "oktober–december %(year)s"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_l10n_se_compliance_custom_rule__non_business_day
+msgid "On a Weekend or Holiday"
+msgstr "På helg eller helgdag"
+
+#. module: l10n_se_compliance_calendar
+#. odoo-python
+#: code:addons/l10n_se_compliance_calendar/models/calendar_event.py:0
+#: code:addons/l10n_se_compliance_calendar/models/res_company.py:0
+msgid "Only administrators can update the compliance calendar."
+msgstr "Bara administratörer kan uppdatera årshjulet."
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,help:l10n_se_compliance_calendar.field_res_company__l10n_se_cc_alarm_id
+msgid ""
+"Optional reminder on every date. Reminders by e-mail or SMS reach nobody, "
+"since the only attendee has no address; a notification reminder shows for "
+"users who have the date in their calendar."
+msgstr ""
+"Valfri påminnelse på varje datum. Påminnelser via e-post eller sms når "
+"ingen, eftersom den enda deltagaren saknar adress; en notifiering visas för "
+"användare som har datumet i sin kalender."
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields.selection,name:l10n_se_compliance_calendar.selection__res_company__l10n_se_cc_turnover__gt40
+msgid "Over SEK 40 million"
+msgstr "Över 40 miljoner kronor"
+
+#. module: l10n_se_compliance_calendar
+#: model_terms:ir.ui.view,arch_db:l10n_se_compliance_calendar.calendar_event_view_search_l10n_se_cc
+msgid "Past"
+msgstr "Passerade"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_res_company__l10n_se_cc_f_tax
+msgid "Pays F-tax"
+msgstr "Betalar F-skatt"
+
+#. module: l10n_se_compliance_calendar
+#. odoo-python
+#: code:addons/l10n_se_compliance_calendar/rules.py:0
+msgid "Preliminary tax (F-tax) for %(period)s"
+msgstr "Preliminärskatt (F-skatt) för %(period)s"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields.selection,name:l10n_se_compliance_calendar.selection__l10n_se_compliance_custom_rule__non_business_day__previous
+msgid "Previous weekday"
+msgstr "Föregående vardag"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields.selection,name:l10n_se_compliance_calendar.selection__res_company__l10n_se_cc_ec_sales_list__quarter
+#: model:ir.model.fields.selection,name:l10n_se_compliance_calendar.selection__res_company__l10n_se_cc_vat_period__quarter
+msgid "Quarter"
+msgstr "Kvartal"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,help:l10n_se_compliance_calendar.field_l10n_se_compliance_anchor__name
+msgid ""
+"Relative custom rules point to anchor dates by this name, e.g. “Annual "
+"meeting”. Enter one anchor date with the same name for each year."
+msgstr ""
+"Relativa egna regler pekar på ankardatum med det här namnet, t.ex. "
+"”Årsmöte”. Ange ett ankardatum med samma namn för varje år."
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields.selection,name:l10n_se_compliance_calendar.selection__l10n_se_compliance_custom_rule__rule_type__relative
+msgid "Relative to an anchor date"
+msgstr "Relativt ett ankardatum"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,help:l10n_se_compliance_calendar.field_res_company__l10n_se_cc_eu_trade
+msgid ""
+"Sales to or purchases from other EU countries. Changes the date of an annual"
+" VAT return and enables the EC sales list."
+msgstr ""
+"Försäljning till eller inköp från andra EU-länder. Ändrar datumet för "
+"årsmoms och aktiverar periodisk sammanställning."
+
+#. module: l10n_se_compliance_calendar
+#. odoo-python
+#: code:addons/l10n_se_compliance_calendar/rules.py:0
+#: model:ir.model.fields.selection,name:l10n_se_compliance_calendar.selection__l10n_se_compliance_custom_rule__month__9
+msgid "September"
+msgstr "september"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_l10n_se_compliance_custom_rule__sequence
+msgid "Sequence"
+msgstr "Ordning"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,help:l10n_se_compliance_calendar.field_calendar_event__l10n_se_cc_company_id
+msgid ""
+"Set on dates created by the compliance calendar. Only these events are "
+"updated or removed by it."
+msgstr ""
+"Sätts på datum som årshjulet har skapat. Årshjulet uppdaterar och tar bara "
+"bort sådana händelser."
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.ui.menu,name:l10n_se_compliance_calendar.menu_l10n_se_cc_settings
+msgid "Settings"
+msgstr "Inställningar"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_l10n_se_compliance_anchor__show_in_calendar
+msgid "Show In Calendar"
+msgstr "Visa i kalendern"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_res_company__l10n_se_cc_filter_group_ids
+msgid "Show for Groups"
+msgstr "Visa för grupper"
+
+#. module: l10n_se_compliance_calendar
+#: model_terms:ir.ui.view,arch_db:l10n_se_compliance_calendar.l10n_se_compliance_custom_rule_view_form
+msgid "Shown in the calendar event"
+msgstr "Visas i kalenderhändelsen"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields.selection,name:l10n_se_compliance_calendar.selection__res_company__l10n_se_cc_company_form__ef
+msgid "Sole trader (enskild firma)"
+msgstr "Enskild firma"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,help:l10n_se_compliance_calendar.field_calendar_event__l10n_se_cc_key
+msgid ""
+"Stable key per rule and period, used to update the event instead of creating"
+" a duplicate."
+msgstr ""
+"Stabil nyckel per regel och period, så att händelsen uppdateras i stället "
+"för att en dubblett skapas."
+
+#. module: l10n_se_compliance_calendar
+#: model_terms:ir.ui.view,arch_db:l10n_se_compliance_calendar.calendar_event_view_list_l10n_se_cc
+#: model_terms:ir.ui.view,arch_db:l10n_se_compliance_calendar.calendar_event_view_search_l10n_se_cc
+msgid "Subject"
+msgstr "Ämne"
+
+#. module: l10n_se_compliance_calendar
+#: model_terms:ir.actions.act_window,help:l10n_se_compliance_calendar.action_l10n_se_cc_events
+msgid ""
+"Switch on the compliance calendar for the company under Settings and press "
+"Update Now."
+msgstr ""
+"Slå på årshjulet för bolaget under Inställningar och tryck på Uppdatera nu."
+
+#. module: l10n_se_compliance_calendar
+#. odoo-python
+#: code:addons/l10n_se_compliance_calendar/rules.py:0
+msgid ""
+"The EC sales list (periodisk sammanställning) for %(period)s must have "
+"reached the Swedish Tax Agency (electronic filing; on paper the 20th)."
+msgstr ""
+"Den periodiska sammanställningen för %(period)s ska ha kommit in till "
+"Skatteverket (elektroniskt; på papper den 20:e)."
+
+#. module: l10n_se_compliance_calendar
+#. odoo-python
+#: code:addons/l10n_se_compliance_calendar/rules.py:0
+msgid ""
+"The VAT return for %(period)s must have reached the Swedish Tax Agency and "
+"the VAT must be paid."
+msgstr ""
+"Momsdeklarationen för %(period)s ska ha kommit in till Skatteverket och "
+"momsen ska vara betald."
+
+#. module: l10n_se_compliance_calendar
+#. odoo-python
+#: code:addons/l10n_se_compliance_calendar/rules.py:0
+msgid ""
+"The VAT return for the financial year ending %(date)s must have reached the "
+"Swedish Tax Agency and the VAT must be paid."
+msgstr ""
+"Momsdeklarationen för räkenskapsåret som slutar %(date)s ska ha kommit in "
+"till Skatteverket och momsen ska vara betald."
+
+#. module: l10n_se_compliance_calendar
+#. odoo-python
+#: code:addons/l10n_se_compliance_calendar/rules.py:0
+msgid ""
+"The adopted annual report for the financial year ending %(date)s must have "
+"reached Bolagsverket (seven months)."
+msgstr ""
+"Den fastställda årsredovisningen för räkenskapsåret som slutar %(date)s ska "
+"ha kommit in till Bolagsverket (sju månader)."
+
+#. module: l10n_se_compliance_calendar
+#. odoo-python
+#: code:addons/l10n_se_compliance_calendar/models/compliance_custom_rule.py:0
+msgid "The amount must not be negative; choose Before or After instead."
+msgstr "Antalet får inte vara negativt; välj Före eller Efter i stället."
+
+#. module: l10n_se_compliance_calendar
+#. odoo-python
+#: code:addons/l10n_se_compliance_calendar/rules.py:0
+msgid ""
+"The annual general meeting that adopts the annual report for the financial "
+"year ending %(date)s must be held at the latest on this day (six months)."
+msgstr ""
+"Årsstämman som fastställer årsredovisningen för räkenskapsåret som slutar "
+"%(date)s ska hållas senast denna dag (sex månader)."
+
+#. module: l10n_se_compliance_calendar
+#. odoo-python
+#: code:addons/l10n_se_compliance_calendar/models/res_partner.py:0
+msgid ""
+"The compliance calendar contact “%(name)s” must not have an e-mail address."
+msgstr "Årshjulskontakten ”%(name)s” får inte ha någon e-postadress."
+
+#. module: l10n_se_compliance_calendar
+#. odoo-python
+#: code:addons/l10n_se_compliance_calendar/models/res_company.py:0
+msgid "The compliance calendar has been updated."
+msgstr "Årshjulet har uppdaterats."
+
+#. module: l10n_se_compliance_calendar
+#: model_terms:ir.ui.view,arch_db:l10n_se_compliance_calendar.res_company_view_form_l10n_se_cc
+msgid ""
+"The dates are computed from the law and these settings, for this year and the\n"
+"                        next two. Check them against Skatteverket and Bolagsverket; an extension\n"
+"                        (anstånd) or a decision for the company is not known to the calendar."
+msgstr ""
+"Datumen räknas fram ur lagen och dessa inställningar, för i år och två år "
+"framåt. Stäm av dem mot Skatteverket och Bolagsverket; anstånd eller beslut "
+"för bolaget känner årshjulet inte till."
+
+#. module: l10n_se_compliance_calendar
+#. odoo-python
+#: code:addons/l10n_se_compliance_calendar/rules.py:0
+msgid ""
+"The employer declaration (AGI) for salaries paid in %(period)s must have "
+"reached the Swedish Tax Agency, and employer contributions and tax withheld "
+"must be paid."
+msgstr ""
+"Arbetsgivardeklarationen för löner utbetalda i %(period)s ska ha kommit in "
+"till Skatteverket, och arbetsgivaravgifter och avdragen skatt ska vara "
+"betalda."
+
+#. module: l10n_se_compliance_calendar
+#. odoo-python
+#: code:addons/l10n_se_compliance_calendar/rules.py:0
+msgid ""
+"The employer declaration (AGI) for salaries paid in %(period)s must have "
+"reached the Swedish Tax Agency."
+msgstr ""
+"Arbetsgivardeklarationen för löner utbetalda i %(period)s ska ha kommit in "
+"till Skatteverket."
+
+#. module: l10n_se_compliance_calendar
+#. odoo-python
+#: code:addons/l10n_se_compliance_calendar/rules.py:0
+msgid ""
+"The income tax return (%(form)s) for the financial year ending %(date)s must"
+" have reached the Swedish Tax Agency (digital filing; on paper one month "
+"earlier)."
+msgstr ""
+"Inkomstdeklarationen (%(form)s) för räkenskapsåret som slutar %(date)s ska "
+"ha kommit in till Skatteverket (digitalt; på papper en månad tidigare)."
+
+#. module: l10n_se_compliance_calendar
+#. odoo-python
+#: code:addons/l10n_se_compliance_calendar/rules.py:0
+msgid ""
+"The income tax return with the NE appendix for %(year)s must have reached "
+"the Swedish Tax Agency."
+msgstr ""
+"Inkomstdeklarationen med NE-bilaga för %(year)s ska ha kommit in till "
+"Skatteverket."
+
+#. module: l10n_se_compliance_calendar
+#. odoo-python
+#: code:addons/l10n_se_compliance_calendar/rules.py:0
+msgid ""
+"The last day, %(nominal)s, is not a weekday, so the next weekday applies."
+msgstr "Sista dagen, %(nominal)s, är ingen vardag, så nästa vardag gäller."
+
+#. module: l10n_se_compliance_calendar
+#. odoo-python
+#: code:addons/l10n_se_compliance_calendar/rules.py:0
+msgid ""
+"The preliminary tax (F-skatt) charged for the month must be on the tax "
+"account. Amount and reference are in the preliminary tax decision."
+msgstr ""
+"Debiterad preliminärskatt (F-skatt) för månaden ska finnas på skattekontot. "
+"Belopp och OCR-nummer står i beslutet om preliminärskatt."
+
+#. module: l10n_se_compliance_calendar
+#. odoo-python
+#: code:addons/l10n_se_compliance_calendar/models/compliance_custom_rule.py:0
+msgid "The rule “%(name)s” needs a month and a day between 1 and 31."
+msgstr "Regeln ”%(name)s” behöver en månad och en dag mellan 1 och 31."
+
+#. module: l10n_se_compliance_calendar
+#. odoo-python
+#: code:addons/l10n_se_compliance_calendar/models/compliance_custom_rule.py:0
+msgid "The rule “%(name)s” needs the name of an anchor date."
+msgstr "Regeln ”%(name)s” behöver namnet på ett ankardatum."
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,help:l10n_se_compliance_calendar.field_res_company__l10n_se_cc_turnover
+msgid ""
+"The taxable amount for VAT per year. Over SEK 40 million the VAT period must"
+" be a month and other dates apply for VAT and the employer declaration."
+msgstr ""
+"Beskattningsunderlaget för moms per år. Över 40 miljoner kronor måste "
+"momsperioden vara månad, och andra datum gäller för moms och "
+"arbetsgivardeklaration."
+
+#. module: l10n_se_compliance_calendar
+#. odoo-python
+#: code:addons/l10n_se_compliance_calendar/models/compliance_anchor.py:0
+msgid "There is already an anchor date “%(name)s” in %(year)s."
+msgstr "Det finns redan ett ankardatum ”%(name)s” %(year)s."
+
+#. module: l10n_se_compliance_calendar
+#: model_terms:ir.ui.view,arch_db:l10n_se_compliance_calendar.calendar_event_view_search_l10n_se_cc
+msgid "This Year"
+msgstr "I år"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,help:l10n_se_compliance_calendar.field_res_partner__l10n_se_cc_company_id
+#: model:ir.model.fields,help:l10n_se_compliance_calendar.field_res_users__l10n_se_cc_company_id
+msgid ""
+"This contact is the attendee of the company's compliance calendar dates. It "
+"can never have an e-mail address, so that no invitation or reminder is ever "
+"sent."
+msgstr ""
+"Kontakten är deltagare i bolagets årshjulsdatum. Den kan aldrig ha någon "
+"e-postadress, så att ingen inbjudan eller påminnelse någonsin skickas."
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_l10n_se_compliance_custom_rule__name
+msgid "Title"
+msgstr "Rubrik"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields.selection,name:l10n_se_compliance_calendar.selection__res_company__l10n_se_cc_company_form__hb
+msgid "Trading partnership (HB/KB)"
+msgstr "Handelsbolag (HB/KB)"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_l10n_se_compliance_custom_rule__rule_type
+msgid "Type"
+msgstr "Typ"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_l10n_se_compliance_custom_rule__offset_unit
+msgid "Unit"
+msgstr "Enhet"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields.selection,name:l10n_se_compliance_calendar.selection__res_company__l10n_se_cc_turnover__le40
+msgid "Up to SEK 40 million"
+msgstr "Upp till 40 miljoner kronor"
+
+#. module: l10n_se_compliance_calendar
+#: model_terms:ir.ui.view,arch_db:l10n_se_compliance_calendar.calendar_event_view_search_l10n_se_cc
+msgid "Upcoming"
+msgstr "Kommande"
+
+#. module: l10n_se_compliance_calendar
+#: model_terms:ir.ui.view,arch_db:l10n_se_compliance_calendar.calendar_event_view_list_l10n_se_cc
+#: model_terms:ir.ui.view,arch_db:l10n_se_compliance_calendar.res_company_view_form_l10n_se_cc
+msgid "Update Now"
+msgstr "Uppdatera nu"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_res_company__l10n_se_cc_active
+msgid "Use Compliance Calendar"
+msgstr "Använd årshjul"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,help:l10n_se_compliance_calendar.field_res_company__l10n_se_cc_filter_group_ids
+msgid ""
+"Users in these groups get the calendar contact as a selected filter in their"
+" calendar, so the dates show without searching."
+msgstr ""
+"Användare i dessa grupper får kalenderkontakten som förvalt filter i sin "
+"kalender, så att datumen syns utan sökning."
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields.selection,name:l10n_se_compliance_calendar.selection__calendar_event__l10n_se_cc_kind__vat
+#: model_terms:ir.ui.view,arch_db:l10n_se_compliance_calendar.res_company_view_form_l10n_se_cc
+msgid "VAT"
+msgstr "Moms"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_res_company__l10n_se_cc_turnover
+msgid "VAT Base per Year"
+msgstr "Beskattningsunderlag för moms per år"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_res_company__l10n_se_cc_vat_period
+msgid "VAT Period"
+msgstr "Momsperiod"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_res_company__l10n_se_cc_show_vat
+msgid "VAT Returns"
+msgstr "Momsdeklarationer"
+
+#. module: l10n_se_compliance_calendar
+#. odoo-python
+#: code:addons/l10n_se_compliance_calendar/rules.py:0
+msgid "VAT return for %(period)s"
+msgstr "Momsdeklaration för %(period)s"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields.selection,name:l10n_se_compliance_calendar.selection__l10n_se_compliance_custom_rule__offset_unit__weeks
+msgid "Weeks"
+msgstr "Veckor"
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,help:l10n_se_compliance_calendar.field_l10n_se_compliance_custom_rule__non_business_day
+msgid ""
+"What to do when the date falls on a Saturday, Sunday, public holiday, "
+"Midsummer Eve, Christmas Eve or New Year's Eve. For a deadline (“at the "
+"latest”), the previous weekday is the safe choice."
+msgstr ""
+"Vad som händer när datumet infaller på en lördag, söndag, allmän helgdag, "
+"midsommarafton, julafton eller nyårsafton. För en tidsfrist (”senast”) är "
+"föregående vardag det säkra valet."
+
+#. module: l10n_se_compliance_calendar
+#. odoo-python
+#: code:addons/l10n_se_compliance_calendar/models/res_company.py:0
+msgid "With a VAT base over SEK 40 million the VAT period must be a month."
+msgstr ""
+"Med ett beskattningsunderlag för moms över 40 miljoner kronor måste "
+"momsperioden vara månad."
+
+#. module: l10n_se_compliance_calendar
+#: model:ir.model.fields,field_description:l10n_se_compliance_calendar.field_l10n_se_compliance_anchor__year
+msgid "Year"
+msgstr "År"
+
+#. module: l10n_se_compliance_calendar
+#: model_terms:ir.ui.view,arch_db:l10n_se_compliance_calendar.l10n_se_compliance_custom_rule_view_form
+msgid "e.g. Accounts to the auditor"
+msgstr "t.ex. Räkenskaperna till revisorn"
+
+#. module: l10n_se_compliance_calendar
+#: model_terms:ir.ui.view,arch_db:l10n_se_compliance_calendar.l10n_se_compliance_custom_rule_view_form
+msgid "e.g. Annual meeting"
+msgstr "t.ex. Årsmöte"

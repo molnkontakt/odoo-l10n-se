@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_company_view_form_l10n_se_cc" model="ir.ui.view">
+        <field name="name">res.company.form.l10n_se_cc</field>
+        <field name="model">res.company</field>
+        <field name="priority">100</field>
+        <field name="arch" type="xml">
+            <form string="Compliance Calendar Settings" create="0" delete="0">
+                <header>
+                    <button name="action_l10n_se_cc_sync" type="object" string="Update Now"
+                            class="btn-primary" invisible="not l10n_se_cc_active"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group string="Company">
+                            <field name="l10n_se_cc_active"/>
+                            <field name="l10n_se_cc_company_form"/>
+                            <label for="fiscalyear_last_day" string="Financial Year Ends"/>
+                            <div class="o_row">
+                                <field name="fiscalyear_last_day" readonly="1"/>
+                                <field name="fiscalyear_last_month" readonly="1"/>
+                            </div>
+                            <field name="l10n_se_cc_employer"/>
+                            <field name="l10n_se_cc_f_tax"/>
+                        </group>
+                        <group string="VAT">
+                            <field name="l10n_se_cc_vat_period"/>
+                            <field name="l10n_se_cc_turnover"/>
+                            <field name="l10n_se_cc_eu_trade"/>
+                            <field name="l10n_se_cc_ec_sales_list" invisible="not l10n_se_cc_eu_trade"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Dates to Show">
+                            <field name="l10n_se_cc_show_vat"/>
+                            <field name="l10n_se_cc_show_ec_sales_list"/>
+                            <field name="l10n_se_cc_show_employer"/>
+                            <field name="l10n_se_cc_show_f_tax"/>
+                            <field name="l10n_se_cc_show_income_tax"/>
+                            <field name="l10n_se_cc_show_agm" invisible="l10n_se_cc_company_form != 'ab'"/>
+                            <field name="l10n_se_cc_show_annual_report" invisible="l10n_se_cc_company_form != 'ab'"/>
+                            <field name="l10n_se_cc_show_custom"/>
+                        </group>
+                        <group string="Calendar">
+                            <field name="l10n_se_cc_alarm_id"/>
+                            <field name="l10n_se_cc_filter_group_ids" widget="many2many_tags"/>
+                            <field name="l10n_se_cc_partner_id"/>
+                            <field name="l10n_se_cc_last_sync"/>
+                        </group>
+                    </group>
+                    <div class="text-muted">
+                        The dates are computed from the law and these settings, for this year and the
+                        next two. Check them against Skatteverket and Bolagsverket; an extension
+                        (anstånd) or a decision for the company is not known to the calendar.
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_l10n_se_cc_settings" model="ir.actions.server">
+        <field name="name">Compliance Calendar Settings</field>
+        <field name="model_id" ref="base.model_res_company"/>
+        <field name="state">code</field>
+        <field name="code">action = model.action_l10n_se_cc_open_settings()</field>
+        <field name="group_ids" eval="[Command.link(ref('base.group_system'))]"/>
+    </record>
+</odoo>

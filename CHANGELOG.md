@@ -5,6 +5,26 @@ one section per module. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions use Odoo's
 `<odoo-version>.<major>.<minor>.<patch>` scheme.
 
+## l10n_se_compliance_calendar
+
+### [19.0.1.0.0] — 2026-10-01
+
+- Initial release. Statutory dates for Swedish companies and associations as all-day events in
+  Calendar, computed in the module (`rules.py`, no Odoo import, no network) from the company form,
+  VAT period, VAT base class, EU trade, EC sales list, employer, F-tax and the financial year:
+  VAT returns (month, quarter, financial year), EC sales list, employer declaration and payment,
+  F-tax, income tax return (INK2, INK4, INK1 with NE), and for limited companies the annual
+  general meeting and the annual report to Bolagsverket.
+- Tax dates on a Saturday, Sunday, public holiday, Midsummer Eve, Christmas Eve or New Year's Eve
+  move to the next weekday; public holidays are computed in the module.
+- Custom rules per company or for all: a fixed day every year, or days/weeks/months before or after
+  an anchor date entered per year (e.g. the annual meeting).
+- Nightly scheduled action and *Update Now*: a stable key per rule and period, so a second run
+  updates instead of duplicating; dates no longer produced are removed, only the module's own
+  events are touched, earlier years are kept. The only attendee is a contact per company that can
+  never have an e-mail address; no mail is sent. Optional default reminder (off), calendar filters
+  for chosen groups, a *Dates* list with dates only and upcoming first. Swedish translation.
+
 ## account_reconcile_oca_mobile
 
 ### [19.0.1.0.0] — 2026-09-29

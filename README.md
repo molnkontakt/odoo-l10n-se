@@ -2,7 +2,8 @@
 
 Odoo 19 Community modules for Swedish accounting: bank statement imports
 (Swedbank CSV, Enable Banking PSD2 feed, Bankgirot), supplier payment files (SEB CSV, ISO 20022
-pain.001), OCR payment references and payment reminders with the statutory reminder fee. Sister repository of
+pain.001), OCR payment references, payment reminders with the statutory reminder fee and a
+calendar of statutory dates. Sister repository of
 [odoo-l10n-se-skv](https://github.com/molnkontakt/odoo-l10n-se-skv), which
 holds the Skatteverket-facing modules (VAT return / eSKD).
 
@@ -23,6 +24,7 @@ holds the Skatteverket-facing modules (VAT return / eSKD).
 | [`account_invoice_send_hand_delivered`](account_invoice_send_hand_delivered/) | *Lämnad för hand*: mark invoices delivered by hand (dialog checkbox + list action) |
 | [`account_invoice_reminder`](account_invoice_reminder/) | Payment reminders: levels per company (days after due date, statutory fee as a separate posted invoice), PDF, e-mail, history, review dialog. Follow-up is Enterprise-only and the OCA modules are not on 19 |
 | [`account_invoice_reminder_ekopost`](account_invoice_reminder_ekopost/), [`account_invoice_reminder_sms_46elks`](account_invoice_reminder_sms_46elks/) | Glue (auto-installed): payment reminders by letter / SMS |
+| [`l10n_se_compliance_calendar`](l10n_se_compliance_calendar/) | Annual cycle of statutory dates in Calendar, computed from the law and the company's settings (VAT, EC sales list, employer declaration, F-tax, income tax return, AGM, annual report; moved to the next weekday where Skatteverket says so), plus custom fixed and relative dates for associations. No feed, no network |
 | [`mail_server_rate_limit`](mail_server_rate_limit/) | Not Swedish-specific: at most N messages per M minutes on an outgoing mail server, the rest waits in the mail queue; a temporary (4xx) refusal is retried only for the recipients not yet reached |
 
 Each module installs independently, except that the payment-file modules
