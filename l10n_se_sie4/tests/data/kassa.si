@@ -1,0 +1,17 @@
+#FLAGGA 0
+#PROGRAM "Exempelkassa" 2.1
+#FORMAT PC8
+#GEN 20250301
+#SIETYP 4
+#FNAMN "Exempelbolaget Norrsken AB"
+#VER "" "" 20250105 "Porto"
+{
+#TRANS 1930 { } -1000.00
+#TRANS 2641 { } 200.00
+#TRANS 6250 { } 800.00
+}
+#VER "" "" 20250106 "Porto"
+{
+#TRANS 1930 { } -500.00
+#TRANS 6250 { } 500.00
+}

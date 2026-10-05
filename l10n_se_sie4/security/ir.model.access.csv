@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_l10n_se_sie_import_manager,l10n_se.sie.import manager,model_l10n_se_sie_import,account.group_account_manager,1,1,1,1
+access_l10n_se_sie_import_year_manager,l10n_se.sie.import.year manager,model_l10n_se_sie_import_year,account.group_account_manager,1,1,1,1
+access_l10n_se_sie_import_series_manager,l10n_se.sie.import.series manager,model_l10n_se_sie_import_series,account.group_account_manager,1,1,1,1
+access_l10n_se_sie_import_check_manager,l10n_se.sie.import.check manager,model_l10n_se_sie_import_check,account.group_account_manager,1,1,1,1
+access_l10n_se_sie_import_wizard_manager,l10n_se.sie.import.wizard manager,model_l10n_se_sie_import_wizard,account.group_account_manager,1,1,1,1
+access_l10n_se_sie_import_wizard_year_manager,l10n_se.sie.import.wizard.year manager,model_l10n_se_sie_import_wizard_year,account.group_account_manager,1,1,1,1
+access_l10n_se_sie_import_wizard_series_manager,l10n_se.sie.import.wizard.series manager,model_l10n_se_sie_import_wizard_series,account.group_account_manager,1,1,1,1
+access_l10n_se_sie_export_wizard_manager,l10n_se.sie.export.wizard manager,model_l10n_se_sie_export_wizard,account.group_account_manager,1,1,1,1

@@ -1,0 +1,2347 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* l10n_se_sie4
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-05 09:00+0000\n"
+"PO-Revision-Date: 2026-10-05 09:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: sv\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid ""
+"#FLAGGA 1: the file is marked as already read into a program. Vouchers "
+"already in Odoo are skipped anyway."
+msgstr ""
+"#FLAGGA 1: filen är markerad som redan inläst i ett program. Verifikat som "
+"redan finns i Odoo hoppas över ändå."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "#FLAGGA is missing."
+msgstr "#FLAGGA saknas."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "#FLAGGA is not the first record."
+msgstr "#FLAGGA är inte den första posten."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "#KSUMMA is not a number."
+msgstr "#KSUMMA är inte ett tal."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "#KTYP %(account)s: unknown account type '%(value)s'."
+msgstr "#KTYP %(account)s: okänd kontotyp '%(value)s'."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "#RAR: the financial year ends before it starts."
+msgstr "#RAR: räkenskapsåret slutar innan det börjar."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid ""
+"#RTRANS is not followed by an identical #TRANS. Only #TRANS lines are "
+"booked; check the voucher in the source program."
+msgstr ""
+"#RTRANS följs inte av en likadan #TRANS. Bara #TRANS-rader bokförs; "
+"kontrollera verifikatet i källprogrammet."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "#SIETYP is missing: read as SIE type 1."
+msgstr "#SIETYP saknas: läses som SIE typ 1."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/wizard/sie_import_wizard.py:0
+msgid "%(count)s SIE files"
+msgstr "%(count)s SIE-filer"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid ""
+"%(count)s accounts are missing in the chart of accounts: %(accounts)s. "
+"Create them yourself or choose 'Create them' under missing accounts."
+msgstr ""
+"%(count)s konton saknas i kontoplanen: %(accounts)s. Lägg upp dem själv "
+"eller välj 'Skapa dem' under saknade konton."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/l10n_se_sie_import.py:0
+msgid ""
+"%(count)s entries are deleted in the background. Refresh the page to follow "
+"the progress."
+msgstr ""
+"%(count)s verifikat raderas i bakgrunden. Uppdatera sidan för att följa "
+"förloppet."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/wizard/sie_import_wizard.py:0
+msgid ""
+"%(count)s entries are imported in the background. Refresh the page to follow"
+" the progress."
+msgstr ""
+"%(count)s verifikat importeras i bakgrunden. Uppdatera sidan för att följa "
+"förloppet."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid ""
+"%(count)s entries of %(year)s are dated in a locked period (%(locks)s). Odoo"
+" does not allow entries there: change the lock date in the accounting "
+"settings or leave the year out."
+msgstr ""
+"%(count)s verifikat för %(year)s är daterade i en låst period (%(locks)s). "
+"Odoo tillåter inga verifikat där: ändra låsdatumet i "
+"bokföringsinställningarna eller välj bort året."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "%(count)s entries will be created."
+msgstr "%(count)s verifikat skapas."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/l10n_se_sie_import.py:0
+msgid ""
+"%(count)s of %(total)s accounts differ from the files. The Reconciliation "
+"tab lists them (filter 'Deviations')."
+msgstr ""
+"%(count)s av %(total)s konton avviker från filerna. De listas under "
+"Avstämning (filtret 'Bara avvikelser')."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid ""
+"%(count)s vouchers are dated outside the file's financial year and are not "
+"imported (first: %(first)s)."
+msgstr ""
+"%(count)s verifikat är daterade utanför filens räkenskapsår och importeras "
+"inte (första: %(first)s)."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "%(date)s is before the financial year %(year)s."
+msgstr "%(date)s ligger före räkenskapsåret %(year)s."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/l10n_se_sie_import.py:0
+msgid "%(entry)s (%(date)s) is locked"
+msgstr "%(entry)s (%(date)s) är låst"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/l10n_se_sie_import.py:0
+msgid "%(entry)s is kept by the restrictive audit trail"
+msgstr "%(entry)s skyddas av den strikta behandlingshistoriken"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid ""
+"%(file)s has monthly balances but no vouchers: choose the last day of a "
+"month."
+msgstr ""
+"%(file)s har månadssaldon men inga verifikat: välj sista dagen i en månad."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid ""
+"%(file)s has neither vouchers nor monthly balances (#PSALDO): it can only be"
+" compared at the end of the year."
+msgstr ""
+"%(file)s har varken verifikat eller månadssaldon (#PSALDO): den kan bara "
+"stämmas av vid årets slut."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid ""
+"%(file)s has no closing balances (#UB/#RES) for %(year)s to compare with."
+msgstr ""
+"%(file)s har inga utgående saldon (#UB/#RES) för %(year)s att jämföra med."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "%(file)s has no opening balance (#IB 0) for %(year)s."
+msgstr "%(file)s har ingen ingående balans (#IB 0) för %(year)s."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid ""
+"%(file)s is for organisation number %(orgnr)s (%(name)s), which is not the "
+"company's. Check that you import into the right company."
+msgstr ""
+"%(file)s gäller organisationsnummer %(orgnr)s (%(name)s), som inte är "
+"bolagets. Kontrollera att du importerar till rätt bolag."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid ""
+"%(file)s is for organisation number %(orgnr)s; the company has no company "
+"registry or VAT number to compare it with."
+msgstr ""
+"%(file)s gäller organisationsnummer %(orgnr)s; bolaget har inget "
+"organisations- eller momsregistreringsnummer att jämföra med."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid ""
+"%(file)s is in %(currency)s, the company's currency is %(company_currency)s."
+msgstr "%(file)s är i %(currency)s, bolagets valuta är %(company_currency)s."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/wizard/sie_import_wizard.py:0
+msgid "%(file)s is not an SIE file (.se, .si or .sie)."
+msgstr "%(file)s är inte en SIE-fil (.se, .si eller .sie)."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "%(file)s, line %(line)s: %(text)s"
+msgstr "%(file)s, rad %(line)s: %(text)s"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "%(file)s: %(text)s"
+msgstr "%(file)s: %(text)s"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "%(label)s %(key)s occurs more than once."
+msgstr "%(label)s %(key)s förekommer mer än en gång."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "%(label)s outside a #VER block."
+msgstr "%(label)s utanför ett #VER-block."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "%(label)s: '%(value)s' is not a month (YYYYMM)."
+msgstr "%(label)s: '%(value)s' är inte en månad (ÅÅÅÅMM)."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "%(name)s (new)"
+msgstr "%(name)s (ny)"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/wizard/sie_export_wizard.py:0
+msgid "%(vouchers)s vouchers, %(accounts)s accounts, %(balances)s balances."
+msgstr "%(vouchers)s verifikat, %(accounts)s konton, %(balances)s saldon."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "%(what)s: '%(value)s' is not a date (YYYYMMDD)."
+msgstr "%(what)s: '%(value)s' är inte ett datum (ÅÅÅÅMMDD)."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "%(what)s: '%(value)s' is not a year number (0, -1, ...)."
+msgstr "%(what)s: '%(value)s' är inte ett årsnummer (0, -1, ...)."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "%(what)s: '%(value)s' is not an account number."
+msgstr "%(what)s: '%(value)s' är inte ett kontonummer."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "%(what)s: '%(value)s' is not an amount."
+msgstr "%(what)s: '%(value)s' är inte ett belopp."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/l10n_se_sie_import.py:0
+msgid ""
+"%(year)s, as of %(date)s (%(basis)s): %(checked)s accounts, %(deviations)s "
+"deviations."
+msgstr ""
+"%(year)s, per %(date)s (%(basis)s): %(checked)s konton, %(deviations)s "
+"avvikelser."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/l10n_se_sie_import.py:0
+msgid "%(year)s: not checked. %(note)s"
+msgstr "%(year)s: inte avstämt. %(note)s"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "(left out)"
+msgstr "(utelämnas)"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "(not created)"
+msgstr "(skapas inte)"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "... and %(count)s more"
+msgstr "... och %(count)s till"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "A brace { or } that does not belong to a #VER."
+msgstr "En klammer { eller } som inte hör till en #VER."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "A dimension or object cannot be read."
+msgstr "En dimension eller ett objekt kan inte läsas."
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields.selection,name:l10n_se_sie4.selection__l10n_se_sie_import__journal_mode__series
+#: model:ir.model.fields.selection,name:l10n_se_sie4.selection__l10n_se_sie_import_wizard__journal_mode__series
+msgid "A journal per series"
+msgstr "En journal per serie"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "A text has no closing quote."
+msgstr "En text saknar avslutande citattecken."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_check__account_code
+msgid "Account"
+msgstr "Konto"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/wizard/sie_export_wizard.py:0
+msgid "Account %(account)s is an off-balance account and is left out."
+msgstr ""
+"Konto %(account)s är ett konto utanför balansräkningen och tas inte med."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/l10n_se_sie_import.py:0
+msgid "Account %(code)s"
+msgstr "Konto %(code)s"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_export_wizard__result_account_id
+msgid "Account for Earlier Years' Result"
+msgstr "Konto för tidigare års resultat"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "Accounts"
+msgstr "Konton"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__checked_count
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_year__checked_count
+msgid "Accounts Checked"
+msgstr "Avstämda konton"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "Accounts missing in Odoo"
+msgstr "Konton som saknas i Odoo"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,help:l10n_se_sie4.field_l10n_se_sie_import_wizard__missing_accounts
+msgid ""
+"Accounts the files use that are not in the chart of accounts. Created with "
+"the name from the file and the type of the neighbouring accounts in your "
+"chart (BAS class otherwise)."
+msgstr ""
+"Konton som filerna använder men som inte finns i kontoplanen. De skapas med "
+"namnet från filen och samma typ som närliggande konton i kontoplanen (annars"
+" efter BAS-kontoklassen)."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "Accounts used without #KONTO: %(accounts)s."
+msgstr "Konton som används utan #KONTO: %(accounts)s."
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__message_needaction
+msgid "Action Needed"
+msgstr "Åtgärd krävs"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,help:l10n_se_sie4.field_l10n_se_sie_export_wizard__checksum
+msgid ""
+"Add the optional SIE checksum (CRC-32). Leave it off if the receiving "
+"program rejects the file."
+msgstr ""
+"Lägg till SIE-formatets frivilliga kontrollsumma (CRC-32). Låt bli om det "
+"mottagande programmet inte godtar filen."
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields.selection,name:l10n_se_sie4.selection__l10n_se_sie_import_year__status__ok
+msgid "Agrees"
+msgstr "Stämmer"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/l10n_se_sie_import.py:0
+msgid "All %(count)s accounts agree with the files."
+msgstr "Alla %(count)s konton stämmer med filerna."
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_export_wizard__all_accounts
+msgid "All Active Accounts"
+msgstr "Alla aktiva konton"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_year__existing_count
+msgid "Already in Odoo"
+msgstr "Finns redan i Odoo"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid ""
+"Amounts are written with a decimal comma instead of a dot; read anyway."
+msgstr "Belopp skrivs med decimalkomma i stället för punkt; läses ändå."
+
+#. module: l10n_se_sie4
+#: model_terms:ir.ui.view,arch_db:l10n_se_sie4.l10n_se_sie_import_wizard_form
+msgid "Analyse"
+msgstr "Analysera"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__preview_html
+#: model_terms:ir.ui.view,arch_db:l10n_se_sie4.l10n_se_sie_import_form
+msgid "Analysis"
+msgstr "Analys"
+
+#. module: l10n_se_sie4
+#: model:ir.model,name:l10n_se_sie4.model_account_analytic_plan
+msgid "Analytic Plans"
+msgstr "Analysplaner"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "Analytic plan"
+msgstr "Analysplan"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "Archived accounts that are reactivated: %(accounts)s."
+msgstr "Arkiverade konton som återaktiveras: %(accounts)s."
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_check__date
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard__check_date
+msgid "As Of"
+msgstr "Per"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__message_attachment_count
+msgid "Attachment Count"
+msgstr "Antal bilagor"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields.selection,name:l10n_se_sie4.selection__res_company__l10n_se_sie_chart_type__bas2025
+msgid "BAS2025"
+msgstr "BAS2025"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields.selection,name:l10n_se_sie4.selection__res_company__l10n_se_sie_chart_type__bas2026
+msgid "BAS2026"
+msgstr "BAS2026"
+
+#. module: l10n_se_sie4
+#: model_terms:ir.ui.view,arch_db:l10n_se_sie4.l10n_se_sie_import_wizard_form
+msgid "Back"
+msgstr "Tillbaka"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields.selection,name:l10n_se_sie4.selection__l10n_se_sie_import_check__kind__balance
+#: model_terms:ir.ui.view,arch_db:l10n_se_sie4.l10n_se_sie_import_check_search
+msgid "Balance sheet"
+msgstr "Balansräkning"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/l10n_se_sie_import.py:0
+msgid ""
+"Balance sheet accounts are compared with their balance on the date, result "
+"accounts with their total from the first day of the financial year, using "
+"posted entries. A year-end closing in the source program (e.g. 8999/2099) is"
+" a voucher like any other, so Odoo, which does not close years, agrees with "
+"the files either way."
+msgstr ""
+"Balanskonton jämförs med sitt saldo på datumet, resultatkonton med summan "
+"från räkenskapsårets första dag, utifrån bokförda verifikat. Ett årsbokslut "
+"i källprogrammet (t.ex. 8999/2099) är ett verifikat som alla andra, så Odoo,"
+" som inte stänger år, stämmer med filerna i båda fallen."
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard__blocked
+msgid "Blocked"
+msgstr "Spärrad"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__opening_differences
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard__opening_differences
+msgid "Book Opening Balance Differences"
+msgstr "Bokför skillnader i ingående balans"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,help:l10n_se_sie4.field_l10n_se_sie_import_wizard__import_opening
+msgid ""
+"Book the opening balance (#IB) of the first selected year as an entry on its"
+" first day. Later years get their opening balance from the vouchers before "
+"them."
+msgstr ""
+"Bokför den ingående balansen (#IB) för det första valda året som ett "
+"verifikat på årets första dag. Senare år får sin ingående balans av "
+"verifikaten före dem."
+
+#. module: l10n_se_sie4
+#: model_terms:ir.ui.view,arch_db:l10n_se_sie4.l10n_se_sie_import_wizard_form
+msgid "Cancel"
+msgstr "Avbryt"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "Character set"
+msgstr "Teckenuppsättning"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid ""
+"Character set: read as %(encoding)s (the file declares #FORMAT "
+"%(declared)s)."
+msgstr ""
+"Teckenuppsättning: läst som %(encoding)s (filen anger #FORMAT %(declared)s)."
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_year__status
+msgid "Check"
+msgstr "Avstämning"
+
+#. module: l10n_se_sie4
+#: model_terms:ir.ui.view,arch_db:l10n_se_sie4.l10n_se_sie_import_form
+msgid "Check Again"
+msgstr "Stäm av igen"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "Checksum"
+msgstr "Kontrollsumma"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_export_wizard__checksum
+msgid "Checksum (#KSUMMA)"
+msgstr "Kontrollsumma (#KSUMMA)"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "Choose what to import: the opening balance, the vouchers or both."
+msgstr "Välj vad som ska importeras: ingående balans, verifikat eller båda."
+
+#. module: l10n_se_sie4
+#: model_terms:ir.ui.view,arch_db:l10n_se_sie4.l10n_se_sie_export_wizard_form
+msgid "Close"
+msgstr "Stäng"
+
+#. module: l10n_se_sie4
+#: model:ir.model,name:l10n_se_sie4.model_res_company
+msgid "Companies"
+msgstr "Bolag"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_export_wizard__company_id
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__company_id
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_check__company_id
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard__company_id
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard_series__company_id
+msgid "Company"
+msgstr "Bolag"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__check_date
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_year__check_date
+msgid "Compared As Of"
+msgstr "Avstämt per"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_year__source
+msgid "Compared With"
+msgstr "Jämfört med"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "Cost centre"
+msgstr "Kostnadsställe"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,help:l10n_se_sie4.field_l10n_se_sie_import_wizard__import_analytics
+msgid ""
+"Cost centres, projects and other SIE dimensions become analytic plans, their"
+" objects analytic accounts, and the lines get an analytic distribution."
+msgstr ""
+"Kostnadsställen, projekt och andra SIE-dimensioner blir analysplaner, deras "
+"objekt analyskonton, och raderna får en analytisk fördelning."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "Cost unit"
+msgstr "Kostnadsbärare"
+
+#. module: l10n_se_sie4
+#: model_terms:ir.ui.view,arch_db:l10n_se_sie4.l10n_se_sie_import_wizard_form
+msgid "Create the entries shown in the preview?"
+msgstr "Skapa verifikaten som visas i förhandsgranskningen?"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields.selection,name:l10n_se_sie4.selection__l10n_se_sie_import__missing_accounts__create
+#: model:ir.model.fields.selection,name:l10n_se_sie4.selection__l10n_se_sie_import_wizard__missing_accounts__create
+msgid "Create them"
+msgstr "Skapa dem"
+
+#. module: l10n_se_sie4
+#: model_terms:ir.ui.view,arch_db:l10n_se_sie4.l10n_se_sie_import_form
+msgid "Created"
+msgstr "Skapat"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__created_account_ids
+msgid "Created Accounts"
+msgstr "Skapade konton"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__created_analytic_ids
+msgid "Created Analytic Accounts"
+msgstr "Skapade analyskonton"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__created_journal_ids
+msgid "Created Journals"
+msgstr "Skapade journaler"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "Created as"
+msgstr "Skapas som"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_export_wizard__create_uid
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__create_uid
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_check__create_uid
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_series__create_uid
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard__create_uid
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard_series__create_uid
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard_year__create_uid
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_year__create_uid
+msgid "Created by"
+msgstr "Skapad av"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_export_wizard__create_date
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__create_date
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_check__create_date
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_series__create_date
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard__create_date
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard_series__create_date
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard_year__create_date
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_year__create_date
+msgid "Created on"
+msgstr "Skapad den"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__currency_id
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_check__currency_id
+msgid "Currency"
+msgstr "Valuta"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "Customer"
+msgstr "Kund"
+
+#. module: l10n_se_sie4
+#: model_terms:ir.ui.view,arch_db:l10n_se_sie4.l10n_se_sie_import_list
+msgid "Date"
+msgstr "Datum"
+
+#. module: l10n_se_sie4
+#: model_terms:ir.ui.view,arch_db:l10n_se_sie4.l10n_se_sie_import_form
+msgid ""
+"Delete every entry this import created (and the accounts it created, if "
+"unused)?"
+msgstr ""
+"Radera alla verifikat som importen skapade (och kontona den skapade, om de "
+"inte används)?"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_check__is_deviation
+msgid "Deviation"
+msgstr "Avvikelse"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__deviation_count
+msgid "Deviation Count"
+msgstr "Antal avvikelser"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__deviation_ids
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_year__deviation_count
+#: model:ir.model.fields.selection,name:l10n_se_sie4.selection__l10n_se_sie_import_year__status__deviations
+#: model_terms:ir.ui.view,arch_db:l10n_se_sie4.l10n_se_sie_import_form
+msgid "Deviations"
+msgstr "Avvikelser"
+
+#. module: l10n_se_sie4
+#: model_terms:ir.ui.view,arch_db:l10n_se_sie4.l10n_se_sie_import_check_search
+msgid "Deviations only"
+msgstr "Bara avvikelser"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_check__difference
+msgid "Difference"
+msgstr "Differens"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "Dimension"
+msgstr "Dimension"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "Dimension %(dim)s"
+msgstr "Dimension %(dim)s"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid ""
+"Dimension %(dim)s is a sub-dimension in the file; it becomes an analytic "
+"plan of its own."
+msgstr ""
+"Dimension %(dim)s är en underdimension i filen; den blir en egen analysplan."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "Dimensions"
+msgstr "Dimensioner"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__import_analytics
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard__import_analytics
+msgid "Dimensions as Analytics"
+msgstr "Dimensioner som analyskonton"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_account_analytic_plan__display_name
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_account_move__display_name
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_export_wizard__display_name
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__display_name
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_check__display_name
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_series__display_name
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard__display_name
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard_series__display_name
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard_year__display_name
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_year__display_name
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_res_company__display_name
+msgid "Display Name"
+msgstr "Visningsnamn"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields.selection,name:l10n_se_sie4.selection__l10n_se_sie_export_wizard__state__done
+#: model:ir.model.fields.selection,name:l10n_se_sie4.selection__l10n_se_sie_import__state__done
+msgid "Done"
+msgstr "Klar"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields.selection,name:l10n_se_sie4.selection__l10n_se_sie_export_wizard__state__draft
+msgid "Draft"
+msgstr "Utkast"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields.selection,name:l10n_se_sie4.selection__res_company__l10n_se_sie_chart_type__eubas97
+msgid "EUBAS97 (any BAS version)"
+msgstr "EUBAS97 (alla BAS-versioner)"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "Employee"
+msgstr "Anställd"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,help:l10n_se_sie4.field_l10n_se_sie_import_wizard__journal_id
+msgid ""
+"Empty: a journal 'SIE Import' (code SIE) is created when needed. Also used "
+"for the opening balance when there is a journal per series."
+msgstr ""
+"Tomt: en journal 'SIE-import' (kod SIE) skapas vid behov. Används också för "
+"den ingående balansen när varje serie har en egen journal."
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,help:l10n_se_sie4.field_l10n_se_sie_import_wizard_series__journal_id
+msgid "Empty: a journal 'SIE series <series>' is created."
+msgstr "Tomt: en journal 'SIE-serie <serie>' skapas."
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,help:l10n_se_sie4.field_l10n_se_sie_import_wizard__check_date
+msgid ""
+"Empty: the end of the financial year (#UB and #RES). A date within the year:"
+" the file's opening balance plus its monthly balances (#PSALDO) up to that "
+"month end, or plus its vouchers up to that date."
+msgstr ""
+"Tomt: räkenskapsårets slut (#UB och #RES). Ett datum under året: filens "
+"ingående balans plus dess månadssaldon (#PSALDO) till och med den månadens "
+"slut, eller plus dess verifikat till och med datumet."
+
+#. module: l10n_se_sie4
+#: model_terms:ir.ui.view,arch_db:l10n_se_sie4.l10n_se_sie_import_wizard_form
+msgid "End of the financial year"
+msgstr "Räkenskapsårets slut"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__move_ids
+#: model_terms:ir.ui.view,arch_db:l10n_se_sie4.l10n_se_sie_import_form
+#: model_terms:ir.ui.view,arch_db:l10n_se_sie4.l10n_se_sie_import_list
+msgid "Entries"
+msgstr "Verifikat"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__entry_done
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_year__created_count
+msgid "Entries Created"
+msgstr "Skapade verifikat"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__undone_count
+msgid "Entries Deleted"
+msgstr "Raderade verifikat"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__entry_total
+msgid "Entries to Create"
+msgstr "Verifikat att skapa"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard__entry_count
+msgid "Entry Count"
+msgstr "Antal verifikat"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__error_message
+msgid "Error Message"
+msgstr "Felmeddelande"
+
+#. module: l10n_se_sie4
+#: model_terms:ir.actions.act_window,help:l10n_se_sie4.action_l10n_se_sie_import
+msgid ""
+"Every import and reconciliation from SIE Import is kept here, with its files, the\n"
+"                entries it created and the check against the files' balances."
+msgstr ""
+"Varje import och avstämning från SIE-import sparas här, med filerna, "
+"verifikaten den skapade och avstämningen mot filernas saldon."
+
+#. module: l10n_se_sie4
+#: model_terms:ir.ui.view,arch_db:l10n_se_sie4.l10n_se_sie_export_wizard_form
+msgid "Export"
+msgstr "Exportera"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields.selection,name:l10n_se_sie4.selection__l10n_se_sie_import__state__failed
+msgid "Failed"
+msgstr "Misslyckades"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard_year__filename
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_year__filename
+msgid "File"
+msgstr "Fil"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_export_wizard__file_name
+msgid "File Name"
+msgstr "Filnamn"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__attachment_ids
+#: model_terms:ir.ui.view,arch_db:l10n_se_sie4.l10n_se_sie_import_form
+msgid "Files"
+msgstr "Filer"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__year_ids
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard__year_ids
+#: model_terms:ir.ui.view,arch_db:l10n_se_sie4.l10n_se_sie_import_form
+#: model_terms:ir.ui.view,arch_db:l10n_se_sie4.l10n_se_sie_import_wizard_form
+msgid "Financial Years"
+msgstr "Räkenskapsår"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,help:l10n_se_sie4.field_account_bank_statement_line__l10n_se_sie_key
+#: model:ir.model.fields,help:l10n_se_sie4.field_account_move__l10n_se_sie_key
+msgid ""
+"Financial year, series and number of the SIE voucher this entry was imported"
+" from. An entry with the same key is never imported twice into the same "
+"company."
+msgstr ""
+"Räkenskapsår, serie och nummer för SIE-verifikatet som verifikatet "
+"importerades från. Ett verifikat med samma nyckel importeras aldrig två "
+"gånger till samma bolag."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "Financial years"
+msgstr "Räkenskapsår"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__date_done
+msgid "Finished"
+msgstr "Avslutad"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__message_follower_ids
+msgid "Followers"
+msgstr "Följare"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "Följare (kontakter)"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_export_wizard__date_from
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard_year__date_start
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_year__date_start
+msgid "From"
+msgstr "Från"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__has_message
+msgid "Has Message"
+msgstr "Har meddelande"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_account_analytic_plan__id
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_account_move__id
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_export_wizard__id
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__id
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_check__id
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_series__id
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard__id
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard_series__id
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard_year__id
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_year__id
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_res_company__id
+msgid "ID"
+msgstr "ID"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,help:l10n_se_sie4.field_l10n_se_sie_import__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "Om ikryssad kräver nya meddelanden din uppmärksamhet."
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,help:l10n_se_sie4.field_l10n_se_sie_import__message_has_error
+#: model:ir.model.fields,help:l10n_se_sie4.field_l10n_se_sie_import__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr "Om ikryssad har vissa meddelanden ett leveransfel."
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_check__import_id
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_series__import_id
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard_year__selected
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_year__import_id
+#: model:ir.model.fields.selection,name:l10n_se_sie4.selection__l10n_se_sie_import__mode__import
+#: model_terms:ir.ui.view,arch_db:l10n_se_sie4.l10n_se_sie_import_wizard_form
+msgid "Import"
+msgstr "Importera"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/l10n_se_sie_import.py:0
+msgid ""
+"Import done: %(entries)s entries, %(accounts)s accounts checked, "
+"%(deviations)s deviations."
+msgstr ""
+"Importen är klar: %(entries)s verifikat, %(accounts)s konton avstämda, "
+"%(deviations)s avvikelser."
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields.selection,name:l10n_se_sie4.selection__l10n_se_sie_import_wizard__mode__import
+msgid "Import the bookkeeping"
+msgstr "Importera bokföringen"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,help:l10n_se_sie4.field_l10n_se_sie_import_wizard__skip_invalid
+msgid ""
+"Import the other vouchers. The years with such vouchers will then differ "
+"from their closing balances."
+msgstr ""
+"Importera övriga verifikat. År med sådana verifikat kommer då att avvika "
+"från sina utgående saldon."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/l10n_se_sie_import.py:0
+msgid ""
+"Import undone by %(user)s: %(count)s entries deleted; accounts removed: "
+"%(accounts)s."
+msgstr ""
+"Importen ångrad av %(user)s: %(count)s verifikat raderade; borttagna konton:"
+" %(accounts)s."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/l10n_se_sie_import.py:0
+msgid "Imported Entries"
+msgstr "Importerade verifikat"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__user_id
+msgid "Imported by"
+msgstr "Importerad av"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields.selection,name:l10n_se_sie4.selection__l10n_se_sie_import__state__running
+msgid "Importing"
+msgstr "Importerar"
+
+#. module: l10n_se_sie4
+#: model_terms:ir.ui.view,arch_db:l10n_se_sie4.l10n_se_sie_import_search
+msgid "Imports"
+msgstr "Importer"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_check__odoo_amount
+msgid "In Odoo"
+msgstr "I Odoo"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_check__sie_amount
+msgid "In the File"
+msgstr "I filen"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "Invoice"
+msgstr "Faktura"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__message_is_follower
+msgid "Is Follower"
+msgstr "Är följare"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__journal_id
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_series__journal_id
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard__journal_id
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard_series__journal_id
+msgid "Journal"
+msgstr "Journal"
+
+#. module: l10n_se_sie4
+#: model:ir.model,name:l10n_se_sie4.model_account_move
+msgid "Journal Entry"
+msgstr "Verifikat"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__journal_mode
+msgid "Journal Mode"
+msgstr "Journaler"
+
+#. module: l10n_se_sie4
+#: model_terms:ir.ui.view,arch_db:l10n_se_sie4.l10n_se_sie_import_wizard_form
+msgid "Journal per Series"
+msgstr "Journal per serie"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard__journal_mode
+msgid "Journals"
+msgstr "Journaler"
+
+#. module: l10n_se_sie4
+#: model_terms:ir.ui.view,arch_db:l10n_se_sie4.l10n_se_sie_import_wizard_form
+msgid "Journals and Accounts"
+msgstr "Journaler och konton"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard__series_ids
+msgid "Journals per Series"
+msgstr "Journaler per serie"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard_year__key
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_year__key
+msgid "Key"
+msgstr "Nyckel"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_check__kind
+msgid "Kind"
+msgstr "Typ"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_export_wizard__write_uid
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__write_uid
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_check__write_uid
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_series__write_uid
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard__write_uid
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard_series__write_uid
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard_year__write_uid
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_year__write_uid
+msgid "Last Updated by"
+msgstr "Senast uppdaterad av"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_export_wizard__write_date
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__write_date
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_check__write_date
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_series__write_date
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard__write_date
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard_series__write_date
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard_year__write_date
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_year__write_date
+msgid "Last Updated on"
+msgstr "Senast uppdaterad den"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__skip_invalid
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard__skip_invalid
+msgid "Leave Out Vouchers That Do Not Balance"
+msgstr "Utelämna verifikat som inte balanserar"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "Lines"
+msgstr "Rader"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "Lines without an object list {}; read anyway."
+msgstr "Rader utan objektlista {}; läses ändå."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "Locked"
+msgstr "Låsta"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__message_has_error
+msgid "Message Delivery error"
+msgstr "Fel vid meddelandeleverans"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__message_ids
+msgid "Messages"
+msgstr "Meddelanden"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__missing_accounts
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard__missing_accounts
+msgid "Missing Accounts"
+msgstr "Saknade konton"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__mode
+msgid "Mode"
+msgstr "Läge"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__move_count
+msgid "Move Count"
+msgstr "Antal verifikat"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields.selection,name:l10n_se_sie4.selection__res_company__l10n_se_sie_chart_type__ne2007
+msgid "NE2007 (sole traders, K1)"
+msgstr "NE2007 (enskild näringsidkare, K1)"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__name
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_check__account_name
+msgid "Name"
+msgstr "Namn"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "New analytic accounts"
+msgstr "Nya analyskonton"
+
+#. module: l10n_se_sie4
+#: model_terms:ir.ui.view,arch_db:l10n_se_sie4.l10n_se_sie_import_wizard_form
+msgid "New journal 'SIE series ...'"
+msgstr "Ny journal 'SIE-serie ...'"
+
+#. module: l10n_se_sie4
+#: model_terms:ir.actions.act_window,help:l10n_se_sie4.action_l10n_se_sie_import
+msgid "No SIE import yet"
+msgstr "Ingen SIE-import ännu"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid ""
+"No financial year (#RAR 0): the vouchers are placed in the company's "
+"financial years."
+msgstr ""
+"Inget räkenskapsår (#RAR 0): verifikaten placeras i bolagets räkenskapsår."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "Not balanced"
+msgstr "Obalanserade"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields.selection,name:l10n_se_sie4.selection__l10n_se_sie_import_year__status__nobalances
+msgid "Not checked"
+msgstr "Inte avstämt"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_year__note
+msgid "Note"
+msgstr "Anteckning"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "Notes"
+msgstr "Noteringar"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__message_needaction_counter
+msgid "Number of Actions"
+msgstr "Antal åtgärder"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__message_has_error_counter
+msgid "Number of errors"
+msgstr "Antal fel"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,help:l10n_se_sie4.field_l10n_se_sie_import__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "Antal meddelanden som kräver åtgärd"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,help:l10n_se_sie4.field_l10n_se_sie_import__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "Antal meddelanden med leveransfel"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "Objects used"
+msgstr "Använda objekt"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "Odoo before %(date)s"
+msgstr "Odoo före %(date)s"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,help:l10n_se_sie4.field_l10n_se_sie_export_wizard__result_account_id
+msgid ""
+"Odoo does not close financial years: the result of earlier years is still on"
+" the income and expense accounts. The SIE file needs it on an equity account"
+" in the opening balance; it goes on this account (BAS 2099 by default)."
+msgstr ""
+"Odoo stänger inte räkenskapsår: tidigare års resultat ligger kvar på "
+"intäkts- och kostnadskontona. SIE-filen behöver det på ett eget kapital-"
+"konto i den ingående balansen; det hamnar på det här kontot (BAS 2099 som "
+"standard)."
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,help:l10n_se_sie4.field_l10n_se_sie_import_check__difference
+msgid "Odoo minus the file."
+msgstr "Odoo minus filen."
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields.selection,name:l10n_se_sie4.selection__l10n_se_sie_import__journal_mode__single
+#: model:ir.model.fields.selection,name:l10n_se_sie4.selection__l10n_se_sie_import_wizard__journal_mode__single
+msgid "One journal"
+msgstr "En journal"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,help:l10n_se_sie4.field_l10n_se_sie_import_wizard__attachment_ids
+msgid ""
+"One or more SIE 4 files (.se, .si, .sie), for example one per financial "
+"year. Fortnox: Settings, Export SIE, type 4. Visma/Spiris: Export, SIE file,"
+" type 4."
+msgstr ""
+"En eller flera SIE 4-filer (.se, .si, .sie), till exempel en per "
+"räkenskapsår. Fortnox: Inställningar, Exportera SIE, typ 4. Visma/Spiris: "
+"Export, SIE-fil, typ 4."
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_export_wizard__journal_ids
+msgid "Only Journals"
+msgstr "Bara journaler"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/l10n_se_sie_import.py:0
+msgid "Only a finished import or reconciliation can be checked again."
+msgstr "Bara en avslutad import eller avstämning kan stämmas av igen."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/l10n_se_sie_import.py:0
+msgid "Only a finished or failed import can be undone."
+msgstr "Bara en avslutad eller misslyckad import kan ångras."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/wizard/sie_export_wizard.py:0
+msgid ""
+"Only the vouchers of the chosen journals are in the file; the balances "
+"include all journals, so the vouchers do not add up to them."
+msgstr ""
+"Filen innehåller bara verifikaten i de valda journalerna; saldona omfattar "
+"alla journaler, så verifikaten summerar inte till dem."
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,help:l10n_se_sie4.field_l10n_se_sie_export_wizard__journal_ids
+msgid ""
+"Only vouchers of these journals. The balances always include every journal, "
+"so with a filter the vouchers do not add up to the balances."
+msgstr ""
+"Bara verifikat i dessa journaler. Saldona omfattar alltid alla journaler, så"
+" med ett filter summerar verifikaten inte till saldona."
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__import_opening
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard__import_opening
+msgid "Opening Balance"
+msgstr "Ingående balans"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "Opening balance"
+msgstr "Ingående balans"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/l10n_se_sie_import.py:0
+msgid "Opening balance %(year)s"
+msgstr "Ingående balans %(year)s"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/l10n_se_sie_import.py:0
+msgid "Opening balance difference %(year)s"
+msgstr "Differens ingående balans %(year)s"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "Opening balance differences"
+msgstr "Differenser i ingående balans"
+
+#. module: l10n_se_sie4
+#: model_terms:ir.ui.view,arch_db:l10n_se_sie4.l10n_se_sie_import_form
+msgid "Options"
+msgstr "Val"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "Org. no."
+msgstr "Org.nr"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "Period"
+msgstr "Period"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__post_moves
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard__post_moves
+msgid "Post Entries"
+msgstr "Bokför verifikaten"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,help:l10n_se_sie4.field_l10n_se_sie_import_wizard__post_moves
+msgid ""
+"Post the entries. Untick to create them as drafts and post them yourself."
+msgstr ""
+"Bokför verifikaten. Kryssa ur för att skapa dem som utkast och bokföra dem "
+"själv."
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard__preview_html
+#: model:ir.model.fields.selection,name:l10n_se_sie4.selection__l10n_se_sie_import_wizard__state__preview
+#: model_terms:ir.ui.view,arch_db:l10n_se_sie4.l10n_se_sie_import_wizard_form
+msgid "Preview"
+msgstr "Förhandsgranskning"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "Problems that stop the import"
+msgstr "Problem som stoppar importen"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "Program"
+msgstr "Program"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "Project"
+msgstr "Projekt"
+
+#. module: l10n_se_sie4
+#: model_terms:ir.ui.view,arch_db:l10n_se_sie4.l10n_se_sie_import_wizard_form
+msgid "Reconcile"
+msgstr "Stäm av"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__check_ids
+#: model:ir.model.fields.selection,name:l10n_se_sie4.selection__l10n_se_sie_import__state__reconciled
+msgid "Reconciliation"
+msgstr "Avstämning"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__report_html
+msgid "Reconciliation Report"
+msgstr "Avstämningsrapport"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,help:l10n_se_sie4.field_l10n_se_sie_import__check_date
+msgid "Reconciliation on this date instead of the end of the financial year."
+msgstr "Avstämning per detta datum i stället för räkenskapsårets slut."
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields.selection,name:l10n_se_sie4.selection__l10n_se_sie_import__mode__reconcile
+msgid "Reconciliation only"
+msgstr "Endast avstämning"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields.selection,name:l10n_se_sie4.selection__l10n_se_sie_import_wizard__mode__reconcile
+msgid "Reconciliation only (create no entries)"
+msgstr "Endast avstämning (skapa inga verifikat)"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,help:l10n_se_sie4.field_l10n_se_sie_import_wizard__mode
+msgid ""
+"Reconciliation only: compare Odoo's posted balances per account with the "
+"file (balance sheet accounts with #UB, result accounts with #RES), for "
+"example when the year is booked again by hand in Odoo and the file from the "
+"earlier program is the check."
+msgstr ""
+"Endast avstämning: jämför Odoos bokförda saldon per konto med filen "
+"(balanskonton mot #UB, resultatkonton mot #RES), till exempel när året "
+"bokförs om för hand i Odoo och filen från det tidigare programmet är "
+"kontrollen."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid ""
+"Reconciliation only: nothing is created. Odoo's posted balances are compared"
+" with the file."
+msgstr ""
+"Endast avstämning: inget skapas. Odoos bokförda saldon jämförs med filen."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/l10n_se_sie_import.py:0
+msgid ""
+"Reconciliation: %(accounts)s accounts checked, %(deviations)s deviations."
+msgstr "Avstämning: %(accounts)s konton avstämda, %(deviations)s avvikelser."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/l10n_se_sie_import.py:0
+msgid "Reconciliation: %(name)s"
+msgstr "Avstämning: %(name)s"
+
+#. module: l10n_se_sie4
+#: model_terms:ir.ui.view,arch_db:l10n_se_sie4.l10n_se_sie_import_search
+msgid "Reconciliations"
+msgstr "Avstämningar"
+
+#. module: l10n_se_sie4
+#: model_terms:ir.ui.view,arch_db:l10n_se_sie4.l10n_se_sie_import_form
+msgid "Refresh"
+msgstr "Uppdatera"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields.selection,name:l10n_se_sie4.selection__l10n_se_sie_import_check__kind__result
+#: model_terms:ir.ui.view,arch_db:l10n_se_sie4.l10n_se_sie_import_check_search
+msgid "Result"
+msgstr "Resultat"
+
+#. module: l10n_se_sie4
+#: model:ir.ui.menu,name:l10n_se_sie4.menu_l10n_se_sie_root
+msgid "SIE"
+msgstr "SIE"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_export_wizard__chart_type
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_res_company__l10n_se_sie_chart_type
+msgid "SIE Chart Type"
+msgstr "SIE-kontoplanstyp"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_account_analytic_plan__l10n_se_sie_dimension
+msgid "SIE Dimension"
+msgstr "SIE-dimension"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/wizard/sie_export_wizard.py:0
+#: model:ir.actions.act_window,name:l10n_se_sie4.action_l10n_se_sie_export_wizard
+#: model:ir.model,name:l10n_se_sie4.model_l10n_se_sie_export_wizard
+#: model:ir.ui.menu,name:l10n_se_sie4.menu_l10n_se_sie_export
+#: model_terms:ir.ui.view,arch_db:l10n_se_sie4.l10n_se_sie_export_wizard_form
+msgid "SIE Export"
+msgstr "SIE-export"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_export_wizard__file_data
+msgid "SIE File"
+msgstr "SIE-fil"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard__attachment_ids
+#: model_terms:ir.ui.view,arch_db:l10n_se_sie4.l10n_se_sie_import_wizard_form
+msgid "SIE Files"
+msgstr "SIE-filer"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/l10n_se_sie_import.py:0
+#: code:addons/l10n_se_sie4/wizard/sie_import_wizard.py:0
+#: model:ir.actions.act_window,name:l10n_se_sie4.action_l10n_se_sie_import_wizard
+#: model:ir.model,name:l10n_se_sie4.model_l10n_se_sie_import
+#: model:ir.model,name:l10n_se_sie4.model_l10n_se_sie_import_wizard
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_account_bank_statement_line__l10n_se_sie_import_id
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_account_move__l10n_se_sie_import_id
+#: model:ir.ui.menu,name:l10n_se_sie4.menu_l10n_se_sie_import
+#: model_terms:ir.ui.view,arch_db:l10n_se_sie4.l10n_se_sie_import_wizard_form
+msgid "SIE Import"
+msgstr "SIE-import"
+
+#. module: l10n_se_sie4
+#: model_terms:ir.ui.view,arch_db:l10n_se_sie4.l10n_se_sie_import_wizard_form
+msgid "SIE Import (created)"
+msgstr "SIE-import (skapas)"
+
+#. module: l10n_se_sie4
+#: model:ir.model,name:l10n_se_sie4.model_l10n_se_sie_import_year
+msgid "SIE Import: Financial Year"
+msgstr "SIE-import: räkenskapsår"
+
+#. module: l10n_se_sie4
+#: model:ir.model,name:l10n_se_sie4.model_l10n_se_sie_import_wizard_year
+msgid "SIE Import: Financial Year Choice"
+msgstr "SIE-import: val av räkenskapsår"
+
+#. module: l10n_se_sie4
+#: model:ir.model,name:l10n_se_sie4.model_l10n_se_sie_import_series
+msgid "SIE Import: Journal per Series"
+msgstr "SIE-import: journal per serie"
+
+#. module: l10n_se_sie4
+#: model:ir.model,name:l10n_se_sie4.model_l10n_se_sie_import_check
+msgid "SIE Import: Reconciliation Line"
+msgstr "SIE-import: avstämningsrad"
+
+#. module: l10n_se_sie4
+#: model:ir.model,name:l10n_se_sie4.model_l10n_se_sie_import_wizard_series
+msgid "SIE Import: Series Journal Choice"
+msgstr "SIE-import: val av journal per serie"
+
+#. module: l10n_se_sie4
+#: model:ir.actions.act_window,name:l10n_se_sie4.action_l10n_se_sie_import
+#: model:ir.ui.menu,name:l10n_se_sie4.menu_l10n_se_sie_history
+msgid "SIE Imports"
+msgstr "SIE-importer"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_export_wizard__sie_type
+msgid "SIE Type"
+msgstr "SIE-typ"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_account_bank_statement_line__l10n_se_sie_key
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_account_move__l10n_se_sie_key
+msgid "SIE Voucher Key"
+msgstr "SIE-verifikatnyckel"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid ""
+"SIE files carry no VAT codes. The imported entries have no taxes, so Odoo's "
+"tax report cannot show the VAT of the imported periods: use the source "
+"program's VAT reports for them."
+msgstr ""
+"SIE-filer innehåller inga momskoder. De importerade verifikaten saknar "
+"skatter, så Odoos momsrapport kan inte visa momsen för de importerade "
+"perioderna: använd källprogrammets momsrapporter för dem."
+
+#. module: l10n_se_sie4
+#: model:ir.actions.server,name:l10n_se_sie4.ir_cron_l10n_se_sie_import_ir_actions_server
+msgid "SIE import: run imports in the background"
+msgstr "SIE-import: kör importer i bakgrunden"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/wizard/sie_export_wizard.py:0
+msgid ""
+"SIE needs numeric account numbers. Change these accounts: %(accounts)s."
+msgstr "SIE kräver numeriska kontonummer. Ändra dessa konton: %(accounts)s."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/l10n_se_sie_import.py:0
+msgid "SIE series %(series)s"
+msgstr "SIE-serie %(series)s"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "SIE type"
+msgstr "SIE-typ"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr "Fel vid SMS-leverans"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "Select at least one financial year."
+msgstr "Välj minst ett räkenskapsår."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "Selected"
+msgstr "Valt"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__series_ids
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_series__series
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard_series__series
+msgid "Series"
+msgstr "Serie"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid ""
+"Some entries are dated on or before the tax return lock date %(date)s. They "
+"carry no taxes, so Odoo accepts them, but the VAT for those periods is "
+"already declared."
+msgstr ""
+"Vissa verifikat är daterade på eller före låsdatumet för momsdeklarationen "
+"%(date)s. De saknar skatter, så Odoo godtar dem, men momsen för de "
+"perioderna är redan deklarerad."
+
+#. module: l10n_se_sie4
+#: model_terms:ir.ui.view,arch_db:l10n_se_sie4.l10n_se_sie_import_form
+msgid "Started"
+msgstr "Startad"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_export_wizard__state
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__state
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard__state
+msgid "State"
+msgstr "Status"
+
+#. module: l10n_se_sie4
+#: model_terms:ir.ui.view,arch_db:l10n_se_sie4.l10n_se_sie_import_form
+msgid "Stop"
+msgstr "Stoppa"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields.selection,name:l10n_se_sie4.selection__l10n_se_sie_import__missing_accounts__abort
+#: model:ir.model.fields.selection,name:l10n_se_sie4.selection__l10n_se_sie_import_wizard__missing_accounts__abort
+msgid "Stop the import"
+msgstr "Stoppa importen"
+
+#. module: l10n_se_sie4
+#: model_terms:ir.ui.view,arch_db:l10n_se_sie4.l10n_se_sie_import_form
+msgid "Stop the import? The entries created so far stay until you undo it."
+msgstr ""
+"Stoppa importen? Verifikaten som hittills skapats finns kvar tills du ångrar"
+" den."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/l10n_se_sie_import.py:0
+msgid "Stopped by %(user)s."
+msgstr "Stoppad av %(user)s."
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_export_wizard__summary_html
+msgid "Summary"
+msgstr "Sammanfattning"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "Supplier"
+msgstr "Leverantör"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "The #VER on line %(line)s has no complete {...} block."
+msgstr "#VER på rad %(line)s saknar ett komplett {...}-block."
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,help:l10n_se_sie4.field_account_analytic_plan__l10n_se_sie_dimension
+msgid ""
+"The SIE dimension number of this plan (1 = cost centre, 6 = project, 20 and "
+"up free). Set by the SIE import; the SIE export writes the plan's analytic "
+"accounts as objects of this dimension. Empty: the export numbers the plan "
+"from 20 up."
+msgstr ""
+"SIE-dimensionsnumret för planen (1 = kostnadsställe, 6 = projekt, 20 och "
+"uppåt fria). Sätts av SIE-importen; SIE-exporten skriver planens "
+"analyskonton som objekt i denna dimension. Tomt: exporten numrerar planen "
+"från 20 och uppåt."
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,help:l10n_se_sie4.field_l10n_se_sie_import__attachment_ids
+msgid "The SIE files as they were uploaded."
+msgstr "SIE-filerna som de laddades upp."
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,help:l10n_se_sie4.field_account_bank_statement_line__l10n_se_sie_import_id
+#: model:ir.model.fields,help:l10n_se_sie4.field_account_move__l10n_se_sie_import_id
+msgid "The SIE import that created this entry."
+msgstr "SIE-importen som skapade verifikatet."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid ""
+"The checksum (#KSUMMA %(declared)s) does not match the content "
+"(%(computed)s): the file may have been changed after the export."
+msgstr ""
+"Kontrollsumman (#KSUMMA %(declared)s) stämmer inte med innehållet "
+"(%(computed)s): filen kan ha ändrats efter exporten."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid ""
+"The company already has posted entries before %(date)s. The opening balance "
+"%(year)s is booked in addition to them."
+msgstr ""
+"Bolaget har redan bokförda verifikat före %(date)s. Den ingående balansen "
+"%(year)s bokförs utöver dem."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid ""
+"The company has no chart of accounts. Install one (Accounting settings) "
+"before importing."
+msgstr ""
+"Bolaget har ingen kontoplan. Installera en (bokföringsinställningarna) innan"
+" du importerar."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "The date %(date)s is not in a selected financial year."
+msgstr "Datumet %(date)s ligger inte i ett valt räkenskapsår."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid ""
+"The file starts with #KSUMMA but the closing #KSUMMA is missing: the file is"
+" probably cut off. Export it again."
+msgstr ""
+"Filen börjar med #KSUMMA men den avslutande #KSUMMA saknas: filen är "
+"troligen avkortad. Exportera den igen."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/wizard/sie_import_wizard.py:0
+msgid ""
+"The files contain no financial year and no vouchers. Is it an SIE file?"
+msgstr ""
+"Filerna innehåller inget räkenskapsår och inga verifikat. Är det en SIE-fil?"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/l10n_se_sie_import.py:0
+msgid "The files have no balances to compare with."
+msgstr "Filerna har inga saldon att jämföra med."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid ""
+"The financial year %(year)s is in two files (%(first)s and %(second)s). "
+"Upload one file per financial year."
+msgstr ""
+"Räkenskapsåret %(year)s finns i två filer (%(first)s och %(second)s). Ladda "
+"upp en fil per räkenskapsår."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/l10n_se_sie_import.py:0
+msgid ""
+"The import cannot be undone because %(count)s of its entries cannot be deleted any more:\n"
+"%(list)s\n"
+"\n"
+"Reverse the entries instead (Journal Entries, Reverse)."
+msgstr ""
+"Importen kan inte ångras eftersom %(count)s av dess verifikat inte längre kan raderas:\n"
+"%(list)s\n"
+"\n"
+"Vänd verifikaten i stället (Verifikat, Vänd)."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/l10n_se_sie_import.py:0
+msgid "The import cannot continue:"
+msgstr "Importen kan inte fortsätta:"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/wizard/sie_import_wizard.py:0
+msgid "The import cannot start:"
+msgstr "Importen kan inte starta:"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid ""
+"The journal %(journals)s secures posted entries with a hash: the import "
+"cannot be undone once posted."
+msgstr ""
+"Journalen %(journals)s skyddar bokförda verifikat med en hash: importen kan "
+"inte ångras när verifikaten är bokförda."
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,help:l10n_se_sie4.field_l10n_se_sie_import__journal_id
+msgid "The journal of all entries (one journal), and of the opening balance."
+msgstr ""
+"Journalen för alla verifikat (en journal) och för den ingående balansen."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "The line does not start with a #label."
+msgstr "Raden börjar inte med en #etikett."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "The object list {...} cannot be read."
+msgstr "Objektlistan {...} kan inte läsas."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid ""
+"The opening balance %(year)s (#IB 0) does not add up to zero (difference "
+"%(diff)s)."
+msgstr ""
+"Den ingående balansen %(year)s (#IB 0) summerar inte till noll (differens "
+"%(diff)s)."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid ""
+"The opening balance %(year)s differs from %(prev)s by %(amount)s in total, "
+"so the differences cannot be booked as one entry. Usually the year before "
+"has no year-end closing (result to 2099, e.g. 8999/2099): import or book it "
+"first."
+msgstr ""
+"Den ingående balansen %(year)s skiljer sig från %(prev)s med totalt "
+"%(amount)s, så skillnaderna kan inte bokföras som ett verifikat. Oftast "
+"saknar året före ett årsbokslut (resultatet till 2099, t.ex. 8999/2099): "
+"importera eller bokför det först."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid ""
+"The opening balance %(year)s differs from the closing balance %(prev)s on "
+"%(count)s accounts: %(accounts)s. Odoo's balances follow from the vouchers, "
+"so these accounts will differ from the file. Tick 'Book opening balance "
+"differences' to book them."
+msgstr ""
+"Den ingående balansen %(year)s skiljer sig från den utgående balansen "
+"%(prev)s på %(count)s konton: %(accounts)s. Odoos saldon följer av "
+"verifikaten, så dessa konton kommer att avvika från filen. Kryssa i 'Bokför "
+"skillnader i ingående balans' för att bokföra dem."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid ""
+"The opening balance %(year)s differs from the closing balance %(prev)s on "
+"%(count)s accounts: %(accounts)s. The differences are booked as an entry on "
+"%(date)s."
+msgstr ""
+"Den ingående balansen %(year)s skiljer sig från den utgående balansen "
+"%(prev)s på %(count)s konton: %(accounts)s. Skillnaderna bokförs som ett "
+"verifikat den %(date)s."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid ""
+"The opening balance %(year)s has an amount on result account %(account)s; it"
+" is imported as it is."
+msgstr ""
+"Den ingående balansen %(year)s har ett belopp på resultatkontot %(account)s;"
+" det importeras som det är."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "The opening balance %(year)s is already imported."
+msgstr "Den ingående balansen %(year)s är redan importerad."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/l10n_se_sie_import.py:0
+msgid ""
+"The opening balance differences of %(year)s do not balance; the year before "
+"probably has no year-end closing."
+msgstr ""
+"Skillnaderna i ingående balans %(year)s balanserar inte; året före saknar "
+"troligen ett årsbokslut."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/wizard/sie_export_wizard.py:0
+msgid "The period ends before it starts."
+msgstr "Perioden slutar innan den börjar."
+
+#. module: l10n_se_sie4
+#: model_terms:ir.ui.view,arch_db:l10n_se_sie4.l10n_se_sie_export_wizard_form
+msgid ""
+"The posted bookkeeping of a financial year as an SIE file, for the auditor\n"
+"                        or a tax return program: chart of accounts, opening and closing balances,\n"
+"                        the year's result per account and (type 4E) every voucher."
+msgstr ""
+"Ett räkenskapsårs bokförda verifikat som SIE-fil, till revisorn eller ett "
+"deklarationsprogram: kontoplan, ingående och utgående balanser, årets "
+"resultat per konto och (typ 4E) alla verifikat."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/wizard/sie_import_wizard.py:0
+msgid "The reconciliation cannot start:"
+msgstr "Avstämningen kan inte starta:"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/wizard/sie_export_wizard.py:0
+msgid ""
+"The result of the years before %(date)s (%(amount)s) is not closed to equity"
+" in Odoo. Choose the account for earlier years' result."
+msgstr ""
+"Resultatet för åren före %(date)s (%(amount)s) är inte avslutat mot eget "
+"kapital i Odoo. Välj konto för tidigare års resultat."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/wizard/sie_export_wizard.py:0
+msgid ""
+"The result of the years before %(date)s, %(amount)s, is not closed to equity"
+" in Odoo; the file has it on account %(account)s in the opening balance."
+msgstr ""
+"Resultatet för åren före %(date)s, %(amount)s, är inte avslutat mot eget "
+"kapital i Odoo; filen har det på konto %(account)s i den ingående balansen."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/l10n_se_sie_import.py:0
+msgid "The run failed: %(error)s"
+msgstr "Körningen misslyckades: %(error)s"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "The vouchers use archived accounts: %(accounts)s."
+msgstr "Verifikaten använder arkiverade konton: %(accounts)s."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/wizard/sie_import_wizard.py:0
+msgid "There is nothing to import: everything selected is already in Odoo."
+msgstr "Det finns inget att importera: allt som valts finns redan i Odoo."
+
+#. module: l10n_se_sie4
+#: model:ir.model.constraint,message:l10n_se_sie4.constraint_account_move_l10n_se_sie_key_uniq
+msgid "This SIE voucher has already been imported into the company."
+msgstr "SIE-verifikatet är redan importerat till bolaget."
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_export_wizard__date_to
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard_year__date_end
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_year__date_end
+msgid "To"
+msgstr "Till"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "To import"
+msgstr "Att importera"
+
+#. module: l10n_se_sie4
+#: model_terms:ir.ui.view,arch_db:l10n_se_sie4.l10n_se_sie_import_check_list
+#: model_terms:ir.ui.view,arch_db:l10n_se_sie4.l10n_se_sie_import_form
+msgid "Total"
+msgstr "Summa"
+
+#. module: l10n_se_sie4
+#: model_terms:ir.ui.view,arch_db:l10n_se_sie4.l10n_se_sie_import_check_search
+msgid "Type"
+msgstr "Typ"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields.selection,name:l10n_se_sie4.selection__l10n_se_sie_export_wizard__sie_type__1
+msgid "Type 1: closing balances"
+msgstr "Typ 1: årssaldon"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields.selection,name:l10n_se_sie4.selection__l10n_se_sie_export_wizard__sie_type__2
+msgid "Type 2: closing and monthly balances"
+msgstr "Typ 2: årssaldon och periodsaldon"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields.selection,name:l10n_se_sie4.selection__l10n_se_sie_export_wizard__sie_type__3
+msgid "Type 3: balances per object as well"
+msgstr "Typ 3: även objektsaldon"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields.selection,name:l10n_se_sie4.selection__l10n_se_sie_export_wizard__sie_type__4e
+msgid "Type 4E: balances and vouchers (standard)"
+msgstr "Typ 4E: saldon och verifikat (standard)"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields.selection,name:l10n_se_sie4.selection__l10n_se_sie_export_wizard__sie_type__4i
+msgid "Type 4I: vouchers only, for import into another program"
+msgstr "Typ 4I: bara verifikat, för import i ett annat program"
+
+#. module: l10n_se_sie4
+#: model_terms:ir.ui.view,arch_db:l10n_se_sie4.l10n_se_sie_import_form
+msgid "Undo Import"
+msgstr "Ångra importen"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/l10n_se_sie_import.py:0
+msgid "Undo the import before deleting it."
+msgstr "Ångra importen innan du raderar den."
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields.selection,name:l10n_se_sie4.selection__l10n_se_sie_import__state__undoing
+msgid "Undoing"
+msgstr "Ångras"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields.selection,name:l10n_se_sie4.selection__l10n_se_sie_import__state__undone
+msgid "Undone"
+msgstr "Ångrad"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "Unknown record %(label)s ignored (%(count)s times)."
+msgstr "Okänd post %(label)s ignoreras (%(count)s gånger)."
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields.selection,name:l10n_se_sie4.selection__l10n_se_sie_import_wizard__state__upload
+msgid "Upload"
+msgstr "Ladda upp"
+
+#. module: l10n_se_sie4
+#: model_terms:ir.ui.view,arch_db:l10n_se_sie4.l10n_se_sie_import_wizard_form
+msgid ""
+"Upload SIE 4 files exported from the earlier program (Fortnox, Visma/Spiris\n"
+"                        and others), for example one file per financial year. The next step shows\n"
+"                        what the files contain and what would be created; nothing is written\n"
+"                        before you click <strong>Import</strong>."
+msgstr ""
+"Ladda upp SIE 4-filer exporterade från det tidigare programmet (Fortnox, "
+"Visma/Spiris med flera), till exempel en fil per räkenskapsår. Nästa steg "
+"visar vad filerna innehåller och vad som skulle skapas; inget skrivs förrän "
+"du klickar på <strong>Importera</strong>."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/wizard/sie_import_wizard.py:0
+msgid "Upload at least one SIE file."
+msgstr "Ladda upp minst en SIE-fil."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid ""
+"Voucher %(ref)s does not balance after rounding its amounts to two decimals."
+msgstr ""
+"Verifikat %(ref)s balanserar inte när beloppen avrundas till två decimaler."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "Voucher %(ref)s has a line that cannot be read."
+msgstr "Verifikat %(ref)s har en rad som inte kan läsas."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "Voucher %(ref)s has no lines; it is skipped."
+msgstr "Verifikat %(ref)s har inga rader; det hoppas över."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid ""
+"Voucher %(ref)s of %(date)s does not balance: its lines add up to %(diff)s."
+msgstr ""
+"Verifikat %(ref)s den %(date)s balanserar inte: raderna summerar till "
+"%(diff)s."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__import_vouchers
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_series__voucher_count
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard__import_vouchers
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard_series__voucher_count
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard_year__voucher_count
+msgid "Vouchers"
+msgstr "Verifikat"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_year__voucher_count
+msgid "Vouchers in File"
+msgstr "Verifikat i filen"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields.selection,name:l10n_se_sie4.selection__l10n_se_sie_import__state__queued
+msgid "Waiting"
+msgstr "Väntar"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "Warnings"
+msgstr "Varningar"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__website_message_ids
+msgid "Website Messages"
+msgstr "Webbplatsmeddelanden"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,help:l10n_se_sie4.field_l10n_se_sie_import__website_message_ids
+msgid "Website communication history"
+msgstr "Kommunikationshistorik för webbplatsen"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard__mode
+msgid "What to Do"
+msgstr "Vad ska göras"
+
+#. module: l10n_se_sie4
+#: model_terms:ir.ui.view,arch_db:l10n_se_sie4.l10n_se_sie_import_wizard_form
+msgid "What to Import"
+msgstr "Vad ska importeras"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,help:l10n_se_sie4.field_l10n_se_sie_import_wizard__opening_differences
+msgid ""
+"When a year's opening balance in its file differs from the closing balance "
+"of the year before (for example a program that moves the result to retained "
+"earnings in the opening balance), book the difference as an entry on the "
+"first day of the year."
+msgstr ""
+"När ett års ingående balans i filen skiljer sig från föregående års utgående"
+" balans (till exempel ett program som flyttar resultatet till balanserat "
+"resultat i den ingående balansen), bokförs skillnaden som ett verifikat på "
+"årets första dag."
+
+#. module: l10n_se_sie4
+#: model_terms:ir.ui.view,arch_db:l10n_se_sie4.l10n_se_sie_import_search
+msgid "With deviations"
+msgstr "Med avvikelser"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard_series__wizard_id
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard_year__wizard_id
+msgid "Wizard"
+msgstr "Guide"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,help:l10n_se_sie4.field_l10n_se_sie_export_wizard__all_accounts
+msgid "Write the whole chart of accounts, not only the accounts with amounts."
+msgstr "Skriv hela kontoplanen, inte bara kontona med belopp."
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,help:l10n_se_sie4.field_l10n_se_sie_export_wizard__chart_type
+#: model:ir.model.fields,help:l10n_se_sie4.field_res_company__l10n_se_sie_chart_type
+msgid ""
+"Written as #KPTYP in SIE exports. The SIE standard reads any BAS20xx as "
+"EUBAS97, so EUBAS97 is understood by every program."
+msgstr ""
+"Skrivs som #KPTYP i SIE-exporter. SIE-standarden läser alla BAS20xx som "
+"EUBAS97, så EUBAS97 förstås av alla program."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_check__year
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard_year__label
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_year__label
+#: model_terms:ir.ui.view,arch_db:l10n_se_sie4.l10n_se_sie_import_check_search
+msgid "Year"
+msgstr "År"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields.selection,name:l10n_se_sie4.selection__l10n_se_sie_import_year__source__closing
+msgid "closing balances #UB/#RES"
+msgstr "utgående saldon #UB/#RES"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "correct"
+msgstr "stämmer"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "does not match"
+msgstr "stämmer inte"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/l10n_se_sie_import.py:0
+msgid "l10n_se_sie_import_id"
+msgstr "l10n_se_sie_import_id"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "no"
+msgstr "nej"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields.selection,name:l10n_se_sie4.selection__l10n_se_sie_import_year__source__psaldo
+msgid "opening balance and monthly balances #PSALDO"
+msgstr "ingående balans och periodsaldon #PSALDO"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields.selection,name:l10n_se_sie4.selection__l10n_se_sie_import_year__source__vouchers
+msgid "opening balance and vouchers"
+msgstr "ingående balans och verifikat"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "yes"
+msgstr "ja"

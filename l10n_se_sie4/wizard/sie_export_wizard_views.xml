@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="l10n_se_sie_export_wizard_form" model="ir.ui.view">
+        <field name="name">l10n_se.sie.export.wizard.form</field>
+        <field name="model">l10n_se.sie.export.wizard</field>
+        <field name="arch" type="xml">
+            <form string="SIE Export">
+                <field name="state" invisible="1"/>
+                <field name="company_id" invisible="1"/>
+                <div invisible="state != 'draft'">
+                    <p>
+                        The posted bookkeeping of a financial year as an SIE file, for the auditor
+                        or a tax return program: chart of accounts, opening and closing balances,
+                        the year's result per account and (type 4E) every voucher.
+                    </p>
+                    <group>
+                        <group>
+                            <field name="date_from"/>
+                            <field name="date_to"/>
+                            <field name="sie_type"/>
+                        </group>
+                        <group>
+                            <field name="chart_type"/>
+                            <field name="all_accounts"/>
+                            <field name="checksum"/>
+                            <field name="result_account_id"/>
+                            <field name="journal_ids" widget="many2many_tags"
+                                   invisible="sie_type not in ('4E', '4I')"/>
+                        </group>
+                    </group>
+                </div>
+                <div invisible="state != 'done'">
+                    <field name="summary_html" nolabel="1" readonly="1"/>
+                    <group>
+                        <field name="file_name" invisible="1"/>
+                        <field name="file_data" filename="file_name" readonly="1"/>
+                    </group>
+                </div>
+                <footer>
+                    <button name="action_export" string="Export" type="object" class="btn-primary"
+                            invisible="state != 'draft'"/>
+                    <button string="Close" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_l10n_se_sie_export_wizard" model="ir.actions.act_window">
+        <field name="name">SIE Export</field>
+        <field name="res_model">l10n_se.sie.export.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

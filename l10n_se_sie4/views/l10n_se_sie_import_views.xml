@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Reconciliation lines -->
+    <record id="l10n_se_sie_import_check_list" model="ir.ui.view">
+        <field name="name">l10n_se.sie.import.check.list</field>
+        <field name="model">l10n_se.sie.import.check</field>
+        <field name="arch" type="xml">
+            <list create="0" edit="0" delete="0" decoration-danger="is_deviation">
+                <field name="currency_id" column_invisible="1"/>
+                <field name="year"/>
+                <field name="date"/>
+                <field name="kind"/>
+                <field name="account_code"/>
+                <field name="account_name"/>
+                <field name="sie_amount" sum="Total"/>
+                <field name="odoo_amount" sum="Total"/>
+                <field name="difference" sum="Total"/>
+                <field name="is_deviation" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="l10n_se_sie_import_check_search" model="ir.ui.view">
+        <field name="name">l10n_se.sie.import.check.search</field>
+        <field name="model">l10n_se.sie.import.check</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="account_code"/>
+                <field name="account_name"/>
+                <field name="import_id"/>
+                <filter name="deviation" string="Deviations only" domain="[('is_deviation', '=', True)]"/>
+                <separator/>
+                <filter name="balance" string="Balance sheet" domain="[('kind', '=', 'balance')]"/>
+                <filter name="result" string="Result" domain="[('kind', '=', 'result')]"/>
+                <group>
+                    <filter name="group_year" string="Year" context="{'group_by': 'year'}"/>
+                    <filter name="group_kind" string="Type" context="{'group_by': 'kind'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Imports -->
+    <record id="l10n_se_sie_import_list" model="ir.ui.view">
+        <field name="name">l10n_se.sie.import.list</field>
+        <field name="model">l10n_se.sie.import</field>
+        <field name="arch" type="xml">
+            <list create="0" decoration-danger="state == 'failed'" decoration-muted="state == 'undone'"
+                  decoration-warning="deviation_count &gt; 0 and state in ('done', 'reconciled')">
+                <field name="create_date" string="Date"/>
+                <field name="name"/>
+                <field name="mode"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="user_id"/>
+                <field name="move_count" string="Entries"/>
+                <field name="checked_count"/>
+                <field name="deviation_count"/>
+                <field name="state" widget="badge" decoration-success="state in ('done', 'reconciled')"
+                       decoration-info="state in ('queued', 'running', 'undoing')" decoration-danger="state == 'failed'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="l10n_se_sie_import_search" model="ir.ui.view">
+        <field name="name">l10n_se.sie.import.search</field>
+        <field name="model">l10n_se.sie.import</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="user_id"/>
+                <filter name="imports" string="Imports" domain="[('mode', '=', 'import')]"/>
+                <filter name="reconciliations" string="Reconciliations" domain="[('mode', '=', 'reconcile')]"/>
+                <separator/>
+                <filter name="with_deviations" string="With deviations" domain="[('deviation_count', '&gt;', 0)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="l10n_se_sie_import_form" model="ir.ui.view">
+        <field name="name">l10n_se.sie.import.form</field>
+        <field name="model">l10n_se.sie.import</field>
+        <field name="arch" type="xml">
+            <form create="0" edit="0">
+                <header>
+                    <button name="action_undo" type="object" string="Undo Import"
+                            invisible="mode != 'import' or state not in ('done', 'failed') or not move_count"
+                            confirm="Delete every entry this import created (and the accounts it created, if unused)?"/>
+                    <button name="action_check_again" type="object" string="Check Again"
+                            invisible="state not in ('done', 'reconciled')"/>
+                    <button name="action_refresh" type="object" string="Refresh"
+                            invisible="state not in ('queued', 'running', 'undoing')"/>
+                    <button name="action_stop" type="object" string="Stop"
+                            invisible="state not in ('queued', 'running', 'undoing')"
+                            confirm="Stop the import? The entries created so far stay until you undo it."/>
+                    <field name="state" widget="statusbar" statusbar_visible="running,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_open_moves" type="object" class="oe_stat_button"
+                                icon="fa-book" invisible="not move_count">
+                            <field name="move_count" widget="statinfo" string="Entries"/>
+                        </button>
+                        <button name="action_open_checks" type="object" class="oe_stat_button"
+                                icon="fa-balance-scale" invisible="not checked_count">
+                            <field name="deviation_count" widget="statinfo" string="Deviations"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="mode"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="user_id"/>
+                            <field name="create_date" string="Started"/>
+                            <field name="date_done"/>
+                            <field name="check_date" invisible="not check_date"/>
+                        </group>
+                        <group>
+                            <field name="entry_total" invisible="mode != 'import'"/>
+                            <field name="entry_done" invisible="mode != 'import'"/>
+                            <field name="undone_count" invisible="state not in ('undoing', 'undone')"/>
+                            <field name="checked_count"/>
+                        </group>
+                    </group>
+                    <div class="alert alert-danger" role="alert" invisible="not error_message">
+                        <field name="error_message" nolabel="1"/>
+                    </div>
+                    <field name="report_html" nolabel="1"/>
+                    <notebook>
+                        <page string="Deviations" name="deviations">
+                            <field name="deviation_ids" nolabel="1">
+                                <list>
+                                    <field name="currency_id" column_invisible="1"/>
+                                    <field name="year"/>
+                                    <field name="date"/>
+                                    <field name="kind"/>
+                                    <field name="account_code"/>
+                                    <field name="account_name"/>
+                                    <field name="sie_amount" sum="Total"/>
+                                    <field name="odoo_amount" sum="Total"/>
+                                    <field name="difference" sum="Total"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Financial Years" name="years">
+                            <field name="year_ids" nolabel="1">
+                                <list decoration-success="status == 'ok'" decoration-danger="status == 'deviations'">
+                                    <field name="label"/>
+                                    <field name="date_start"/>
+                                    <field name="date_end"/>
+                                    <field name="filename"/>
+                                    <field name="voucher_count"/>
+                                    <field name="existing_count"/>
+                                    <field name="created_count"/>
+                                    <field name="check_date"/>
+                                    <field name="source"/>
+                                    <field name="checked_count"/>
+                                    <field name="deviation_count"/>
+                                    <field name="status"/>
+                                    <field name="note" optional="show"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Options" name="options" invisible="mode != 'import'">
+                            <group>
+                                <group>
+                                    <field name="import_opening"/>
+                                    <field name="import_vouchers"/>
+                                    <field name="opening_differences"/>
+                                    <field name="post_moves"/>
+                                    <field name="skip_invalid"/>
+                                </group>
+                                <group>
+                                    <field name="journal_mode"/>
+                                    <field name="journal_id"/>
+                                    <field name="missing_accounts"/>
+                                    <field name="import_analytics"/>
+                                </group>
+                            </group>
+                            <field name="series_ids" invisible="journal_mode != 'series'">
+                                <list>
+                                    <field name="series"/>
+                                    <field name="voucher_count"/>
+                                    <field name="journal_id"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Created" name="created" invisible="mode != 'import'">
+                            <group>
+                                <field name="created_account_ids" widget="many2many_tags"/>
+                                <field name="created_analytic_ids" widget="many2many_tags"/>
+                                <field name="created_journal_ids" widget="many2many_tags"/>
+                            </group>
+                        </page>
+                        <page string="Analysis" name="analysis">
+                            <field name="preview_html" nolabel="1"/>
+                        </page>
+                        <page string="Files" name="files">
+                            <field name="attachment_ids" widget="many2many_binary" nolabel="1"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_l10n_se_sie_import" model="ir.actions.act_window">
+        <field name="name">SIE Imports</field>
+        <field name="res_model">l10n_se.sie.import</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No SIE import yet</p>
+            <p>Every import and reconciliation from SIE Import is kept here, with its files, the
+                entries it created and the check against the files' balances.</p>
+        </field>
+    </record>
+
+    <!-- The import's link on the journal entry -->
+    <record id="view_move_form_l10n_se_sie" model="ir.ui.view">
+        <field name="name">account.move.form.l10n_se_sie4</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@id='other_tab_entry']//group[@name='misc_group']" position="inside">
+                <field name="l10n_se_sie_import_id" invisible="not l10n_se_sie_import_id"
+                       groups="account.group_account_manager"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="account_analytic_plan_form_l10n_se_sie" model="ir.ui.view">
+        <field name="name">account.analytic.plan.form.l10n_se_sie4</field>
+        <field name="model">account.analytic.plan</field>
+        <field name="inherit_id" ref="analytic.account_analytic_plan_form_view"/>
+        <field name="arch" type="xml">
+            <field name="default_applicability" position="after">
+                <field name="l10n_se_sie_dimension"/>
+            </field>
+        </field>
+    </record>
+</odoo>

@@ -5,6 +5,32 @@ one section per module. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions use Odoo's
 `<odoo-version>.<major>.<minor>.<patch>` scheme.
 
+## l10n_se_sie4
+
+### [19.0.1.0.0] — 2026-10-05
+
+- Initial release. *SIE Import*: one or more SIE 4 files (Fortnox, Visma/Spiris and others), a
+  preview (program, character set, company and organisation number, financial years, vouchers per
+  series, dimensions, missing accounts, vouchers that do not balance, vouchers already in Odoo,
+  lock dates, every problem with file and line number), then the first year's opening balance and
+  the vouchers as journal entries, posted or as drafts, in one journal or a journal per series.
+  Missing accounts are created from `#KONTO`/`#KTYP` with the type of their neighbours in the
+  chart; dimensions become analytic plans and analytic distributions. Only `#TRANS` lines are
+  booked (`#RTRANS` is followed by an identical `#TRANS`, `#BTRANS` is a removed line).
+- A key per voucher (financial year, series, number) and a database constraint keep a voucher from
+  being imported twice; references of earlier import scripts are recognised. Import into a locked
+  period is refused. More than 1 000 entries are imported in the background.
+- Import history with the files, entries, created accounts and a reconciliation of every account
+  against the files: balance sheet accounts with `#UB`, result accounts with `#RES`. *Undo Import*
+  while no entry is locked.
+- *Reconciliation only*: compare the posted books with a file without creating anything, at the
+  end of the year or on a date (`#PSALDO` on a month end, the vouchers on any day).
+- *SIE Export*: type 4E (default), 4I, 1, 2 or 3; balances for the year and the year before,
+  monthly balances, objects from the analytic distribution, vouchers per journal; earlier years'
+  unclosed result in the opening balance of 2099; code page 437, CRLF, optional `#KSUMMA`.
+- `lib/sie.py`: a pure-Python SIE 4 reader and writer (tokenizer, encoding detection, all records,
+  checks with line numbers, CRC-32 checksum) with pytest tests. Swedish translation.
+
 ## l10n_se_compliance_calendar
 
 ### [19.0.1.0.0] — 2026-10-01

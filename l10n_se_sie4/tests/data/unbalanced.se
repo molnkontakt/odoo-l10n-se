@@ -1,0 +1,22 @@
+#FLAGGA 0
+#PROGRAM "Exempelprogram" 1.0
+#FORMAT PC8
+#GEN 20250201
+#SIETYP 4
+#ORGNR 559000-0000
+#FNAMN "Exempelbolaget Norrsken AB"
+#RAR 0 20250101 20251231
+#KONTO 1930 "F”retagskonto"
+#KONTO 6250 "Postbefordran"
+#VER A 1 20250105 "Balanserat"
+{
+#TRANS 6250 {} 120.00
+#TRANS 1930 {} -120.00
+}
+#VER A 2 20250106 "Obalanserat"
+{
+#TRANS 6250 {} 120.00
+#TRANS 1930 {} -100.00
+}
+#RES 0 6250 120.00
+#UB 0 1930 -120.00

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="l10n_se_sie_import_wizard_form" model="ir.ui.view">
+        <field name="name">l10n_se.sie.import.wizard.form</field>
+        <field name="model">l10n_se.sie.import.wizard</field>
+        <field name="arch" type="xml">
+            <form string="SIE Import">
+                <field name="state" invisible="1"/>
+                <field name="company_id" invisible="1"/>
+                <field name="blocked" invisible="1"/>
+                <div invisible="state != 'upload'">
+                    <p>
+                        Upload SIE 4 files exported from the earlier program (Fortnox, Visma/Spiris
+                        and others), for example one file per financial year. The next step shows
+                        what the files contain and what would be created; nothing is written
+                        before you click <strong>Import</strong>.
+                    </p>
+                </div>
+                <group>
+                    <field name="mode" widget="radio"/>
+                    <field name="attachment_ids" widget="many2many_binary" string="SIE Files"
+                           readonly="state != 'upload'"/>
+                </group>
+                <div invisible="state != 'preview'">
+                    <group invisible="mode != 'import'">
+                        <group string="What to Import">
+                            <field name="import_opening"/>
+                            <field name="import_vouchers"/>
+                            <field name="opening_differences"/>
+                            <field name="post_moves"/>
+                            <field name="skip_invalid"/>
+                        </group>
+                        <group string="Journals and Accounts">
+                            <field name="journal_mode" widget="radio"/>
+                            <field name="journal_id" placeholder="SIE Import (created)"/>
+                            <field name="missing_accounts" widget="radio"/>
+                            <field name="import_analytics"/>
+                        </group>
+                    </group>
+                    <group invisible="mode != 'reconcile'">
+                        <field name="check_date" placeholder="End of the financial year"/>
+                    </group>
+                    <separator string="Financial Years"/>
+                    <field name="year_ids" nolabel="1">
+                        <list editable="bottom" create="0" delete="0">
+                            <field name="selected" widget="boolean_toggle"/>
+                            <field name="label"/>
+                            <field name="date_start"/>
+                            <field name="date_end"/>
+                            <field name="filename"/>
+                            <field name="voucher_count"/>
+                        </list>
+                    </field>
+                    <div invisible="mode != 'import' or journal_mode != 'series'">
+                        <separator string="Journal per Series"/>
+                        <field name="series_ids" nolabel="1">
+                            <list editable="bottom" create="0" delete="0">
+                                <field name="company_id" column_invisible="1"/>
+                                <field name="series"/>
+                                <field name="voucher_count"/>
+                                <field name="journal_id" placeholder="New journal 'SIE series ...'"/>
+                            </list>
+                        </field>
+                    </div>
+                    <separator string="Preview"/>
+                    <field name="preview_html" nolabel="1" readonly="1"/>
+                </div>
+                <footer>
+                    <button name="action_analyse" string="Analyse" type="object"
+                            class="btn-primary" invisible="state != 'upload'"/>
+                    <button name="action_import" string="Import" type="object" class="btn-primary"
+                            invisible="state != 'preview' or mode != 'import'"
+                            confirm="Create the entries shown in the preview?"/>
+                    <button name="action_reconcile" string="Reconcile" type="object"
+                            class="btn-primary" invisible="state != 'preview' or mode != 'reconcile'"/>
+                    <button name="action_back" string="Back" type="object"
+                            invisible="state != 'preview'"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_l10n_se_sie_import_wizard" model="ir.actions.act_window">
+        <field name="name">SIE Import</field>
+        <field name="res_model">l10n_se.sie.import.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>
