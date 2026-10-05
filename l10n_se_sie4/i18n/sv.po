@@ -74,9 +74,25 @@ msgstr "#SIETYP saknas: läses som SIE typ 1."
 
 #. module: l10n_se_sie4
 #. odoo-python
+#: code:addons/l10n_se_sie4/models/l10n_se_sie_import.py:0
+msgid "%(account)s: Odoo %(odoo)s, %(prev)s %(file)s"
+msgstr "%(account)s: Odoo %(odoo)s, %(prev)s %(file)s"
+
+#. module: l10n_se_sie4
+#. odoo-python
 #: code:addons/l10n_se_sie4/wizard/sie_import_wizard.py:0
 msgid "%(count)s SIE files"
 msgstr "%(count)s SIE-filer"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/l10n_se_sie_import.py:0
+msgid ""
+"%(count)s accounts agree with the files, but not every year could be "
+"checked: %(years)s."
+msgstr ""
+"%(count)s konton stämmer med filerna, men alla år kunde inte stämmas av: "
+"%(years)s."
 
 #. module: l10n_se_sie4
 #. odoo-python
@@ -140,11 +156,11 @@ msgstr ""
 #. odoo-python
 #: code:addons/l10n_se_sie4/models/sie_analysis.py:0
 msgid ""
-"%(count)s vouchers are dated outside the file's financial year and are not "
-"imported (first: %(first)s)."
+"%(count)s vouchers are dated outside the file's financial years (first: "
+"%(first)s)."
 msgstr ""
-"%(count)s verifikat är daterade utanför filens räkenskapsår och importeras "
-"inte (första: %(first)s)."
+"%(count)s verifikat är daterade utanför filens räkenskapsår (första: "
+"%(first)s)."
 
 #. module: l10n_se_sie4
 #. odoo-python
@@ -155,14 +171,54 @@ msgstr "%(date)s ligger före räkenskapsåret %(year)s."
 #. module: l10n_se_sie4
 #. odoo-python
 #: code:addons/l10n_se_sie4/models/l10n_se_sie_import.py:0
-msgid "%(entry)s (%(date)s) is locked"
-msgstr "%(entry)s (%(date)s) är låst"
+msgid "%(entry)s (%(date)s) is in a locked period"
+msgstr "%(entry)s (%(date)s) ligger i en låst period"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/l10n_se_sie_import.py:0
+msgid "%(entry)s belongs to a bank statement line"
+msgstr "%(entry)s hör till en bankrad"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/l10n_se_sie_import.py:0
+msgid ""
+"%(entry)s does not balance after rounding to %(digits)s decimals (difference"
+" %(diff)s)."
+msgstr ""
+"%(entry)s balanserar inte efter avrundning till %(digits)s decimaler "
+"(differens %(diff)s)."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/l10n_se_sie_import.py:0
+msgid "%(entry)s has been changed since the import"
+msgstr "%(entry)s har ändrats sedan importen"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/l10n_se_sie_import.py:0
+msgid "%(entry)s has been reversed"
+msgstr "%(entry)s har vänts"
 
 #. module: l10n_se_sie4
 #. odoo-python
 #: code:addons/l10n_se_sie4/models/l10n_se_sie_import.py:0
 msgid "%(entry)s is kept by the restrictive audit trail"
 msgstr "%(entry)s skyddas av den strikta behandlingshistoriken"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/l10n_se_sie_import.py:0
+msgid "%(entry)s is reconciled"
+msgstr "%(entry)s är avstämt (matchat)"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/l10n_se_sie_import.py:0
+msgid "%(entry)s is secured by a hash"
+msgstr "%(entry)s är skyddat med en hash"
 
 #. module: l10n_se_sie4
 #. odoo-python
@@ -227,6 +283,16 @@ msgstr "%(file)s är i %(currency)s, bolagets valuta är %(company_currency)s."
 #. module: l10n_se_sie4
 #. odoo-python
 #: code:addons/l10n_se_sie4/wizard/sie_import_wizard.py:0
+msgid ""
+"%(file)s is larger than %(limit)s MB (system parameter "
+"l10n_se_sie4.max_file_mb)."
+msgstr ""
+"%(file)s är större än %(limit)s MB (systemparametern "
+"l10n_se_sie4.max_file_mb)."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/wizard/sie_import_wizard.py:0
 msgid "%(file)s is not an SIE file (.se, .si or .sie)."
 msgstr "%(file)s är inte en SIE-fil (.se, .si eller .sie)."
 
@@ -235,6 +301,16 @@ msgstr "%(file)s är inte en SIE-fil (.se, .si eller .sie)."
 #: code:addons/l10n_se_sie4/models/sie_analysis.py:0
 msgid "%(file)s, line %(line)s: %(text)s"
 msgstr "%(file)s, rad %(line)s: %(text)s"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid ""
+"%(file)s: %(count)s vouchers are dated outside the financial year %(year)s "
+"and are not imported: %(vouchers)s."
+msgstr ""
+"%(file)s: %(count)s verifikat är daterade utanför räkenskapsåret %(year)s "
+"och importeras inte: %(vouchers)s."
 
 #. module: l10n_se_sie4
 #. odoo-python
@@ -262,9 +338,31 @@ msgstr "%(label)s: '%(value)s' är inte en månad (ÅÅÅÅMM)."
 
 #. module: l10n_se_sie4
 #. odoo-python
+#: code:addons/l10n_se_sie4/models/l10n_se_sie_import.py:0
+msgid ""
+"%(name)s (%(years)s): %(checked)s accounts, %(deviations)s deviations, "
+"%(unchecked)s years not checked."
+msgstr ""
+"%(name)s (%(years)s): %(checked)s konton, %(deviations)s avvikelser, "
+"%(unchecked)s år inte avstämda."
+
+#. module: l10n_se_sie4
+#. odoo-python
 #: code:addons/l10n_se_sie4/models/sie_analysis.py:0
 msgid "%(name)s (new)"
 msgstr "%(name)s (ny)"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/wizard/sie_export_wizard.py:0
+msgid ""
+"%(start)s – %(end)s is not a financial year as the company's settings define"
+" it (%(fy_start)s – %(fy_end)s). The file gives it as #RAR 0; check that the"
+" previous year (#RAR -1, %(prev_start)s – %(prev_end)s) is right."
+msgstr ""
+"%(start)s – %(end)s är inte ett räkenskapsår enligt bolagets inställningar "
+"(%(fy_start)s – %(fy_end)s). Filen anger perioden som #RAR 0; kontrollera "
+"att föregående år (#RAR -1, %(prev_start)s – %(prev_end)s) stämmer."
 
 #. module: l10n_se_sie4
 #. odoo-python
@@ -321,6 +419,12 @@ msgstr "(utelämnas)"
 #. module: l10n_se_sie4
 #. odoo-python
 #: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "(new journals of the import)"
+msgstr "(importens nya journaler)"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
 msgid "(not created)"
 msgstr "(skapas inte)"
 
@@ -341,6 +445,16 @@ msgstr "En klammer { eller } som inte hör till en #VER."
 #: code:addons/l10n_se_sie4/models/sie_analysis.py:0
 msgid "A dimension or object cannot be read."
 msgstr "En dimension eller ett objekt kan inte läsas."
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,help:l10n_se_sie4.field_account_bank_statement_line__l10n_se_sie_fingerprint
+#: model:ir.model.fields,help:l10n_se_sie4.field_account_move__l10n_se_sie_fingerprint
+msgid ""
+"A hash of the entry as the SIE import created it. Undoing the import is "
+"refused for an entry that has been changed since."
+msgstr ""
+"En hash av verifikatet som SIE-importen skapade det. Importen kan inte "
+"ångras för ett verifikat som har ändrats sedan dess."
 
 #. module: l10n_se_sie4
 #: model:ir.model.fields.selection,name:l10n_se_sie4.selection__l10n_se_sie_import__journal_mode__series
@@ -1182,6 +1296,18 @@ msgid "Last Updated on"
 msgstr "Senast uppdaterad den"
 
 #. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__later_checks
+msgid "Later Checks"
+msgstr "Senare avstämningar"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/l10n_se_sie_import.py:0
+msgid "Later years already in Odoo, checked again after this import:"
+msgstr ""
+"Senare år som redan finns i Odoo, avstämda igen efter den här importen:"
+
+#. module: l10n_se_sie4
 #: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__skip_invalid
 #: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard__skip_invalid
 msgid "Leave Out Vouchers That Do Not Balance"
@@ -1225,6 +1351,24 @@ msgstr "Saknade konton"
 #: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__mode
 msgid "Mode"
 msgstr "Läge"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/wizard/sie_export_wizard.py:0
+msgid ""
+"More than one year's result is not closed in Odoo (before %(date)s: "
+"%(amount)s, of which the year before %(prev)s). All of it is in the opening "
+"balance of %(account)s. In BAS, 2099 is the result of the year, 2098 the "
+"result of the year before and 2091 retained earnings: book the year-end "
+"closings (8999/2099) and the appropriations of the result (2099 to "
+"2098/2091) in Odoo, so that the file's opening balance is right."
+msgstr ""
+"Mer än ett års resultat är inte avslutat i Odoo (före %(date)s: %(amount)s, "
+"varav föregående år %(prev)s). Allt ligger i den ingående balansen på "
+"%(account)s. I BAS är 2099 årets resultat, 2098 föregående års resultat och "
+"2091 balanserad vinst eller förlust: bokför årsboksluten (8999/2099) och "
+"resultatdispositionerna (2099 till 2098/2091) i Odoo, så att filens ingående"
+" balans blir rätt."
 
 #. module: l10n_se_sie4
 #: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__move_count
@@ -1437,6 +1581,12 @@ msgstr "Org.nr"
 #. module: l10n_se_sie4
 #. odoo-python
 #: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "Outside the year"
+msgstr "Utanför året"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
 msgid "Period"
 msgstr "Period"
 
@@ -1460,6 +1610,16 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:l10n_se_sie4.l10n_se_sie_import_wizard_form
 msgid "Preview"
 msgstr "Förhandsgranskning"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_export_wizard__prev_date_from
+msgid "Previous Year From"
+msgstr "Föregående år från"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_export_wizard__prev_date_to
+msgid "Previous Year To"
+msgstr "Föregående år till"
 
 #. module: l10n_se_sie4
 #. odoo-python
@@ -1597,6 +1757,12 @@ msgstr "SIE-fil"
 #: model_terms:ir.ui.view,arch_db:l10n_se_sie4.l10n_se_sie_import_wizard_form
 msgid "SIE Files"
 msgstr "SIE-filer"
+
+#. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_account_bank_statement_line__l10n_se_sie_fingerprint
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_account_move__l10n_se_sie_fingerprint
+msgid "SIE Fingerprint"
+msgstr "SIE-fingeravtryck"
 
 #. module: l10n_se_sie4
 #. odoo-python
@@ -1814,6 +1980,35 @@ msgstr "SIE-importen som skapade verifikatet."
 #. odoo-python
 #: code:addons/l10n_se_sie4/models/sie_analysis.py:0
 msgid ""
+"The books already have an opening balance dated %(date)s (%(entry)s), after "
+"the start of %(year)s: importing %(year)s now would count it twice. Import "
+"the years in order: undo the later import first."
+msgstr ""
+"Bokföringen har redan en ingående balans daterad %(date)s (%(entry)s), efter"
+" början av %(year)s: att importera %(year)s nu skulle räkna den två gånger. "
+"Importera åren i ordning: ångra den senare importen först."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/l10n_se_sie_import.py:0
+msgid ""
+"The books before %(date)s do not agree with %(prev)s (the closing balance #UB of the year before), so the opening balance differences of %(year)s cannot be booked. Accounts that differ:\n"
+"%(accounts)s"
+msgstr ""
+"Bokföringen före %(date)s stämmer inte med %(prev)s (föregående års utgående balans #UB), så skillnaderna i ingående balans %(year)s kan inte bokföras. Konton som skiljer sig:\n"
+"%(accounts)s"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/wizard/sie_export_wizard.py:0
+msgid ""
+"The branches %(branches)s are included: they share the company's books."
+msgstr "Filialerna %(branches)s ingår: de delar bolagets bokföring."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid ""
 "The checksum (#KSUMMA %(declared)s) does not match the content "
 "(%(computed)s): the file may have been changed after the export."
 msgstr ""
@@ -1824,11 +2019,15 @@ msgstr ""
 #. odoo-python
 #: code:addons/l10n_se_sie4/models/sie_analysis.py:0
 msgid ""
-"The company already has posted entries before %(date)s. The opening balance "
-"%(year)s is booked in addition to them."
+"The company already has entries (posted or draft, from %(first)s to "
+"%(last)s). The opening balance %(year)s would count the same balances twice:"
+" untick 'Opening balance' to import the vouchers only, or import into a "
+"company without entries."
 msgstr ""
-"Bolaget har redan bokförda verifikat före %(date)s. Den ingående balansen "
-"%(year)s bokförs utöver dem."
+"Bolaget har redan verifikat (bokförda eller utkast, från %(first)s till "
+"%(last)s). Den ingående balansen %(year)s skulle räkna samma saldon två "
+"gånger: kryssa ur 'Ingående balans' för att bara importera verifikaten, "
+"eller importera till ett bolag utan verifikat."
 
 #. module: l10n_se_sie4
 #. odoo-python
@@ -1881,6 +2080,15 @@ msgstr ""
 "upp en fil per räkenskapsår."
 
 #. module: l10n_se_sie4
+#: model:ir.model.fields,help:l10n_se_sie4.field_l10n_se_sie_export_wizard__prev_date_from
+msgid ""
+"The financial year before (#RAR -1). Proposed from the company's financial "
+"year settings; correct it when the previous year was shortened or extended."
+msgstr ""
+"Räkenskapsåret före (#RAR -1). Föreslås utifrån bolagets inställningar för "
+"räkenskapsår; rätta det om föregående år var förkortat eller förlängt."
+
+#. module: l10n_se_sie4
 #. odoo-python
 #: code:addons/l10n_se_sie4/models/l10n_se_sie_import.py:0
 msgid ""
@@ -1931,6 +2139,12 @@ msgstr "Raden börjar inte med en #etikett."
 #. module: l10n_se_sie4
 #. odoo-python
 #: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "The line is longer than %(limit)s characters and is not read."
+msgstr "Raden är längre än %(limit)s tecken och läses inte."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
 msgid "The object list {...} cannot be read."
 msgstr "Objektlistan {...} kan inte läsas."
 
@@ -1938,11 +2152,12 @@ msgstr "Objektlistan {...} kan inte läsas."
 #. odoo-python
 #: code:addons/l10n_se_sie4/models/sie_analysis.py:0
 msgid ""
-"The opening balance %(year)s (#IB 0) does not add up to zero (difference "
-"%(diff)s)."
+"The opening balance %(year)s (#IB 0) does not add up to zero after rounding "
+"to %(digits)s decimals (difference %(diff)s, before rounding %(raw)s)."
 msgstr ""
-"Den ingående balansen %(year)s (#IB 0) summerar inte till noll (differens "
-"%(diff)s)."
+"Den ingående balansen %(year)s (#IB 0) summerar inte till noll efter "
+"avrundning till %(digits)s decimaler (differens %(diff)s, före avrundning "
+"%(raw)s)."
 
 #. module: l10n_se_sie4
 #. odoo-python
@@ -2002,16 +2217,6 @@ msgstr "Den ingående balansen %(year)s är redan importerad."
 
 #. module: l10n_se_sie4
 #. odoo-python
-#: code:addons/l10n_se_sie4/models/l10n_se_sie_import.py:0
-msgid ""
-"The opening balance differences of %(year)s do not balance; the year before "
-"probably has no year-end closing."
-msgstr ""
-"Skillnaderna i ingående balans %(year)s balanserar inte; året före saknar "
-"troligen ett årsbokslut."
-
-#. module: l10n_se_sie4
-#. odoo-python
 #: code:addons/l10n_se_sie4/wizard/sie_export_wizard.py:0
 msgid "The period ends before it starts."
 msgstr "Perioden slutar innan den börjar."
@@ -2026,6 +2231,16 @@ msgstr ""
 "Ett räkenskapsårs bokförda verifikat som SIE-fil, till revisorn eller ett "
 "deklarationsprogram: kontoplan, ingående och utgående balanser, årets "
 "resultat per konto och (typ 4E) alla verifikat."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/wizard/sie_export_wizard.py:0
+msgid ""
+"The previous financial year must end before %(date)s and start before it "
+"ends."
+msgstr ""
+"Föregående räkenskapsår måste sluta före %(date)s och börja innan det "
+"slutar."
 
 #. module: l10n_se_sie4
 #. odoo-python
@@ -2058,6 +2273,23 @@ msgstr ""
 #: code:addons/l10n_se_sie4/models/l10n_se_sie_import.py:0
 msgid "The run failed: %(error)s"
 msgstr "Körningen misslyckades: %(error)s"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/l10n_se_sie_import.py:0
+msgid ""
+"The undo did not finish within the server's time limit for scheduled actions"
+" (limit_time_real_cron). Nothing was deleted. Raise the limit and undo "
+"again."
+msgstr ""
+"Ångringen blev inte klar inom serverns tidsgräns för schemalagda åtgärder "
+"(limit_time_real_cron). Inget raderades. Höj gränsen och ångra igen."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/l10n_se_sie_import.py:0
+msgid "The undo failed; nothing was deleted: %(error)s"
+msgstr "Ångringen misslyckades; inget raderades: %(error)s"
 
 #. module: l10n_se_sie4
 #. odoo-python
@@ -2126,6 +2358,11 @@ msgid "Type 4I: vouchers only, for import into another program"
 msgstr "Typ 4I: bara verifikat, för import i ett annat program"
 
 #. module: l10n_se_sie4
+#: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import__undo_attempts
+msgid "Undo Attempts"
+msgstr "Ångringsförsök"
+
+#. module: l10n_se_sie4
 #: model_terms:ir.ui.view,arch_db:l10n_se_sie4.l10n_se_sie_import_form
 msgid "Undo Import"
 msgstr "Ångra importen"
@@ -2180,9 +2417,11 @@ msgstr "Ladda upp minst en SIE-fil."
 #. odoo-python
 #: code:addons/l10n_se_sie4/models/sie_analysis.py:0
 msgid ""
-"Voucher %(ref)s does not balance after rounding its amounts to two decimals."
+"Voucher %(ref)s does not balance after rounding its amounts to %(digits)s "
+"decimals."
 msgstr ""
-"Verifikat %(ref)s balanserar inte när beloppen avrundas till två decimaler."
+"Verifikat %(ref)s balanserar inte när beloppen avrundas till %(digits)s "
+"decimaler."
 
 #. module: l10n_se_sie4
 #. odoo-python
@@ -2195,6 +2434,17 @@ msgstr "Verifikat %(ref)s har en rad som inte kan läsas."
 #: code:addons/l10n_se_sie4/models/sie_analysis.py:0
 msgid "Voucher %(ref)s has no lines; it is skipped."
 msgstr "Verifikat %(ref)s har inga rader; det hoppas över."
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid ""
+"Voucher %(ref)s occurs twice in the financial year %(year)s (also %(file)s, "
+"line %(line)s). Each voucher number may occur once per series and year."
+msgstr ""
+"Verifikat %(ref)s förekommer två gånger i räkenskapsåret %(year)s (även "
+"%(file)s, rad %(line)s). Varje verifikatnummer får förekomma en gång per "
+"serie och år."
 
 #. module: l10n_se_sie4
 #. odoo-python
@@ -2271,6 +2521,12 @@ msgid "With deviations"
 msgstr "Med avvikelser"
 
 #. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/models/sie_analysis.py:0
+msgid "Without lines"
+msgstr "Utan rader"
+
+#. module: l10n_se_sie4
 #: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard_series__wizard_id
 #: model:ir.model.fields,field_description:l10n_se_sie4.field_l10n_se_sie_import_wizard_year__wizard_id
 msgid "Wizard"
@@ -2300,6 +2556,16 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:l10n_se_sie4.l10n_se_sie_import_check_search
 msgid "Year"
 msgstr "År"
+
+#. module: l10n_se_sie4
+#. odoo-python
+#: code:addons/l10n_se_sie4/wizard/sie_export_wizard.py:0
+msgid ""
+"You have no access to the branches %(branches)s: their entries are not in "
+"the file."
+msgstr ""
+"Du saknar åtkomst till filialerna %(branches)s: deras verifikat finns inte i"
+" filen."
 
 #. module: l10n_se_sie4
 #: model:ir.model.fields.selection,name:l10n_se_sie4.selection__l10n_se_sie_import_year__source__closing

@@ -1,11 +1,15 @@
 """What an SIE import would do, worked out before anything is written.
 
-The wizard shows it as the preview, and the import runs it again right before every batch, so
-the checks (lock dates, missing accounts, duplicates) hold for what is actually written. Plain
-classes and functions; the ORM work is done through the ``env`` passed in.
+The wizard shows it as the preview, and the import runs it again before writing (once per run), so
+the checks (lock dates, the order of the years, missing accounts, duplicates) hold for what is
+actually written. Plain classes and functions; the ORM work is done through the ``env`` passed in.
+
+The company is always taken with its branches: a branch shares the books of its main company,
+so its entries, SIE keys and opening entries count as the company's.
 """
 
 import hashlib
+import re
 from collections import Counter, OrderedDict, defaultdict
 from dataclasses import dataclass, field
 from datetime import date, timedelta
@@ -22,6 +26,9 @@ CENT = Decimal("0.01")
 VOUCHER_ERRORS = {"unbalanced", "voucher_bad_line"}
 #: How many entries a list in the preview shows.
 LIST_LIMIT = 30
+#: Spreadsheet programs run a cell that starts with one of these as a formula.
+_FORMULA_START = ("=", "+", "-", "@", "\t", "\r")
+_LETTERS = re.compile(r"[^\W\d_]+")
 
 _CACHE = OrderedDict()
 
@@ -39,38 +46,89 @@ def parse_cached(data):
     return parsed
 
 
-def round2(amount):
-    return Decimal(amount).quantize(CENT, rounding=ROUND_HALF_UP)
+def round2(amount, digits=2):
+    return Decimal(amount).quantize(Decimal(1).scaleb(-digits), rounding=ROUND_HALF_UP)
 
 
 def to_decimal(value):
     return round2(Decimal(repr(value))) if value else Decimal("0.00")
 
 
-def voucher_key(label, voucher):
+def is_number(value):
+    return sie.is_number(value or "")
+
+
+def safe_text(value):
+    """A text for a list that can be exported to a spreadsheet: a leading = + - @ would make it
+    a formula there, so it gets an apostrophe in front."""
+    if value and value.startswith(_FORMULA_START):
+        return "'" + value
+    return value
+
+
+def root(company):
+    return company.root_id or company
+
+
+def tree(company, field_name="company_id"):
+    """Domain: the company and its branches."""
+    return [(field_name, "child_of", root(company).id)]
+
+
+def company_env(env, company):
+    """``env`` working in ``company`` with the whole company (main company and branches) in the
+    allowed companies, so that the multi-company rules show every entry of the books. Branches
+    the user may not access stay hidden (``hidden`` lists them)."""
+    companies = env["res.company"].sudo().search(tree(company, "id"))
+    allowed = companies & env.user.company_ids
+    ids = [company.id] + [c for c in allowed.ids if c != company.id]
+    return env(context=dict(env.context, allowed_company_ids=ids)), companies - allowed
+
+
+def ref_code(series, number):
+    """Series and number as in the reference: ``A12``, but ``1/12`` or ``A1/2`` when the series
+    ends with a digit, so that series A1 number 2 is never read as series A number 12."""
+    if not number:
+        return series
+    if series and series[-1].isdigit():
+        return f"{series}/{number}"
+    return f"{series}{number}"
+
+
+def voucher_key(label, voucher, occurrence=1):
     """Unique per company: financial year, series and number. A voucher without a number (an
-    import file, type 4I) is keyed on its content instead."""
+    import file, type 4I) is keyed on its content and, for identical vouchers, on which of them it
+    is (``occurrence``, counted in file order)."""
     if voucher.number:
         return f"{label}|{voucher.series}|{voucher.number}"
+    digest = content_hash(voucher)
+    suffix = f"-{occurrence}" if occurrence > 1 else ""
+    return f"{label}|{voucher.series}|#{digest}{suffix}"
+
+
+def content_hash(voucher):
     content = repr((
         voucher.date, voucher.text,
         [(t.account, t.objects, str(t.amount), t.text) for t in voucher.transactions],
     ))
-    return f"{label}|{voucher.series}|#{hashlib.sha1(content.encode()).hexdigest()[:12]}"
+    return hashlib.sha1(content.encode()).hexdigest()[:12]
 
 
 def voucher_ref(label, voucher):
-    head = f"SIE {label} {voucher.series}{voucher.number}".rstrip()
+    head = f"SIE {label} {ref_code(voucher.series, voucher.number)}".rstrip()
     return f"{head} — {voucher.text}" if voucher.text else head
 
 
 def legacy_ref(label, voucher):
-    """The reference earlier import scripts wrote (``SIE 2025 A12 — text``), without the text."""
-    return f"SIE {label} {voucher.series}{voucher.number}" if voucher.number else None
+    """The reference earlier import scripts wrote (``SIE 2025 A12 — text``), without the text.
+    Only for a series of letters, where series and number cannot be mixed up."""
+    if voucher.number and voucher.series and _LETTERS.fullmatch(voucher.series):
+        return f"SIE {label} {voucher.series}{voucher.number}"
+    return None
 
 
 def orgnr_digits(value):
-    digits = "".join(c for c in (value or "") if c.isdigit())
+    digits = "".join(c for c in (value or "") if c in "0123456789")
     if len(digits) == 12 and digits.endswith("01"):  # VAT number SE + 10 digits + 01
         digits = digits[:10]
     if len(digits) == 12 and digits.startswith(("16", "19", "20")):  # century prefix
@@ -93,7 +151,7 @@ class YearData:
     opening: dict | None = None
     closing: dict | None = None
     results: dict | None = None
-    outside: int = 0
+    outside: list = field(default_factory=list)  # vouchers of the file outside this year
 
     @property
     def has_balances(self):
@@ -111,6 +169,11 @@ class Item:
     date: date
     voucher: object = None
     journal: object = None
+    #: opening_diff: the amounts to book ({code: Decimal}), and what Odoo must have before the
+    #: year for them to be right ({code: Decimal} and where that comes from)
+    diffs: dict = field(default_factory=dict)
+    expected_before: dict = field(default_factory=dict)
+    expected_label: str = ""
 
 
 @dataclass
@@ -119,7 +182,7 @@ class Analysis:
     years: list = field(default_factory=list)  # YearData, all years found
     selected: list = field(default_factory=list)  # YearData, chronological
     items: list = field(default_factory=list)  # Item, in creation order
-    errors: list = field(default_factory=list)  # Markup/str: stop the import
+    errors: list = field(default_factory=list)  # str: stop the import
     warnings: list = field(default_factory=list)
     infos: list = field(default_factory=list)
     stats: dict = field(default_factory=dict)  # year key -> Counter
@@ -131,6 +194,7 @@ class Analysis:
     invalid_vouchers: set = field(default_factory=set)  # (filename, line)
     analytic: dict = field(default_factory=dict)  # (dimension, object) -> analytic account id
     existing: set = field(default_factory=set)
+    digits: int = 2
 
     @property
     def blocked(self):
@@ -149,12 +213,13 @@ def collect_years(env, company, files):
         fy = parsed.year(0)
         if fy:
             vouchers = parsed.vouchers_in(fy)
+            inside = {id(v) for v in vouchers}
             year = YearData(
                 key=f"{fy.start}/{fy.end}", label=fy.label, start=fy.start, end=fy.end,
                 filename=name, parsed=parsed, vouchers=vouchers,
                 opening=parsed.amounts("opening", 0), closing=parsed.amounts("closing", 0),
                 results=parsed.amounts("results", 0),
-                outside=len(parsed.vouchers) - len(vouchers),
+                outside=[v for v in parsed.vouchers if id(v) not in inside],
             )
             found = [year]
         else:
@@ -228,6 +293,9 @@ def issue_text(env, issue):
         return env._("A brace { or } that does not belong to a #VER.")
     if c == "no_label":
         return env._("The line does not start with a #label.")
+    if c == "line_too_long":
+        return env._("The line is longer than %(limit)s characters and is not read.",
+                     limit=p.get("limit"))
     if c == "rtrans_unmatched":
         return env._("#RTRANS is not followed by an identical #TRANS. Only #TRANS lines are "
                      "booked; check the voucher in the source program.")
@@ -265,8 +333,8 @@ def issue_text(env, issue):
         return env._("No financial year (#RAR 0): the vouchers are placed in the company's "
                      "financial years.")
     if c == "outside_years":
-        return env._("%(count)s vouchers are dated outside the file's financial year and are not "
-                     "imported (first: %(first)s).", count=p["count"], first=p["first"])
+        return env._("%(count)s vouchers are dated outside the file's financial years "
+                     "(first: %(first)s).", count=p["count"], first=p["first"])
     if c == "undeclared_accounts":
         return env._("Accounts used without #KONTO: %(accounts)s.",
                      accounts=", ".join(p["accounts"][:20]))
@@ -282,7 +350,7 @@ def located(env, filename, line, text):
     return env._("%(file)s: %(text)s", file=filename, text=text)
 
 
-# -- the analysis -----------------------------------------------------------------------------------
+# -- the books --------------------------------------------------------------------------------------
 
 
 def account_map(env, company):
@@ -293,25 +361,50 @@ def account_map(env, company):
 
 
 def existing_keys(env, company):
+    """The SIE keys in the company's books, and the references of earlier import scripts.
+    Cancelled entries do not count: such a voucher can be imported again."""
     Move = env["account.move"].with_context(active_test=False)
-    keys = set(Move.search([("company_id", "=", company.id), ("l10n_se_sie_key", "!=", False)])
-               .mapped("l10n_se_sie_key"))
-    legacy = Move.search([("company_id", "=", company.id), ("l10n_se_sie_key", "=", False),
-                          ("ref", "=like", "SIE %")])
+    live = [*tree(company), ("state", "!=", "cancel")]
+    keys = set(Move.search([*live, ("l10n_se_sie_key", "!=", False)]).mapped("l10n_se_sie_key"))
+    legacy = Move.search([*live, ("l10n_se_sie_key", "=", False), ("ref", "=like", "SIE %")])
     refs = {r.split(" — ")[0].strip() for r in legacy.mapped("ref") if r}
     return keys, refs
 
 
-def odoo_balances(env, company, day):
-    """{code: balance} of the company's posted and draft entries before ``day``."""
+def odoo_balances(env, company, day, states=("posted", "draft")):
+    """{code: balance} of the company's entries dated before ``day``, with the opening entries
+    dated on ``day`` (they are the balance the day starts with)."""
+    openings = opening_entries(env, company).filtered(lambda m: m.date == day).ids
     groups = env["account.move.line"]._read_group(
-        [("company_id", "=", company.id), ("parent_state", "in", ("posted", "draft")),
-         ("date", "<", day)], ["account_id"], ["balance:sum"])
+        [*tree(company), ("parent_state", "in", states),
+         "|", ("date", "<", day), "&", ("date", "=", day), ("move_id", "in", openings)],
+        ["account_id"], ["balance:sum"])
     out = {}
     for account, balance in groups:
         code = account.with_company(company).code
         out[code] = out.get(code, Decimal(0)) + to_decimal(balance)
     return {c: b for c, b in out.items() if b}
+
+
+def entry_dates(env, company):
+    """(first, last) date of the company's posted and draft entries, or (None, None)."""
+    groups = env["account.move"]._read_group(
+        [*tree(company), ("state", "in", ("posted", "draft"))], [], ["date:min", "date:max"])
+    return groups[0] if groups else (None, None)
+
+
+def opening_entries(env, company, exclude_import=None):
+    """The opening entries in the books: SIE opening balances and their differences, and the
+    company's opening move."""
+    domain = [*tree(company), ("state", "in", ("posted", "draft")),
+              "|", ("l10n_se_sie_key", "=like", "%|IB|"), ("l10n_se_sie_key", "=like", "%|IBDIFF|")]
+    if exclude_import:
+        domain.append(("l10n_se_sie_import_id", "!=", exclude_import))
+    moves = env["account.move"].search(domain)
+    opening = root(company).account_opening_move_id
+    if opening and opening.state in ("posted", "draft"):
+        moves |= opening
+    return moves
 
 
 def lock_violation(company, day, journal):
@@ -326,6 +419,17 @@ def lock_violation(company, day, journal):
     )
 
 
+def new_journal_is_hashed(env, company):
+    """Whether a general journal created now would secure its entries with a hash (OCA
+    account_journal_restrict_mode makes it so)."""
+    probe = env["account.journal"].new({"type": "general", "company_id": company.id,
+                                        "name": "SIE", "code": "SIE"})
+    return bool(probe.restrict_mode_hash_table)
+
+
+# -- the analysis -----------------------------------------------------------------------------------
+
+
 def analyse(env, company, files, options):
     """Everything the import would do with ``options``:
 
@@ -334,9 +438,11 @@ def analyse(env, company, files, options):
       ``analytics``: booleans;
     * ``missing``: ``create`` or ``abort``;
     * ``journal``: the journal for all entries (None = the SIE journal, created when needed);
-    * ``series_journals``: {series: journal} when entries go to a journal per series, else None.
+    * ``series_journals``: {series: journal} when entries go to a journal per series, else None;
+    * ``reconcile``, ``check_date``: reconciliation only;
+    * ``import_id``: the import being run (its own entries are not "earlier imports").
     """
-    a = Analysis(files=files)
+    a = Analysis(files=files, digits=company.currency_id.decimal_places)
     a.years, problems = collect_years(env, company, files)
     a.errors.extend(problems)
     selected_keys = options.get("years")
@@ -378,7 +484,8 @@ def analyse(env, company, files, options):
                 "%(file)s is in %(currency)s, the company's currency is %(company_currency)s.",
                 file=name, currency=currency, company_currency=company.currency_id.name))
         file_org = orgnr_digits(parsed.orgnr)
-        company_org = {orgnr_digits(company.company_registry), orgnr_digits(company.vat)} - {""}
+        company_org = {orgnr_digits(root(company).company_registry),
+                       orgnr_digits(root(company).vat)} - {""}
         if file_org and company_org and file_org not in company_org:
             a.warnings.append(env._(
                 "%(file)s is for organisation number %(orgnr)s (%(name)s), which is not the "
@@ -388,6 +495,17 @@ def analyse(env, company, files, options):
             a.infos.append(env._(
                 "%(file)s is for organisation number %(orgnr)s; the company has no company "
                 "registry or VAT number to compare it with.", file=name, orgnr=parsed.orgnr))
+
+    # -- vouchers of a file outside its financial year (e.g. in #RAR -1) are never imported
+    for year in a.selected:
+        if year.outside:
+            shown = ", ".join(f"{ref_code(v.series, v.number) or '-'} ({v.date})"
+                              for v in year.outside[:10] if v.date)
+            a.warnings.append(env._(
+                "%(file)s: %(count)s vouchers are dated outside the financial year %(year)s and "
+                "are not imported: %(vouchers)s.", file=year.filename, count=len(year.outside),
+                year=year.label, vouchers=shown))
+            a.stats.setdefault(year.key, Counter())["outside"] = len(year.outside)
 
     if reconcile:
         as_of = options.get("check_date")
@@ -425,32 +543,57 @@ def analyse(env, company, files, options):
     if not import_opening and not import_vouchers:
         a.errors.append(env._("Choose what to import: the opening balance, the vouchers or both."))
 
+    # -- the order of the years: an opening balance after a year's start already contains that
+    # year, so its vouchers (or its own opening balance) would count twice
+    later_openings = opening_entries(env, company, exclude_import=options.get("import_id"))
+    for year in a.selected:
+        after = later_openings.filtered(lambda m, y=year: m.date > y.start)
+        if after:
+            a.errors.append(env._(
+                "The books already have an opening balance dated %(date)s (%(entry)s), after the "
+                "start of %(year)s: importing %(year)s now would count it twice. Import the years "
+                "in order: undo the later import first.", date=min(after.mapped("date")),
+                entry=after.sorted("date")[0].display_name, year=year.label))
+
     needed = defaultdict(set)  # code -> where
     violations = []
+    seen_keys = {}  # key -> (file, line)
     prev = None
     for year in a.selected:
         st = a.stats.setdefault(year.key, Counter())
         st["vouchers"] = len(year.vouchers)
         st["lines"] = sum(len(v.transactions) for v in year.vouchers)
-        # -- opening balance: only for the first year
-        if year is first and import_opening:
+        # -- opening balance: only for the first year, and only into empty books
+        opening_from_file = year is first and import_opening
+        if opening_from_file:
             if year.opening:
                 key = f"{year.label}|IB|"
-                total = sum(year.opening.values(), Decimal(0))
+                rounded = {c: round2(amount, a.digits) for c, amount in year.opening.items()}
+                total = sum(rounded.values(), Decimal(0))
+                first_day, last_day = entry_dates(env, company)
                 if key in keys:
                     a.infos.append(env._("The opening balance %(year)s is already imported.",
                                          year=year.label))
-                elif total != 0:
+                elif first_day:
                     a.errors.append(env._(
-                        "The opening balance %(year)s (#IB 0) does not add up to zero "
-                        "(difference %(diff)s).", year=year.label,
-                        diff=sie.format_amount(total)))
+                        "The company already has entries (posted or draft, from %(first)s to "
+                        "%(last)s). The opening balance %(year)s would count the same balances "
+                        "twice: untick 'Opening balance' to import the vouchers only, or import "
+                        "into a company without entries.", first=first_day, last=last_day,
+                        year=year.label))
+                elif total != 0:
+                    unrounded = sum(year.opening.values(), Decimal(0))
+                    a.errors.append(env._(
+                        "The opening balance %(year)s (#IB 0) does not add up to zero after "
+                        "rounding to %(digits)s decimals (difference %(diff)s, before rounding "
+                        "%(raw)s).", year=year.label, digits=a.digits,
+                        diff=sie.format_amount(total), raw=str(unrounded)))
                 else:
                     item = Item("opening", year, key, f"SIE {year.label} IB — "
                                 + env._("Opening balance"), year.start, journal=main_journal)
                     a.items.append(item)
                     st["opening"] = 1
-                    for code, amount in year.opening.items():
+                    for code, amount in rounded.items():
                         if amount:
                             needed[code].add(year.label)
                             if sie.account_class(code) != "balance":
@@ -460,21 +603,15 @@ def analyse(env, company, files, options):
                                     year=year.label, account=code))
                     if locked(year.start, main_journal):
                         violations.append((year, year.start, locked(year.start, main_journal)))
-                    earlier = env["account.move.line"].search_count([
-                        ("company_id", "=", company.id), ("parent_state", "=", "posted"),
-                        ("date", "<", year.start)], limit=1)
-                    if earlier:
-                        a.warnings.append(env._(
-                            "The company already has posted entries before %(date)s. The opening "
-                            "balance %(year)s is booked in addition to them.",
-                            date=year.start, year=year.label))
             else:
                 a.infos.append(env._("%(file)s has no opening balance (#IB 0) for %(year)s.",
                                      file=year.filename, year=year.label))
         # -- otherwise the opening balance follows from the earlier vouchers: the previous
         # selected year's closing balance, or what Odoo already has before the year
-        opening_from_file = year is first and import_opening
-        if not opening_from_file and year.opening is not None and import_vouchers:
+        elif f"{year.label}|IB|" in keys:
+            a.infos.append(env._("The opening balance %(year)s is already imported.",
+                                 year=year.label))
+        elif year.opening is not None and import_vouchers:
             if prev is not None and prev.closing is not None:
                 before, before_label = prev.closing, prev.label
             else:
@@ -484,7 +621,8 @@ def analyse(env, company, files, options):
             for code in set(year.opening) | set(before):
                 if sie.account_class(code) != "balance":
                     continue
-                d = year.opening.get(code, Decimal(0)) - before.get(code, Decimal(0))
+                d = round2(year.opening.get(code, Decimal(0)) - before.get(code, Decimal(0)),
+                           a.digits)
                 if d:
                     diffs[code] = d
             unbalanced = sum(diffs.values(), Decimal(0))
@@ -504,8 +642,12 @@ def analyse(env, company, files, options):
                         a.items.append(Item(
                             "opening_diff", year, key,
                             f"SIE {year.label} IB — " + env._("Opening balance differences"),
-                            year.start, journal=main_journal))
-                        needed.update({c: needed[c] | {year.label} for c in diffs})
+                            year.start, journal=main_journal, diffs=diffs,
+                            expected_before={c: b for c, b in before.items()
+                                             if sie.account_class(c) == "balance"},
+                            expected_label=before_label))
+                        for code in diffs:
+                            needed[code].add(year.label)
                         if locked(year.start, main_journal):
                             violations.append((year, year.start, locked(year.start, main_journal)))
                     a.warnings.append(env._(
@@ -521,13 +663,29 @@ def analyse(env, company, files, options):
                         "'Book opening balance differences' to book them.",
                         year=year.label, prev=before_label, count=len(diffs), accounts=listed))
         prev = year
-        if year.outside:
-            st["outside"] = year.outside
         # -- vouchers
         if not import_vouchers:
             continue
-        for v in sorted(year.vouchers, key=lambda v: (v.date, v.series, _num(v.number))):
-            key = voucher_key(year.label, v)
+        occurrences = Counter()
+        keyed = []
+        for v in year.vouchers:  # file order, for the occurrence of identical vouchers
+            occurrence = 1
+            if not v.number:
+                occurrences[(v.series, content_hash(v))] += 1
+                occurrence = occurrences[(v.series, content_hash(v))]
+            keyed.append((voucher_key(year.label, v, occurrence), v))
+        for key, v in keyed:
+            if key in seen_keys:
+                first_file, first_line = seen_keys[key]
+                a.errors.append(located(env, year.filename, v.line, env._(
+                    "Voucher %(ref)s occurs twice in the financial year %(year)s (also %(file)s, "
+                    "line %(line)s). Each voucher number may occur once per series and year.",
+                    ref=ref_code(v.series, v.number), year=year.label, file=first_file,
+                    line=first_line)))
+            else:
+                seen_keys[key] = (year.filename, v.line)
+        for key, v in sorted(keyed, key=lambda kv: (kv[1].date, kv[1].series,
+                                                    _num(kv[1].number))):
             legacy_head = legacy_ref(year.label, v)
             if key in keys or (legacy_head and legacy_head in legacy):
                 st["existing"] += 1
@@ -539,9 +697,10 @@ def analyse(env, company, files, options):
             if not lines:
                 st["empty"] += 1
                 continue
-            if sum(round2(t.amount) for t in lines) != 0:
-                text = env._("Voucher %(ref)s does not balance after rounding its amounts to two "
-                             "decimals.", ref=v.reference)
+            if sum(round2(t.amount, a.digits) for t in lines) != 0:
+                text = env._("Voucher %(ref)s does not balance after rounding its amounts to "
+                             "%(digits)s decimals.", ref=ref_code(v.series, v.number),
+                             digits=a.digits)
                 if options.get("skip_invalid"):
                     st["invalid"] += 1
                     a.warnings.append(located(env, year.filename, v.line, text))
@@ -579,6 +738,8 @@ def analyse(env, company, files, options):
             "declared.", date=tax_lock))
     journals = {i.journal for i in a.items if i.journal}
     hashed = [j.name for j in journals if j.restrict_mode_hash_table]
+    if any(not i.journal for i in a.items) and new_journal_is_hashed(env, company):
+        hashed.append(env._("(new journals of the import)"))
     if hashed:
         a.warnings.append(env._(
             "The journal %(journals)s secures posted entries with a hash: the import cannot be "
@@ -690,7 +851,7 @@ def expected_balances(env, year, as_of=None):
 
 
 def _num(number):
-    return (0, int(number), "") if number.isdigit() else (1, 0, number)
+    return (0, int(number), "") if is_number(number) else (1, 0, number)
 
 
 def _sie_account(years, code):
@@ -741,6 +902,8 @@ _GROUP = {
     "I": ("income",),
     "K": ("expense",),
 }
+
+
 def suggest_type(accounts, code, ktyp=""):
     """The account type for a new account: the most common type among the company's accounts with
     the same three, then two first digits (so the installed chart decides, as l10n_se classifies
@@ -777,7 +940,7 @@ def _list(env, items, cls):
 
 
 def render(env, a, options):
-    """The preview as HTML."""
+    """The preview as HTML. Every value from the files is escaped by Markup."""
     _ = env._
     h = Markup()
     if not a.files:
@@ -796,12 +959,12 @@ def render(env, a, options):
             name, program, parsed.encoding, parsed.sie_type or "1", parsed.company_name or "-",
             parsed.orgnr or "-", checksum)) + Markup("</tr>")
     h += Markup("</tbody></table>")
-    # years
+    # years: what happens to every voucher of the file
     h += Markup("<h5>%s</h5>") % _("Financial years")
     h += Markup("<table class='table table-sm'><thead><tr>")
     for title in (_("Year"), _("Period"), _("File"), _("Accounts"), _("Vouchers"), _("Lines"),
-                  _("Series"), _("Already in Odoo"), _("To import"), _("Locked"),
-                  _("Not balanced"), _("Selected")):
+                  _("Series"), _("To import"), _("Already in Odoo"), _("Outside the year"),
+                  _("Without lines"), _("Not balanced"), _("Locked"), _("Selected")):
         h += Markup("<th>%s</th>") % title
     h += Markup("</tr></thead><tbody>")
     selected = {y.key for y in a.selected}
@@ -811,9 +974,10 @@ def render(env, a, options):
         series_text = ", ".join(f"{s or '-'}: {n}" for s, n in sorted(series.items())) or "-"
         cells = (
             year.label, f"{year.start} – {year.end}", year.filename, len(year.parsed.accounts),
-            len(year.vouchers), sum(len(v.transactions) for v in year.vouchers), series_text,
-            st.get("existing", 0), st.get("to_import", 0) + st.get("opening", 0),
-            st.get("locked", 0), st.get("invalid", 0),
+            len(year.vouchers) + len(year.outside),
+            sum(len(v.transactions) for v in year.vouchers), series_text,
+            st.get("to_import", 0) + st.get("opening", 0), st.get("existing", 0),
+            len(year.outside), st.get("empty", 0), st.get("invalid", 0), st.get("locked", 0),
             _("yes") if year.key in selected else _("no"),
         )
         h += Markup("<tr>") + Markup().join(Markup("<td>%s</td>") % c for c in cells)

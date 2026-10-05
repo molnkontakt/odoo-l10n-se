@@ -10,4 +10,14 @@
         <field name="model_id" ref="model_l10n_se_sie_import_check"/>
         <field name="domain_force">[('company_id', 'in', company_ids)]</field>
     </record>
+    <record id="rule_l10n_se_sie_import_year_company" model="ir.rule">
+        <field name="name">SIE import financial year: multi-company</field>
+        <field name="model_id" ref="model_l10n_se_sie_import_year"/>
+        <field name="domain_force">[('import_id.company_id', 'in', company_ids)]</field>
+    </record>
+    <record id="rule_l10n_se_sie_import_series_company" model="ir.rule">
+        <field name="name">SIE import series: multi-company</field>
+        <field name="model_id" ref="model_l10n_se_sie_import_series"/>
+        <field name="domain_force">[('import_id.company_id', 'in', company_ids)]</field>
+    </record>
 </odoo>

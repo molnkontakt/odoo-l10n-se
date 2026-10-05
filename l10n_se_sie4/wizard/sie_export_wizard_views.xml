@@ -17,6 +17,8 @@
                         <group>
                             <field name="date_from"/>
                             <field name="date_to"/>
+                            <field name="prev_date_from" invisible="sie_type == '4I'"/>
+                            <field name="prev_date_to" invisible="sie_type == '4I'"/>
                             <field name="sie_type"/>
                         </group>
                         <group>

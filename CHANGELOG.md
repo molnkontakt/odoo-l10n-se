@@ -30,6 +30,20 @@ one section per module. The format follows
   unclosed result in the opening balance of 2099; code page 437, CRLF, optional `#KSUMMA`.
 - `lib/sie.py`: a pure-Python SIE 4 reader and writer (tokenizer, encoding detection, all records,
   checks with line numbers, CRC-32 checksum) with pytest tests. Swedish translation.
+- Review before release: the opening balance only goes into books without entries and years are
+  imported in order (no double opening balance); the opening balance differences entry books
+  exactly what the preview showed and stops when the books before the year disagree; undo is all
+  or nothing and refused for reconciled, reversed, bank or changed entries (fingerprint), and
+  only removes accounts, analytic accounts and journals nothing refers to; a voucher number twice
+  in a year stops the import, identical vouchers without number are all imported; vouchers
+  outside the file's year are shown; the report is green only when every year was checked, and
+  later years are checked again; amounts are rounded to the currency and checked before an entry
+  is created; file size and line length limits, one analysis per run; the stored preview is
+  sanitized; branches are part of the company; the export counts a line split over several plans
+  once, takes the previous year from the settings (editable) and explains unclosed years; ASCII
+  digits only; formula-like texts neutralised; unambiguous references; cancelled entries can be
+  imported again; record rules on year and series lines; uploads move to the import record and
+  abandoned ones are removed; journals created under OCA `account_journal_restrict_mode`.
 
 ## l10n_se_compliance_calendar
 

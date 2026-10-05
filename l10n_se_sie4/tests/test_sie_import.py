@@ -153,7 +153,9 @@ class TestSieImport(SieCase):
         self._entry(date(2025, 1, 10), [("1510", 25000.0), ("2611", -25000.0)],
                     ref="SIE 2025 A1 — Försäljning, Åtta kunder")
         wizard = self._wizard("fortnox_2025.se")
-        self.assertEqual(wizard.entry_count, 7)
+        self.assertFalse(wizard.import_opening, "the books already have an entry")
+        self.assertFalse(wizard.blocked)
+        self.assertEqual(wizard.entry_count, 6, "seven vouchers, one already there")
 
     def test_two_years(self):
         record = self._import("fortnox_2024.se", "fortnox_2025.se")
@@ -337,8 +339,7 @@ class TestSieImport(SieCase):
     def test_large_undo_runs_in_the_background(self):
         record = self._import("fortnox_2025.se")
         moves = record.move_ids
-        with patch("odoo.addons.l10n_se_sie4.models.l10n_se_sie_import.UNDO_SYNC_LIMIT", 3), \
-                patch("odoo.addons.l10n_se_sie4.models.l10n_se_sie_import.UNDO_BATCH_SIZE", 3):
+        with patch("odoo.addons.l10n_se_sie4.models.l10n_se_sie_import.UNDO_SYNC_LIMIT", 3):
             record.action_undo()
             self.assertEqual(record.state, "undoing")
             Import = self.env["l10n_se.sie.import"].sudo()

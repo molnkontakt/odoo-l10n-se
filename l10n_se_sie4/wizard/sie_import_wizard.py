@@ -1,5 +1,6 @@
 import base64
 import logging
+from datetime import timedelta
 
 from markupsafe import Markup
 
@@ -12,6 +13,8 @@ from ..models.l10n_se_sie_import import SYNC_LIMIT
 _logger = logging.getLogger(__name__)
 
 EXTENSIONS = (".se", ".si", ".sie")
+#: Default largest file in megabytes (system parameter l10n_se_sie4.max_file_mb).
+MAX_FILE_MB = 50
 
 
 class L10nSeSieImportWizard(models.TransientModel):
@@ -99,12 +102,26 @@ class L10nSeSieImportWizard(models.TransientModel):
 
     # -- reading ---------------------------------------------------------------------------------
 
+    def _max_file_size(self):
+        value = self.env["ir.config_parameter"].sudo().get_param(
+            "l10n_se_sie4.max_file_mb", MAX_FILE_MB)
+        try:
+            return float(value) * 1024 * 1024
+        except (TypeError, ValueError):
+            return MAX_FILE_MB * 1024 * 1024
+
     def _files(self):
         files = []
+        limit = self._max_file_size()
         for att in self.attachment_ids.sorted("id"):
             if not (att.name or "").lower().endswith(EXTENSIONS):
                 raise UserError(self.env._(
                     "%(file)s is not an SIE file (.se, .si or .sie).", file=att.name))
+            if att.file_size > limit:
+                raise UserError(self.env._(
+                    "%(file)s is larger than %(limit)s MB (system parameter "
+                    "l10n_se_sie4.max_file_mb).", file=att.name,
+                    limit=round(limit / 1024 / 1024, 3)))
             files.append((att.name, sa.parse_cached(base64.b64decode(att.datas or b""))))
         return files
 
@@ -128,7 +145,7 @@ class L10nSeSieImportWizard(models.TransientModel):
 
     def _analysis(self):
         company = self.company_id
-        env = self.with_company(company).with_context(allowed_company_ids=company.ids).env
+        env, _hidden = sa.company_env(self.env, company)
         return sa.analyse(env, company, self._files(), self._options())
 
     @api.depends("attachment_ids", "year_ids.selected", "series_ids.journal_id",
@@ -194,8 +211,19 @@ class L10nSeSieImportWizard(models.TransientModel):
         }) for s, n in sorted(series.items())]
         has_dimensions = any(t.objects for y in years for v in y.vouchers for t in v.transactions)
         self.import_analytics = has_dimensions
+        # The opening balance only goes into empty books; otherwise it follows from the entries
+        # already there (the preview says so when it is ticked anyway).
+        first_day, _last = sa.entry_dates(sa.company_env(self.env, company)[0], company)
+        self.import_opening = not first_day
         self.state = "preview"
         return self._reopen()
+
+    @api.autovacuum
+    def _gc_uploads(self):
+        """Files uploaded in a wizard that was never imported."""
+        old = fields.Datetime.now() - timedelta(days=1)
+        self.env["ir.attachment"].sudo().search([
+            ("res_model", "=", self._name), ("create_date", "<", old)]).unlink()
 
     def action_back(self):
         self.state = "upload"
@@ -215,9 +243,9 @@ class L10nSeSieImportWizard(models.TransientModel):
             }) for y in analysis.selected],
             **vals,
         })
-        attachments = self.env["ir.attachment"]
-        for att in self.attachment_ids.sorted("id"):
-            attachments |= att.copy({"res_model": record._name, "res_id": record.id})
+        # The uploaded files move to the import record (no copy left behind on the wizard).
+        attachments = self.attachment_ids.sorted("id")
+        attachments.write({"res_model": record._name, "res_id": record.id})
         record.attachment_ids = attachments
         return record
 
