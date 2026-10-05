@@ -336,6 +336,10 @@ one section per module. The format follows
 
 ## account_invoice_reminder
 
+### [19.0.1.5.1] — 2026-10-05
+
+- The check that a reminder level's days are 0 or more is declared with `models.Constraint`. It was a `_sql_constraints` list, which Odoo 19 ignores with a warning, so the database never had the check.
+
 ### [19.0.1.5.0] — 2026-09-29
 
 - New hook `account.reminder._email_values(attachments)`: the values the reminder e-mail gets on
