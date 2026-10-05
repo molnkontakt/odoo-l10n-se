@@ -501,9 +501,20 @@ def checksum(lines):
 
 # -- reader ------------------------------------------------------------------------------------------
 
-_DATE_RE = re.compile(r"^\d{8}$")
-_AMOUNT_RE = re.compile(r"^-?\d+([.,]\d+)?$")
-_ACCOUNT_RE = re.compile(r"^\d+$")
+# ASCII digits only: str.isdigit() accepts e.g. a superscript two (0xFD in code page 437), which
+# int() then refuses, and \d accepts the digits of other scripts.
+_DATE_RE = re.compile(r"^[0-9]{8}$")
+_AMOUNT_RE = re.compile(r"^-?[0-9]+([.,][0-9]+)?$")
+_ACCOUNT_RE = re.compile(r"^[0-9]+$")
+_NUMBER_RE = re.compile(r"[0-9]+")
+
+#: Longer lines are refused (a broken or hostile file should not exhaust memory).
+MAX_LINE_LENGTH = 10000
+
+
+def is_number(value):
+    """True for a non-empty string of ASCII digits."""
+    return bool(value) and _NUMBER_RE.fullmatch(value) is not None
 
 
 class _Reader:
@@ -592,7 +603,7 @@ class _Reader:
             return None
         pairs = tuple((raw[k].strip(), raw[k + 1]) for k in range(0, len(raw), 2))
         for dim, _obj in pairs:
-            if not dim.isdigit():
+            if not is_number(dim):
                 self.issue(ERROR, "bad_objects",
                            f"{what}: '{dim}' is not a dimension number", line, what=what)
                 return None
@@ -703,7 +714,7 @@ class _Reader:
                     acc.sru.append(t(1))
         elif label in ("#DIM", "#UNDERDIM"):
             number = t(0)
-            if not number.isdigit():
+            if not is_number(number):
                 self.issue(ERROR, "bad_dimension", f"{label}: '{number}' is not a dimension number",
                            line, label=label, value=number)
             else:
@@ -711,7 +722,7 @@ class _Reader:
                 sie.dimensions[number] = Dimension(number, t(1), parent or None, line)
         elif label == "#OBJEKT":
             dim, code = t(0), t(1)
-            if not dim.isdigit() or code == "":
+            if not is_number(dim) or code == "":
                 self.issue(ERROR, "bad_object", "#OBJEKT needs a dimension number and an object",
                            line)
             else:
@@ -738,7 +749,7 @@ class _Reader:
         elif label in ("#PSALDO", "#PBUDGET"):
             idx = self.year_index(t(0), line, label)
             period = t(1)
-            if not re.match(r"^\d{6}$", period) or not 1 <= int(period[4:]) <= 12:
+            if not re.match(r"^[0-9]{6}$", period) or not 1 <= int(period[4:]) <= 12:
                 self.issue(ERROR, "bad_period", f"{label}: '{period}' is not a period YYYYMM",
                            line, label=label, value=period)
                 period = None
@@ -877,7 +888,7 @@ def _same_line(a, b):
         b.account, b.objects, b.amount, b.date, b.text, b.quantity)
 
 
-def parse(data, *, strict=False):
+def parse(data, *, strict=False, max_line_length=MAX_LINE_LENGTH):
     """Read a SIE file (bytes). Returns a :class:`SieFile` with all problems in ``issues``."""
     text, encoding = decode(data)
     reader = _Reader(strict)
@@ -890,10 +901,15 @@ def parse(data, *, strict=False):
     crc_bare = 0  # the same without the '#' of the labels (see below)
     last = 0
     for no, raw in enumerate(lines, 1):
-        stripped = raw.strip().lstrip("﻿")
+        stripped = raw.strip().lstrip("\ufeff")
         if not stripped:
             continue
         last = no
+        if len(stripped) > max_line_length:
+            reader.issue(ERROR, "line_too_long",
+                         f"the line is longer than {max_line_length} characters", no,
+                         limit=max_line_length)
+            continue
         if stripped == "{":
             reader.open_block(no)
             continue

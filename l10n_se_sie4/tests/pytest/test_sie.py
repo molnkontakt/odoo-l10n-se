@@ -585,3 +585,37 @@ def test_suggest_account_type(number, ktyp, expected):
 def test_account_class():
     assert [sie.account_class(a) for a in ("1930", "2099", "3001", "8999", "9100")] == [
         "balance", "balance", "result", "result", "internal"]
+
+
+# -- review findings (regression tests) --------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "record",
+    [
+        '#KONTO 19²0 "Superscript"',
+        '#DIM ² "Superscript"',
+        '#OBJEKT ² "1" "Superscript"',
+        "#PSALDO 0 2025²01 1930 {} 1.00",
+        "#IB 0 1930 1².00",
+        "#RAR 0 2025²0101 20251231",
+    ],
+)
+def test_only_ascii_digits(record):
+    """A superscript two (0xFD in code page 437) is a digit to str.isdigit but not a number."""
+    parsed = sie.parse(lines(*HEADER, record))
+    assert parsed.errors
+    assert not parsed.dimensions and not parsed.objects
+
+
+def test_superscript_in_object_list():
+    parsed = sie.parse(lines(*HEADER, '#VER A 1 20250101 "x"', "{", '#TRANS 1930 {² "10"} 1',
+                             "#TRANS 2091 {} -1", "}"))  # fmt: skip
+    assert ("bad_objects", 10) in codes(parsed, sie.ERROR)
+
+
+def test_line_length_limit():
+    parsed = sie.parse(lines(*HEADER, '#KONTO 1930 "' + "x" * 20000 + '"', "#KONTO 2091 Ok"))
+    assert ("line_too_long", 8) in codes(parsed, sie.ERROR)
+    assert "1930" not in parsed.accounts
+    assert parsed.accounts["2091"].name == "Ok"
