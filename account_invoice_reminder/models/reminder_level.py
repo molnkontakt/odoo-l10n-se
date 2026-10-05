@@ -52,7 +52,7 @@ class AccountReminderLevel(models.Model):
     )
     active = fields.Boolean(default=True)
 
-    _sql_constraints = [("days_positive", "CHECK(days >= 0)", "Dagar måste vara 0 eller mer.")]
+    _days_positive = models.Constraint("CHECK(days >= 0)", "Dagar måste vara 0 eller mer.")
 
     @api.model_create_multi
     def create(self, vals_list):
