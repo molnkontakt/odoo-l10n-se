@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_l10n_se_sie_root" name="SIE" parent="account.menu_finance_entries"
+              sequence="40" groups="account.group_account_manager"/>
+    <menuitem id="menu_l10n_se_sie_import" name="SIE Import" parent="menu_l10n_se_sie_root"
+              action="action_l10n_se_sie_import_wizard" sequence="10"/>
+    <menuitem id="menu_l10n_se_sie_export" name="SIE Export" parent="menu_l10n_se_sie_root"
+              action="action_l10n_se_sie_export_wizard" sequence="20"/>
+    <menuitem id="menu_l10n_se_sie_history" name="SIE Imports" parent="menu_l10n_se_sie_root"
+              action="action_l10n_se_sie_import" sequence="30"/>
+</odoo>

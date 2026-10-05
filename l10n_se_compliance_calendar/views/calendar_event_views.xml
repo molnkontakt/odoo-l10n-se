@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Dates only: calendar.event stores an all-day event as 08:00-18:00 UTC, which the
+         standard list shows as clock times. -->
+    <record id="calendar_event_view_list_l10n_se_cc" model="ir.ui.view">
+        <field name="name">calendar.event.list.l10n_se_cc</field>
+        <field name="model">calendar.event</field>
+        <field name="priority">100</field>
+        <field name="arch" type="xml">
+            <list string="Compliance Calendar" create="0" default_order="start_date asc, name"
+                  decoration-muted="start_date &lt; current_date">
+                <header>
+                    <button name="action_l10n_se_cc_refresh" type="object" string="Update Now"
+                            display="always" groups="base.group_system"/>
+                </header>
+                <field name="start_date" string="Date" widget="date"/>
+                <field name="name" string="Subject"/>
+                <field name="l10n_se_cc_kind" optional="show"/>
+                <field name="l10n_se_cc_legal_ref" optional="show"/>
+                <field name="l10n_se_cc_company_id" groups="base.group_multi_company" optional="show"/>
+                <field name="alarm_ids" widget="many2many_tags" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="calendar_event_view_search_l10n_se_cc" model="ir.ui.view">
+        <field name="name">calendar.event.search.l10n_se_cc</field>
+        <field name="model">calendar.event</field>
+        <field name="priority">100</field>
+        <field name="arch" type="xml">
+            <search string="Compliance Calendar">
+                <field name="name" string="Subject"/>
+                <field name="l10n_se_cc_legal_ref"/>
+                <field name="l10n_se_cc_company_id" groups="base.group_multi_company"/>
+                <filter name="upcoming" string="Upcoming"
+                        domain="[('start_date', '&gt;=', context_today().strftime('%Y-%m-%d'))]"/>
+                <filter name="past" string="Past"
+                        domain="[('start_date', '&lt;', context_today().strftime('%Y-%m-%d'))]"/>
+                <separator/>
+                <filter name="this_year" string="This Year"
+                        domain="[('start_date', '&gt;=', context_today().strftime('%Y-01-01')),
+                                 ('start_date', '&lt;=', context_today().strftime('%Y-12-31'))]"/>
+                <filter name="group_kind" string="Date Type" context="{'group_by': 'l10n_se_cc_kind'}"/>
+                <filter name="group_month" string="Month" context="{'group_by': 'start_date:month'}"/>
+                <filter name="group_company" string="Company" context="{'group_by': 'l10n_se_cc_company_id'}"
+                        groups="base.group_multi_company"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_l10n_se_cc_events" model="ir.actions.act_window">
+        <field name="name">Compliance Calendar</field>
+        <field name="res_model">calendar.event</field>
+        <field name="view_mode">list,calendar,form</field>
+        <field name="domain">[('l10n_se_cc_key', '!=', False)]</field>
+        <field name="context">{'search_default_upcoming': 1, 'create': False}</field>
+        <field name="search_view_id" ref="calendar_event_view_search_l10n_se_cc"/>
+        <field name="view_ids" eval="[Command.clear(),
+            Command.create({'view_mode': 'list', 'view_id': ref('calendar_event_view_list_l10n_se_cc')}),
+            Command.create({'view_mode': 'calendar', 'view_id': ref('calendar.view_calendar_event_calendar')}),
+            Command.create({'view_mode': 'form', 'view_id': ref('calendar.view_calendar_event_form')})]"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No compliance dates yet</p>
+            <p>Switch on the compliance calendar for the company under Settings and press Update Now.</p>
+        </field>
+    </record>
+</odoo>

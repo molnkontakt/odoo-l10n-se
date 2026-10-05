@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_l10n_se_compliance_custom_rule_user,l10n_se.compliance.custom.rule user,model_l10n_se_compliance_custom_rule,base.group_user,1,0,0,0
+access_l10n_se_compliance_custom_rule_system,l10n_se.compliance.custom.rule admin,model_l10n_se_compliance_custom_rule,base.group_system,1,1,1,1
+access_l10n_se_compliance_anchor_user,l10n_se.compliance.anchor user,model_l10n_se_compliance_anchor,base.group_user,1,0,0,0
+access_l10n_se_compliance_anchor_system,l10n_se.compliance.anchor admin,model_l10n_se_compliance_anchor,base.group_system,1,1,1,1

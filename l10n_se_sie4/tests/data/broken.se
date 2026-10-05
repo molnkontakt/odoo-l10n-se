@@ -1,0 +1,39 @@
+#FLAGGA 0
+#PROGRAM "Exempelprogram" 1.0
+#FORMAT PC8
+#GEN 20250201
+#SIETYP 4
+#FNAMN "Exempelbolaget Norrsken AB"
+#RAR 0 20250101 20251231
+#KONTO 1930 "F”retagskonto"
+#KONTO 6250 "Postbefordran"
+#KONTO 4010 "Ink”p
+#OKANDPOST 1 2 3
+#TRANS 1930 {} 100.00
+#VER A 1 20251301 "Felaktigt datum"
+{
+#TRANS 6250 {} 10.00
+#TRANS 1930 {} -10.00
+}
+#VER A 2 20250110 "Obalanserat"
+{
+#TRANS 6250 {} 10.00
+#TRANS 1930 {} -9.00
+}
+#VER A 3 20250111 "Felaktigt belopp"
+{
+#TRANS 6250 {} 1O.00
+#TRANS 1930 {} -10.00
+}
+#VER A 4 20250112 "RTRANS utan TRANS"
+{
+#RTRANS 6250 {} 5.00
+#TRANS 6250 {} 10.00
+#TRANS 1930 {} -10.00
+}
+}
+Ingen etikett h„r
+#VER A 5 20250113 "Saknar slutklammer"
+{
+#TRANS 6250 {} 10.00
+#TRANS 1930 {} -10.00

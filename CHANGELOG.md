@@ -5,6 +5,66 @@ one section per module. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions use Odoo's
 `<odoo-version>.<major>.<minor>.<patch>` scheme.
 
+## l10n_se_sie4
+
+### [19.0.1.0.0] — 2026-10-05
+
+- Initial release. *SIE Import*: one or more SIE 4 files (Fortnox, Visma/Spiris and others), a
+  preview (program, character set, company and organisation number, financial years, vouchers per
+  series, dimensions, missing accounts, vouchers that do not balance, vouchers already in Odoo,
+  lock dates, every problem with file and line number), then the first year's opening balance and
+  the vouchers as journal entries, posted or as drafts, in one journal or a journal per series.
+  Missing accounts are created from `#KONTO`/`#KTYP` with the type of their neighbours in the
+  chart; dimensions become analytic plans and analytic distributions. Only `#TRANS` lines are
+  booked (`#RTRANS` is followed by an identical `#TRANS`, `#BTRANS` is a removed line).
+- A key per voucher (financial year, series, number) and a database constraint keep a voucher from
+  being imported twice; references of earlier import scripts are recognised. Import into a locked
+  period is refused. More than 1 000 entries are imported in the background.
+- Import history with the files, entries, created accounts and a reconciliation of every account
+  against the files: balance sheet accounts with `#UB`, result accounts with `#RES`. *Undo Import*
+  while no entry is locked.
+- *Reconciliation only*: compare the posted books with a file without creating anything, at the
+  end of the year or on a date (`#PSALDO` on a month end, the vouchers on any day).
+- *SIE Export*: type 4E (default), 4I, 1, 2 or 3; balances for the year and the year before,
+  monthly balances, objects from the analytic distribution, vouchers per journal; earlier years'
+  unclosed result in the opening balance of 2099; code page 437, CRLF, optional `#KSUMMA`.
+- `lib/sie.py`: a pure-Python SIE 4 reader and writer (tokenizer, encoding detection, all records,
+  checks with line numbers, CRC-32 checksum) with pytest tests. Swedish translation.
+- Review before release: the opening balance only goes into books without entries and years are
+  imported in order (no double opening balance); the opening balance differences entry books
+  exactly what the preview showed and stops when the books before the year disagree; undo is all
+  or nothing and refused for reconciled, reversed, bank or changed entries (fingerprint), and
+  only removes accounts, analytic accounts and journals nothing refers to; a voucher number twice
+  in a year stops the import, identical vouchers without number are all imported; vouchers
+  outside the file's year are shown; the report is green only when every year was checked, and
+  later years are checked again; amounts are rounded to the currency and checked before an entry
+  is created; file size and line length limits, one analysis per run; the stored preview is
+  sanitized; branches are part of the company; the export counts a line split over several plans
+  once, takes the previous year from the settings (editable) and explains unclosed years; ASCII
+  digits only; formula-like texts neutralised; unambiguous references; cancelled entries can be
+  imported again; record rules on year and series lines; uploads move to the import record and
+  abandoned ones are removed; journals created under OCA `account_journal_restrict_mode`.
+
+## l10n_se_compliance_calendar
+
+### [19.0.1.0.0] — 2026-10-01
+
+- Initial release. Statutory dates for Swedish companies and associations as all-day events in
+  Calendar, computed in the module (`rules.py`, no Odoo import, no network) from the company form,
+  VAT period, VAT base class, EU trade, EC sales list, employer, F-tax and the financial year:
+  VAT returns (month, quarter, financial year), EC sales list, employer declaration and payment,
+  F-tax, income tax return (INK2, INK4, INK1 with NE), and for limited companies the annual
+  general meeting and the annual report to Bolagsverket.
+- Tax dates on a Saturday, Sunday, public holiday, Midsummer Eve, Christmas Eve or New Year's Eve
+  move to the next weekday; public holidays are computed in the module.
+- Custom rules per company or for all: a fixed day every year, or days/weeks/months before or after
+  an anchor date entered per year (e.g. the annual meeting).
+- Nightly scheduled action and *Update Now*: a stable key per rule and period, so a second run
+  updates instead of duplicating; dates no longer produced are removed, only the module's own
+  events are touched, earlier years are kept. The only attendee is a contact per company that can
+  never have an e-mail address; no mail is sent. Optional default reminder (off), calendar filters
+  for chosen groups, a *Dates* list with dates only and upcoming first. Swedish translation.
+
 ## account_reconcile_oca_mobile
 
 ### [19.0.1.0.0] — 2026-09-29

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="l10n_se_compliance_custom_rule_view_list" model="ir.ui.view">
+        <field name="name">l10n_se.compliance.custom.rule.list</field>
+        <field name="model">l10n_se.compliance.custom.rule</field>
+        <field name="arch" type="xml">
+            <list string="Custom Rules">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="rule_type"/>
+                <field name="month" optional="show"/>
+                <field name="day" optional="show"/>
+                <field name="offset" optional="show"/>
+                <field name="offset_unit" optional="show"/>
+                <field name="offset_direction" optional="show"/>
+                <field name="anchor_name" optional="show"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="l10n_se_compliance_custom_rule_view_form" model="ir.ui.view">
+        <field name="name">l10n_se.compliance.custom.rule.form</field>
+        <field name="model">l10n_se.compliance.custom.rule</field>
+        <field name="arch" type="xml">
+            <form string="Custom Rule">
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="e.g. Accounts to the auditor"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="rule_type" widget="radio"/>
+                            <field name="month" invisible="rule_type != 'fixed'" required="rule_type == 'fixed'"/>
+                            <field name="day" invisible="rule_type != 'fixed'" required="rule_type == 'fixed'"/>
+                            <label for="offset" invisible="rule_type != 'relative'"/>
+                            <div class="o_row" invisible="rule_type != 'relative'">
+                                <field name="offset"/>
+                                <field name="offset_unit" required="rule_type == 'relative'"/>
+                                <field name="offset_direction" required="rule_type == 'relative'"/>
+                            </div>
+                            <field name="anchor_name" invisible="rule_type != 'relative'"
+                                   required="rule_type == 'relative'" placeholder="e.g. Annual meeting"/>
+                            <field name="non_business_day"/>
+                        </group>
+                        <group>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                    </group>
+                    <field name="description" placeholder="Shown in the calendar event"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="l10n_se_compliance_custom_rule_view_search" model="ir.ui.view">
+        <field name="name">l10n_se.compliance.custom.rule.search</field>
+        <field name="model">l10n_se.compliance.custom.rule</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="anchor_name"/>
+                <filter name="archived" string="Archived" domain="[('active', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_l10n_se_compliance_custom_rule" model="ir.actions.act_window">
+        <field name="name">Custom Rules</field>
+        <field name="res_model">l10n_se.compliance.custom.rule</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Add a date of your own</p>
+            <p>A fixed day every year (e.g. year-end accounts by 15 February), or a number of days,
+                weeks or months before or after an anchor date (e.g. notice of the annual meeting
+                14 days before it).</p>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_l10n_se_cc_root" name="Compliance Calendar" parent="calendar.mail_menu_calendar"
+              sequence="20" groups="base.group_user"/>
+    <menuitem id="menu_l10n_se_cc_events" name="Dates" parent="menu_l10n_se_cc_root"
+              action="action_l10n_se_cc_events" sequence="10"/>
+    <menuitem id="menu_l10n_se_cc_custom_rules" name="Custom Rules" parent="menu_l10n_se_cc_root"
+              action="action_l10n_se_compliance_custom_rule" sequence="20" groups="base.group_system"/>
+    <menuitem id="menu_l10n_se_cc_anchors" name="Anchor Dates" parent="menu_l10n_se_cc_root"
+              action="action_l10n_se_compliance_anchor" sequence="30" groups="base.group_system"/>
+    <menuitem id="menu_l10n_se_cc_settings" name="Settings" parent="menu_l10n_se_cc_root"
+              action="action_l10n_se_cc_settings" sequence="40" groups="base.group_system"/>
+</odoo>
