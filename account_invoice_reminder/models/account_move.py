@@ -43,5 +43,5 @@ class AccountMove(models.Model):
         return {
             "type": "ir.actions.act_window", "res_model": "account.reminder.send.wizard", "view_mode": "form", "target": "new",
             "name": _("Skicka betalningspåminnelse"),
-            "context": {"active_model": "account.move", "active_ids": self.ids},
+            "context": {"active_model": "account.move", "active_ids": self.ids, "dialog_size": "extra-large"},
         }

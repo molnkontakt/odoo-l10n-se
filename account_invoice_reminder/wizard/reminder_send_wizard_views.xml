@@ -6,19 +6,61 @@
         <field name="arch" type="xml">
             <form>
                 <p invisible="line_ids">Inga fakturor är aktuella för påminnelse just nu.</p>
-                <field name="line_ids" invisible="not line_ids">
+                <!-- En rad per påminnelse (kund + nivå): det som väljs. Avgiften står en gång per påminnelse.
+                     force_save: fälten är readonly i modellen och klienten skickar annars inte deras värden
+                     (från default_get) när dialogen sparas inför knappen. -->
+                <label for="line_ids" string="Påminnelser att skicka" invisible="not line_ids"/>
+                <field name="line_ids" invisible="not line_ids" nolabel="1">
                     <list editable="bottom" create="0" delete="0">
                         <field name="selected" widget="boolean_toggle"/>
-                        <field name="partner_id"/>
+                        <field name="partner_id" force_save="1"/>
                         <field name="email"/>
-                        <field name="level_id"/>
+                        <field name="level_id" force_save="1"/>
                         <field name="channel"/>
-                        <field name="move_names" string="Fakturor"/>
+                        <field name="move_count" sum="Summa"/>
                         <field name="amount_overdue" sum="Summa"/>
                         <field name="fee_amount" sum="Summa"/>
-                        <field name="move_ids" column_invisible="1"/>
+                        <field name="fee_basis"/>
+                        <field name="move_names" optional="hide"/>
+                        <field name="move_ids" column_invisible="1" force_save="1"/>
+                        <field name="currency_id" column_invisible="1"/>
                     </list>
                 </field>
+                <!-- En rad per faktura, i samma ordning som påminnelserna; grå när kundens rad är avmarkerad. -->
+                <label for="invoice_line_ids" string="Fakturorna i påminnelserna" invisible="not line_ids"/>
+                <field name="invoice_line_ids" invisible="not line_ids" nolabel="1">
+                    <list create="0" delete="0" no_open="1" decoration-muted="not selected">
+                        <field name="partner_id" force_save="1"/>
+                        <field name="name"/>
+                        <field name="invoice_date"/>
+                        <field name="invoice_date_due"/>
+                        <field name="days_overdue"/>
+                        <field name="amount_residual" sum="Summa"/>
+                        <field name="level_id" force_save="1"/>
+                        <field name="selected" column_invisible="1"/>
+                        <field name="move_id" column_invisible="1" force_save="1"/>
+                        <field name="currency_id" column_invisible="1"/>
+                    </list>
+                    <!-- Raderna öppnas aldrig (no_open); formuläret finns för att en icke-redigerbar listas rader
+                         sparas via radformuläret (odoo.tests.Form), och det måste ha force_save på samma fält. -->
+                    <form>
+                        <group>
+                            <field name="partner_id" force_save="1"/>
+                            <field name="level_id" force_save="1"/>
+                            <field name="move_id" force_save="1"/>
+                            <field name="name"/>
+                            <field name="invoice_date"/>
+                            <field name="invoice_date_due"/>
+                            <field name="days_overdue"/>
+                            <field name="amount_residual"/>
+                            <field name="selected" invisible="1"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                    </form>
+                </field>
+                <div class="alert alert-info mt-3 mb-2" role="alert" invisible="not fee_note">
+                    <field name="fee_note" nolabel="1"/>
+                </div>
                 <group invisible="not line_ids">
                     <field name="only_prepare"/>
                     <field name="count" invisible="1"/>
