@@ -1,0 +1,102 @@
+{
+ "organisationer": [
+  {
+   "avregistreradOrganisation": {
+    "avregistreringsdatum": null,
+    "dataproducent": "Bolagsverket",
+    "fel": {
+     "typ": "ORGANISATION_FINNS_EJ",
+     "felBeskrivning": "Begärd organisation finns inte registrerad i sökbar form hos aktuell dataproducent. Observera att en organisation ändå kan existera och eventuellt också finnas registrerad i sökbar form hos en annan dataproducent trots detta fel."
+    }
+   },
+   "avregistreringsorsak": {
+    "kod": null,
+    "klartext": null,
+    "dataproducent": "Bolagsverket",
+    "fel": {
+     "typ": "ORGANISATION_FINNS_EJ",
+     "felBeskrivning": "Begärd organisation finns inte registrerad i sökbar form hos aktuell dataproducent. Observera att en organisation ändå kan existera och eventuellt också finnas registrerad i sökbar form hos en annan dataproducent trots detta fel."
+    }
+   },
+   "juridiskForm": {
+    "kod": null,
+    "klartext": null,
+    "dataproducent": "SCB",
+    "fel": {
+     "typ": "ORGANISATION_FINNS_EJ",
+     "felBeskrivning": "Den efterfrågade informationen gick inte att hitta."
+    }
+   },
+   "namnskyddslopnummer": null,
+   "naringsgrenOrganisation": {
+    "sni": [],
+    "dataproducent": "SCB",
+    "fel": {
+     "typ": "ORGANISATION_FINNS_EJ",
+     "felBeskrivning": "Den efterfrågade informationen gick inte att hitta."
+    }
+   },
+   "organisationsdatum": {
+    "registreringsdatum": null,
+    "dataproducent": "Bolagsverket",
+    "fel": {
+     "typ": "ORGANISATION_FINNS_EJ",
+     "felBeskrivning": "Begärd organisation finns inte registrerad i sökbar form hos aktuell dataproducent. Observera att en organisation ändå kan existera och eventuellt också finnas registrerad i sökbar form hos en annan dataproducent trots detta fel."
+    },
+    "infortHosScb": null
+   },
+   "organisationsform": {
+    "kod": null,
+    "klartext": null,
+    "dataproducent": "Bolagsverket",
+    "fel": {
+     "typ": "ORGANISATION_FINNS_EJ",
+     "felBeskrivning": "Begärd organisation finns inte registrerad i sökbar form hos aktuell dataproducent. Observera att en organisation ändå kan existera och eventuellt också finnas registrerad i sökbar form hos en annan dataproducent trots detta fel."
+    }
+   },
+   "organisationsidentitet": null,
+   "organisationsnamn": {
+    "dataproducent": "Bolagsverket",
+    "fel": {
+     "typ": "ORGANISATION_FINNS_EJ",
+     "felBeskrivning": "Begärd organisation finns inte registrerad i sökbar form hos aktuell dataproducent. Observera att en organisation ändå kan existera och eventuellt också finnas registrerad i sökbar form hos en annan dataproducent trots detta fel."
+    },
+    "organisationsnamnLista": []
+   },
+   "pagaendeAvvecklingsEllerOmstruktureringsforfarande": {
+    "dataproducent": "Bolagsverket",
+    "fel": {
+     "typ": "ORGANISATION_FINNS_EJ",
+     "felBeskrivning": "Begärd organisation finns inte registrerad i sökbar form hos aktuell dataproducent. Observera att en organisation ändå kan existera och eventuellt också finnas registrerad i sökbar form hos en annan dataproducent trots detta fel."
+    },
+    "pagaendeAvvecklingsEllerOmstruktureringsforfarandeLista": []
+   },
+   "postadressOrganisation": {
+    "postadress": null,
+    "dataproducent": "Bolagsverket",
+    "fel": {
+     "typ": "ORGANISATION_FINNS_EJ",
+     "felBeskrivning": "Begärd organisation finns inte registrerad i sökbar form hos aktuell dataproducent. Observera att en organisation ändå kan existera och eventuellt också finnas registrerad i sökbar form hos en annan dataproducent trots detta fel."
+    }
+   },
+   "registreringsland": null,
+   "reklamsparr": null,
+   "verksamOrganisation": {
+    "kod": null,
+    "dataproducent": "SCB",
+    "fel": {
+     "typ": "ORGANISATION_FINNS_EJ",
+     "felBeskrivning": "Den efterfrågade informationen gick inte att hitta."
+    }
+   },
+   "verksamhetsbeskrivning": {
+    "beskrivning": null,
+    "dataproducent": "Bolagsverket",
+    "fel": {
+     "typ": "ORGANISATION_FINNS_EJ",
+     "felBeskrivning": "Begärd organisation finns inte registrerad i sökbar form hos aktuell dataproducent. Observera att en organisation ändå kan existera och eventuellt också finnas registrerad i sökbar form hos en annan dataproducent trots detta fel."
+    }
+   }
+  }
+ ]
+}

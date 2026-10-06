@@ -1,0 +1,99 @@
+{
+ "organisationer": [
+  {
+   "avregistreradOrganisation": null,
+   "avregistreringsorsak": null,
+   "juridiskForm": {
+    "kod": "49",
+    "klartext": "Övriga aktiebolag",
+    "dataproducent": "SCB",
+    "fel": null
+   },
+   "namnskyddslopnummer": null,
+   "naringsgrenOrganisation": {
+    "sni": [
+     {
+      "kod": "62100",
+      "klartext": "Dataprogrammering"
+     },
+     {
+      "kod": "     ",
+      "klartext": ""
+     }
+    ],
+    "dataproducent": "SCB",
+    "fel": null
+   },
+   "organisationsdatum": {
+    "registreringsdatum": "2019-03-14",
+    "dataproducent": "Bolagsverket",
+    "fel": null,
+    "infortHosScb": "2019-03-15"
+   },
+   "organisationsform": {
+    "kod": "AB",
+    "klartext": "Aktiebolag",
+    "dataproducent": "Bolagsverket",
+    "fel": null
+   },
+   "organisationsidentitet": {
+    "identitetsbeteckning": "5560000001",
+    "typ": {
+     "kod": "ORGNR",
+     "klartext": "Organisationsnummer"
+    }
+   },
+   "organisationsnamn": {
+    "dataproducent": "Bolagsverket",
+    "fel": null,
+    "organisationsnamnLista": [
+     {
+      "namn": "Exempelbolaget i Teststad AB",
+      "organisationsnamntyp": {
+       "kod": "FORETAGSNAMN",
+       "klartext": "Företagsnamn"
+      },
+      "registreringsdatum": "2019-03-14",
+      "verksamhetsbeskrivningSarskiltForetagsnamn": null
+     },
+     {
+      "namn": "Testverkstan",
+      "organisationsnamntyp": {
+       "kod": "SARSKILT_FORETAGSNAMN",
+       "klartext": "Särskilt företagsnamn"
+      },
+      "registreringsdatum": "2020-01-02",
+      "verksamhetsbeskrivningSarskiltForetagsnamn": "Verkstad"
+     }
+    ]
+   },
+   "pagaendeAvvecklingsEllerOmstruktureringsforfarande": null,
+   "postadressOrganisation": {
+    "postadress": {
+     "postnummer": "12345",
+     "coAdress": "c/o Test Testsson",
+     "land": null,
+     "postort": "UPPLANDS VÄSBY",
+     "utdelningsadress": "Provgatan 1"
+    },
+    "dataproducent": "Bolagsverket",
+    "fel": null
+   },
+   "registreringsland": {
+    "kod": "SE-LAND",
+    "klartext": "Sverige"
+   },
+   "reklamsparr": null,
+   "verksamOrganisation": {
+    "kod": "JA",
+    "dataproducent": "SCB",
+    "fel": null
+   },
+   "verksamhetsbeskrivning": {
+    "beskrivning": "Bolaget ska utveckla och sälja programvara.",
+    "dataproducent": "Bolagsverket",
+    "fel": null
+   }
+  }
+ ]
+}

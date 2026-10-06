@@ -5,6 +5,23 @@ one section per module. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions use Odoo's
 `<odoo-version>.<major>.<minor>.<patch>` scheme.
 
+## l10n_se_bolagsverket
+
+### [19.0.1.0.0] — 2026-10-06
+
+- Initial release. *Fetch from Bolagsverket* on a company contact fills the registered name and postal address from
+  the organisation number (Company ID, or a Swedish VAT number) and stores company form, registration date, SNI
+  codes, registered business and advertising block.
+- Status watch: a job every 30 minutes checks companies that are customers or suppliers with a number when it is
+  added or changed and then weekly; bankruptcy, liquidation, reorganisation or deregistration gives a banner on the
+  contact and its open invoices and bills, a note and a to-do for the company's follow-up user, in that user's
+  language. Errors and incomplete answers (a data source unavailable) never change a status.
+- Name check: a warning on the contact and its vendor bills when the name in Odoo is none of the registered names.
+- Sole traders: the right business among several on one personal identity number; the number is never shown in
+  messages.
+- Keeps the API account alive (Bolagsverket closes accounts unused for six months) with a daily `/isalive` when idle.
+- Swedish translation.
+
 ## l10n_se_sie4
 
 ### [19.0.1.0.0] — 2026-10-05
