@@ -1,0 +1,141 @@
+{
+ "organisationer": [
+  {
+   "avregistreradOrganisation": {
+    "avregistreringsdatum": "2001-03-15",
+    "dataproducent": "Bolagsverket",
+    "fel": null
+   },
+   "avregistreringsorsak": {
+    "dataproducent": "Bolagsverket",
+    "fel": null,
+    "klartext": "n/a",
+    "kod": "VERKUPP"
+   },
+   "juridiskForm": null,
+   "namnskyddslopnummer": 1,
+   "naringsgrenOrganisation": null,
+   "organisationsdatum": {
+    "dataproducent": "Bolagsverket",
+    "fel": null,
+    "infortHosScb": null,
+    "registreringsdatum": "1990-02-09"
+   },
+   "organisationsform": {
+    "dataproducent": "Bolagsverket",
+    "fel": null,
+    "klartext": "Enskild näringsidkare",
+    "kod": "E"
+   },
+   "organisationsidentitet": {
+    "identitetsbeteckning": "194001011230",
+    "typ": {
+     "klartext": "n/a",
+     "kod": "PERSONNUMMER"
+    }
+   },
+   "organisationsnamn": {
+    "dataproducent": "Bolagsverket",
+    "fel": null,
+    "organisationsnamnLista": [
+     {
+      "namn": "SKOAFFÄREN TEST TESTSSON",
+      "organisationsnamntyp": {
+       "klartext": "n/a",
+       "kod": "FORETAGSNAMN"
+      },
+      "registreringsdatum": "1990-02-09",
+      "verksamhetsbeskrivningSarskiltForetagsnamn": null
+     }
+    ]
+   },
+   "pagaendeAvvecklingsEllerOmstruktureringsforfarande": null,
+   "postadressOrganisation": {
+    "dataproducent": "Bolagsverket",
+    "fel": null,
+    "postadress": {
+     "coAdress": null,
+     "land": "Sverige",
+     "postnummer": "12345",
+     "postort": "TESTSTAD",
+     "utdelningsadress": "PROVGATAN 1"
+    }
+   },
+   "registreringsland": {
+    "klartext": "Sverige",
+    "kod": "SE-LAND"
+   },
+   "reklamsparr": null,
+   "verksamOrganisation": null,
+   "verksamhetsbeskrivning": {
+    "beskrivning": "\\n       HANDEL MED SKOR.",
+    "dataproducent": "Bolagsverket",
+    "fel": null
+   }
+  },
+  {
+   "avregistreradOrganisation": null,
+   "avregistreringsorsak": null,
+   "juridiskForm": null,
+   "namnskyddslopnummer": 2,
+   "naringsgrenOrganisation": null,
+   "organisationsdatum": {
+    "dataproducent": "Bolagsverket",
+    "fel": null,
+    "infortHosScb": null,
+    "registreringsdatum": "1984-12-13"
+   },
+   "organisationsform": {
+    "dataproducent": "Bolagsverket",
+    "fel": null,
+    "klartext": "Enskild näringsidkare",
+    "kod": "E"
+   },
+   "organisationsidentitet": {
+    "identitetsbeteckning": "194001011230",
+    "typ": {
+     "klartext": "n/a",
+     "kod": "PERSONNUMMER"
+    }
+   },
+   "organisationsnamn": {
+    "dataproducent": "Bolagsverket",
+    "fel": null,
+    "organisationsnamnLista": [
+     {
+      "namn": "TESTSSONS CYKEL",
+      "organisationsnamntyp": {
+       "klartext": "n/a",
+       "kod": "FORETAGSNAMN"
+      },
+      "registreringsdatum": "1984-12-13",
+      "verksamhetsbeskrivningSarskiltForetagsnamn": null
+     }
+    ]
+   },
+   "pagaendeAvvecklingsEllerOmstruktureringsforfarande": null,
+   "postadressOrganisation": {
+    "dataproducent": "Bolagsverket",
+    "fel": null,
+    "postadress": {
+     "coAdress": null,
+     "land": "Sverige",
+     "postnummer": "12345",
+     "postort": "TESTSTAD",
+     "utdelningsadress": "PROVGATAN 2"
+    }
+   },
+   "registreringsland": {
+    "klartext": "Sverige",
+    "kod": "SE-LAND"
+   },
+   "reklamsparr": null,
+   "verksamOrganisation": null,
+   "verksamhetsbeskrivning": {
+    "beskrivning": "\\n       HANDEL MED SKOR",
+    "dataproducent": "Bolagsverket",
+    "fel": null
+   }
+  }
+ ]
+}

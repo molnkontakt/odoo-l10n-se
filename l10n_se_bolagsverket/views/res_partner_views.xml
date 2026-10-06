@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_partner_form" model="ir.ui.view">
+        <field name="name">res.partner.form.l10n_se_bolagsverket</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="before">
+                <field name="l10n_se_bv_bad" invisible="1"/>
+                <div class="alert alert-danger mb-0" role="alert" invisible="not l10n_se_bv_bad">
+                    <strong>Bolagsverket:</strong>
+                    <field name="l10n_se_bv_status" class="ms-1"/>
+                    <span invisible="not l10n_se_bv_status_note"> – <field name="l10n_se_bv_status_note"/></span>
+                </div>
+                <div class="alert alert-warning mb-0" role="alert"
+                     invisible="l10n_se_bv_bad or not l10n_se_bv_name_mismatch">
+                    <strong>Bolagsverket:</strong> the organisation number belongs to
+                    <field name="l10n_se_bv_name" class="fw-bold"/>. Check the number.
+                </div>
+            </xpath>
+            <xpath expr="//field[@name='company_registry']" position="after">
+                <field name="l10n_se_bv_identity" invisible="1"/>
+                <div class="o_row" colspan="2" invisible="parent_id or not l10n_se_bv_identity">
+                    <button name="action_l10n_se_bv_fetch" type="object" class="btn btn-link p-0"
+                            icon="fa-building-o" string="Fetch from Bolagsverket"
+                            help="Fill in the registered name and postal address and check the status"
+                            confirm="Name and postal address will be replaced with what Bolagsverket has registered. Continue?"/>
+                    <field name="l10n_se_bv_status" class="ms-2" invisible="not l10n_se_bv_status"
+                           decoration-danger="l10n_se_bv_bad" decoration-success="l10n_se_bv_status == 'active'"
+                           widget="badge"/>
+                </div>
+            </xpath>
+            <xpath expr="//notebook" position="inside">
+                <page name="l10n_se_bolagsverket" string="Bolagsverket" invisible="not l10n_se_bv_identity or parent_id">
+                    <group>
+                        <group>
+                            <field name="l10n_se_bv_status"/>
+                            <field name="l10n_se_bv_status_note" invisible="not l10n_se_bv_status_note"/>
+                            <field name="l10n_se_bv_name"/>
+                            <field name="l10n_se_bv_name_mismatch" invisible="not l10n_se_bv_name_mismatch"/>
+                            <field name="l10n_se_bv_org_form"/>
+                            <field name="l10n_se_bv_registered"/>
+                        </group>
+                        <group>
+                            <field name="l10n_se_bv_sni"/>
+                            <field name="l10n_se_bv_advertising_block"/>
+                            <field name="l10n_se_bv_checked"/>
+                            <field name="l10n_se_bv_error" invisible="not l10n_se_bv_error"/>
+                        </group>
+                    </group>
+                    <field name="l10n_se_bv_description" nolabel="1" placeholder="Registered business"/>
+                    <div class="mt-2">
+                        <button name="action_l10n_se_bv_check" type="object" class="btn btn-secondary"
+                                string="Check status now"/>
+                    </div>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_partner_search" model="ir.ui.view">
+        <field name="name">res.partner.search.l10n_se_bolagsverket</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_res_partner_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='inactive']" position="after">
+                <separator/>
+                <filter name="l10n_se_bv_bad" string="Bolagsverket: bankrupt, liquidated or deregistered"
+                        domain="[('l10n_se_bv_status', 'in', ('procedure', 'deregistered'))]"/>
+                <filter name="l10n_se_bv_mismatch" string="Bolagsverket: name differs"
+                        domain="[('l10n_se_bv_name_mismatch', '=', True)]"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

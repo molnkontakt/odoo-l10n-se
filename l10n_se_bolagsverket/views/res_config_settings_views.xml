@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.l10n_se_bolagsverket</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="account.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//app[@name='account']" position="inside">
+                <block title="Bolagsverket" id="l10n_se_bolagsverket">
+                    <setting id="l10n_se_bv" string="Bolagsverket (high-value datasets)"
+                             help="Fetch name and address from the organisation number, and check customers and suppliers for bankruptcy, liquidation, reorganisation and deregistration. Free API; apply for credentials at Bolagsverket."
+                             groups="base.group_system">
+                        <field name="l10n_se_bv_enabled"/>
+                        <div class="content-group" invisible="not l10n_se_bv_enabled">
+                            <div class="row mt8">
+                                <label for="l10n_se_bv_client_id" class="col-lg-4 o_light_label"/>
+                                <field name="l10n_se_bv_client_id"/>
+                            </div>
+                            <div class="row">
+                                <label for="l10n_se_bv_environment" class="col-lg-4 o_light_label"/>
+                                <field name="l10n_se_bv_environment"/>
+                            </div>
+                            <div class="row">
+                                <label for="l10n_se_bv_responsible_id" class="col-lg-4 o_light_label"/>
+                                <field name="l10n_se_bv_responsible_id" options="{'no_create': True}"/>
+                            </div>
+                            <div class="row">
+                                <label for="l10n_se_bv_last_run" class="col-lg-4 o_light_label"/>
+                                <field name="l10n_se_bv_last_run" readonly="1"/>
+                            </div>
+                            <div class="row" invisible="not l10n_se_bv_last_error">
+                                <label for="l10n_se_bv_last_error" class="col-lg-4 o_light_label"/>
+                                <field name="l10n_se_bv_last_error" readonly="1"/>
+                            </div>
+                            <field name="l10n_se_bv_secret_set" invisible="1"/>
+                            <div class="text-muted" invisible="l10n_se_bv_secret_set">
+                                The client secret is missing – set the system parameter
+                                l10n_se_bolagsverket.client_secret.
+                            </div>
+                        </div>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,80 @@
+{
+ "organisationer": [
+  {
+   "avregistreradOrganisation": {
+    "avregistreringsdatum": null,
+    "dataproducent": "Bolagsverket",
+    "fel": {
+     "felBeskrivning": "Uppkoppling mot Bolagsverket misslyckades. Efterfrågade uppgifter kunde inte hämtas.",
+     "typ": "OTILLGANGLIG_UPPGIFTSKALLA"
+    }
+   },
+   "avregistreringsorsak": {
+    "dataproducent": "Bolagsverket",
+    "fel": {
+     "felBeskrivning": "Uppkoppling mot Bolagsverket misslyckades. Efterfrågade uppgifter kunde inte hämtas.",
+     "typ": "OTILLGANGLIG_UPPGIFTSKALLA"
+    },
+    "klartext": null,
+    "kod": null
+   },
+   "juridiskForm": null,
+   "namnskyddslopnummer": null,
+   "naringsgrenOrganisation": null,
+   "organisationsdatum": {
+    "dataproducent": "Bolagsverket",
+    "fel": {
+     "felBeskrivning": "Uppkoppling mot Bolagsverket misslyckades. Efterfrågade uppgifter kunde inte hämtas.",
+     "typ": "OTILLGANGLIG_UPPGIFTSKALLA"
+    },
+    "infortHosScb": null,
+    "registreringsdatum": null
+   },
+   "organisationsform": {
+    "dataproducent": "Bolagsverket",
+    "fel": {
+     "felBeskrivning": "Uppkoppling mot Bolagsverket misslyckades. Efterfrågade uppgifter kunde inte hämtas.",
+     "typ": "OTILLGANGLIG_UPPGIFTSKALLA"
+    },
+    "klartext": null,
+    "kod": null
+   },
+   "organisationsidentitet": null,
+   "organisationsnamn": {
+    "dataproducent": "Bolagsverket",
+    "fel": {
+     "felBeskrivning": "Uppkoppling mot Bolagsverket misslyckades. Efterfrågade uppgifter kunde inte hämtas.",
+     "typ": "OTILLGANGLIG_UPPGIFTSKALLA"
+    },
+    "organisationsnamnLista": null
+   },
+   "pagaendeAvvecklingsEllerOmstruktureringsforfarande": {
+    "dataproducent": "Bolagsverket",
+    "fel": {
+     "felBeskrivning": "Uppkoppling mot Bolagsverket misslyckades. Efterfrågade uppgifter kunde inte hämtas.",
+     "typ": "OTILLGANGLIG_UPPGIFTSKALLA"
+    },
+    "pagaendeAvvecklingsEllerOmstruktureringsforfarandeLista": null
+   },
+   "postadressOrganisation": {
+    "dataproducent": "Bolagsverket",
+    "fel": {
+     "felBeskrivning": "Uppkoppling mot Bolagsverket misslyckades. Efterfrågade uppgifter kunde inte hämtas.",
+     "typ": "OTILLGANGLIG_UPPGIFTSKALLA"
+    },
+    "postadress": null
+   },
+   "registreringsland": null,
+   "reklamsparr": null,
+   "verksamOrganisation": null,
+   "verksamhetsbeskrivning": {
+    "beskrivning": null,
+    "dataproducent": "Bolagsverket",
+    "fel": {
+     "felBeskrivning": "Uppkoppling mot Bolagsverket misslyckades. Efterfrågade uppgifter kunde inte hämtas.",
+     "typ": "OTILLGANGLIG_UPPGIFTSKALLA"
+    }
+   }
+  }
+ ]
+}
