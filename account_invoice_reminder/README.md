@@ -35,10 +35,16 @@ and the OCA alternatives are not available on 19.
 ## Workflow
 
 Invoices → filter *Reminder to send* → select → *Action → Send payment reminder*
-(or *Customers → Send reminders* for everything eligible). The dialog shows one row
-per customer and level with invoices, overdue amount, fee, e-mail and channel;
-rows can be deselected. *Create and send* or *Only prepare*. There is no cron:
-nothing leaves the system without a click.
+(or *Customers → Send reminders* for everything eligible). The dialog shows one
+selectable row per customer and level (the reminder) with e-mail, channel, number
+of invoices, overdue amount and the fee once, with its basis (*1 avgift per
+påminnelse*, or *60,00 + 60,00 tidigare* when unpaid fees from earlier reminders on
+the same invoices are carried over), and below it one row per invoice with invoice
+date, due date, days overdue, what is left to pay and the level; deselecting a
+customer greys out its invoices. A note explains that the fee is a line on the
+reminder, booked on the level's income account only when paid, and one per reminder
+regardless of the number of invoices. *Create and send* or *Only prepare*. There is
+no cron: nothing leaves the system without a click.
 
 ## Debt collection demands (inkassokrav) without an agency
 

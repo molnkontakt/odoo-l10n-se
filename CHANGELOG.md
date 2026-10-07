@@ -353,6 +353,37 @@ one section per module. The format follows
 
 ## account_invoice_reminder
 
+### [19.0.1.6.0] — 2026-10-06
+
+#### Changed
+
+- *Send reminders* dialog: the reminder row (customer and level, still the unit that is
+  selected) shows the number of invoices, the overdue amount and the fee once, with its basis:
+  *1 avgift per påminnelse*, or *60,00 + 60,00 tidigare* when unpaid fees from earlier
+  reminders on the same invoices are carried over. Below it, one row per invoice: invoice
+  number, invoice date, due date, days overdue, what is left to pay and the level, in the
+  same order as the reminders (customer, then due date). Deselecting a customer greys out its
+  invoices. Totals under both lists (invoices, overdue, fees). The invoice names moved to an
+  optional column.
+- The dialog explains the fee: a line on the reminder (PDF/e-mail), no new invoice; booked on
+  the level's income account (named) only when the customer pays, with the level's button in
+  the bank reconciliation; one fee per reminder under lag (1981:739) regardless of the number
+  of invoices. The dialog opens extra-large to fit the columns.
+- Reminders list and form: *Antal fakturor* (stored count, summed in the list); the invoice
+  tags, fee and amount to pay stay as before.
+- The dialog's customer, level and invoice fields carry `force_save`: they are read-only in
+  the model, and the web client leaves such fields out when it saves the dialog before the
+  button runs (`odoo.tests.Form`, which follows the client, saved the rows without them).
+- Manifest summary no longer says the fee is a separate invoice (it has been a line on the
+  reminder since 1.2.0).
+
+#### Added
+
+- Tests for the dialog: two customers with two and one invoices, days overdue, carry-over of
+  an earlier fee, that deselecting a customer creates only the other reminder, and the
+  dialog as the client drives it (`odoo.tests.Form`: both lists filled before anything is
+  saved, the invoice rows following the customer's toggle, the save keeping the rows).
+
 ### [19.0.1.5.1] — 2026-10-05
 
 - The check that a reminder level's days are 0 or more is declared with `models.Constraint`. It was a `_sql_constraints` list, which Odoo 19 ignores with a warning, so the database never had the check.

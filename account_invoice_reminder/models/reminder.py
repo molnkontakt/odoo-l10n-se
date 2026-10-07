@@ -22,6 +22,7 @@ class AccountReminder(models.Model):
     date_due = fields.Date(string="Betala senast", readonly=True, help="Påminnelsens datum + nivåns betalningsfrist.")
     move_ids = fields.Many2many("account.move", "account_reminder_move_rel", "reminder_id", "move_id",
                                 string="Fakturor", readonly=True)
+    move_count = fields.Integer(string="Antal fakturor", compute="_compute_move_count", store=True)
     fee_amount = fields.Monetary(string="Påminnelseavgift", currency_field="currency_id", readonly=True,
                                  help="Avgiften enligt nivån när påminnelsen skapades. Står på påminnelsen och bokförs först när den betalas.")
     previous_fee_amount = fields.Monetary(
@@ -45,6 +46,11 @@ class AccountReminder(models.Model):
     def _compute_name(self):
         for rec in self:
             rec.name = f"{rec.level_id.name or _('Påminnelse')} {rec.date or ''} – {rec.partner_id.name or ''}"
+
+    @api.depends("move_ids")
+    def _compute_move_count(self):
+        for rec in self:
+            rec.move_count = len(rec.move_ids)
 
     @api.depends("move_ids.amount_residual", "fee_amount", "previous_fee_amount", "fee_move_id.amount_residual")
     def _compute_amounts(self):

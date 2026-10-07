@@ -9,6 +9,7 @@
                 <field name="partner_id"/>
                 <field name="level_id"/>
                 <field name="channel"/>
+                <field name="move_count" sum="Summa"/>
                 <field name="move_ids" widget="many2many_tags"/>
                 <field name="amount_overdue" sum="Summa"/>
                 <field name="fee_amount"/>
@@ -43,6 +44,7 @@
                             <field name="pdf_attachment_id" invisible="not pdf_attachment_id"/>
                         </group>
                         <group>
+                            <field name="move_count"/>
                             <field name="amount_overdue"/>
                             <field name="previous_fee_amount" invisible="not previous_fee_amount"/>
                             <field name="fee_amount"/>
@@ -94,6 +96,7 @@
         <field name="res_model">account.reminder.send.wizard</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>
+        <field name="context">{'dialog_size': 'extra-large'}</field>
     </record>
     <menuitem id="menu_reminder" name="Betalningspåminnelser" parent="account.menu_finance_receivables"
               action="action_reminder" sequence="25"/>
