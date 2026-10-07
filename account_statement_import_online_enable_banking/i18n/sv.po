@@ -444,6 +444,11 @@ msgid "Enable Banking: warn before bank consents expire"
 msgstr "Enable Banking: varna innan banksamtycken går ut"
 
 #. module: account_statement_import_online_enable_banking
+#: model:ir.model.fields,help:account_statement_import_online_enable_banking.field_online_bank_statement_provider__eb_log_raw
+msgid "Every successful answer from Enable Banking (transactions, balances, sessions) is written to the Odoo server log at INFO, at most 20 000 characters each, with account numbers (IBAN) and phone numbers masked. Counterparty names and payment texts are logged as they are. Turn on, wait for the next scheduled pull, read the log and turn off again."
+msgstr "Varje lyckat svar från Enable Banking (transaktioner, saldon, sessioner) skrivs till Odoos serverlogg på nivå INFO, högst 20 000 tecken per svar, med kontonummer (IBAN) och telefonnummer maskerade. Motpartens namn och betalningstexter loggas som de är. Slå på, vänta på nästa schemalagda hämtning, läs loggen och slå av igen."
+
+#. module: account_statement_import_online_enable_banking
 #: model:ir.model.fields,help:account_statement_import_online_enable_banking.field_online_bank_statement_provider__eb_aspsp_name
 msgid "Exactly as listed by Enable Banking, e.g. 'Swedbank'."
 msgstr "Exakt som hos Enable Banking, t.ex. 'Swedbank'."
@@ -493,6 +498,11 @@ msgstr "Senaste hämtning"
 #: model:ir.model.fields,field_description:account_statement_import_online_enable_banking.field_online_bank_statement_provider__eb_last_pull_summary
 msgid "Last pull result"
 msgstr "Senaste hämtningens resultat"
+
+#. module: account_statement_import_online_enable_banking
+#: model:ir.model.fields,field_description:account_statement_import_online_enable_banking.field_online_bank_statement_provider__eb_log_raw
+msgid "Log the bank's raw answer (debugging)"
+msgstr "Logga bankens råsvar (felsökning)"
 
 #. module: account_statement_import_online_enable_banking
 #: model:ir.model.fields,field_description:account_statement_import_online_enable_banking.field_online_bank_statement_provider__my_activity_date_deadline

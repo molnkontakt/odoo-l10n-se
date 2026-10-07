@@ -59,6 +59,17 @@ SWISH_RE = re.compile(r"Swish\s+(\+?\d[\d \-]{6,})", re.I)
 # Personal accounts (Swedbank via Enable Banking): no transaction type and no counterparty id; the payer
 # number only appears first in the remittance, e.g. "+46701234567    1833000000000000 swish mottagen".
 SWISH_PERSONAL_RE = re.compile(r"^\s*(\+?\d{9,15})\s+\d+\s+swish\b", re.I)
+# Debugging (eb_log_raw): the bank's answers go to the log masked, and never more than this many
+# characters per answer. The log then holds counterparty names and payment texts - that is the point:
+# which fields a bank sends for a bankgiro deposit cannot be seen in any other way without extra PSD2
+# calls - so account numbers and phone numbers are masked wherever they appear.
+EB_RAW_LOG_MAX = 20000
+# An IBAN: country, check digits, 11-30 alphanumerics (Swedish: SE + 22 digits).
+EB_IBAN_RE = re.compile(r"\b[A-Z]{2}\d{2}[A-Z0-9]{11,30}\b")
+# Swedish phone numbers as Swish sends them: +46…, 0046… or a domestic 07… mobile number (no separators).
+EB_PHONE_RE = re.compile(r"(?<![\w+])(?:\+46|0046)\d{7,12}(?!\d)|(?<!\d)07\d{8}(?!\d)")
+# Keys whose values are account numbers or payer handles, whatever they look like (any depth).
+EB_MASK_KEY_RE = re.compile(r"iban|account_number|^identification$|^msisdn$", re.I)
 
 
 def _eb_error(message, status=None, code=None):
@@ -74,6 +85,25 @@ def _eb_error(message, status=None, code=None):
 def _eb_short(err):
     """'429 ASPSP_RATE_LIMIT_EXCEEDED' for an Enable Banking error, '' otherwise."""
     return " ".join(str(x) for x in (getattr(err, "eb_status", None), getattr(err, "eb_code", None)) if x)
+
+
+def _eb_mask_value(text):
+    """'<masked>0001': the last four characters are kept when the value is long enough for them to
+    say which account or number it was without giving it away."""
+    return "<masked>" + text[-4:] if len(text) > 8 else "<masked>"
+
+
+def _eb_mask_data(value, masked=False):
+    """A copy of a bank answer with every scalar under an account-number or payer key (EB_MASK_KEY_RE)
+    masked, at any depth; a container under such a key is masked throughout. The answer itself is
+    untouched: it is what the import works on."""
+    if isinstance(value, dict):
+        return {k: _eb_mask_data(v, masked or bool(EB_MASK_KEY_RE.search(str(k)))) for k, v in value.items()}
+    if isinstance(value, list):
+        return [_eb_mask_data(v, masked) for v in value]
+    if masked and isinstance(value, (str, int, float)) and not isinstance(value, bool) and value != "":
+        return _eb_mask_value(str(value))
+    return value
 
 
 class OnlineBankStatementProvider(models.Model):
@@ -117,6 +147,14 @@ class OnlineBankStatementProvider(models.Model):
     # period after it (skipped). The OCA base alone moves last_successful_run to the end of the
     # window even after a failure, skipping every period from the failed one on.
     eb_resume_from = fields.Datetime(readonly=True, copy=False)
+    # Debugging only: see _enable_banking_log_raw. Off, nothing about the bank's answers is logged.
+    eb_log_raw = fields.Boolean(
+        string="Log the bank's raw answer (debugging)", default=False, copy=False,
+        help="Every successful answer from Enable Banking (transactions, balances, sessions) is written to the "
+             "Odoo server log at INFO, at most 20 000 characters each, with account numbers (IBAN) and phone "
+             "numbers masked. Counterparty names and payment texts are logged as they are. Turn on, wait for "
+             "the next scheduled pull, read the log and turn off again.",
+    )
 
     @api.model
     def _get_available_services(self):
@@ -169,13 +207,59 @@ class OnlineBankStatementProvider(models.Model):
                 status=response.status_code, code=code,
             )
         try:
-            return response.json()
+            data = response.json()
         except ValueError:
             _logger.warning("Enable Banking %s %s: unreadable answer %s", method, path, response.text[:200])
             raise _eb_error(
                 me.env._("Enable Banking sent an answer that could not be read. Try again later."),
                 status=response.status_code, code="UNREADABLE",
             ) from None
+        if self.eb_log_raw:
+            self._enable_banking_log_raw(method, path, data)
+        return data
+
+    def _enable_banking_log_raw(self, method, path, data):
+        """Debugging (eb_log_raw): the bank's answer, masked, at INFO - and for a page of transactions one
+        line with the keys the bank uses across them, so a long log can be read for what a bank sends
+        (a payer name? a reference number?) without reading every answer."""
+        _logger.info("Enable Banking raw answer [provider %s] %s %s: %s", self.id, method, path,
+                     self._enable_banking_raw_log_text(data))
+        transactions = data.get("transactions") if isinstance(data, dict) else None
+        if isinstance(transactions, list):
+            _logger.info("Enable Banking raw answer [provider %s] %s %s: %s transaction(s), keys: %s", self.id,
+                         method, path, len(transactions), ", ".join(self._enable_banking_key_paths(transactions)) or "-")
+
+    @staticmethod
+    def _enable_banking_raw_log_text(data):
+        """The bank's answer as one JSON line for the log: the values of account-number and payer keys
+        masked, then every IBAN and Swedish phone number wherever it appears in a text (a Swish payer's
+        number starts the remittance on personal accounts); names and remittance texts stay. Cut at
+        EB_RAW_LOG_MAX characters - after masking, so a cut never exposes anything."""
+        text = json.dumps(_eb_mask_data(data), ensure_ascii=False, default=str)
+        text = EB_IBAN_RE.sub(lambda m: _eb_mask_value(m.group(0)), text)
+        text = EB_PHONE_RE.sub(lambda m: _eb_mask_value(m.group(0)), text)
+        if len(text) > EB_RAW_LOG_MAX:
+            text = text[:EB_RAW_LOG_MAX] + "… (truncated)"
+        return text
+
+    @staticmethod
+    def _enable_banking_key_paths(transactions):
+        """The keys the bank uses across these transactions, as sorted dotted paths
+        (`debtor_account.other.identification`); a key that is null in every transaction says so."""
+        has_value = {}
+
+        def walk(value, prefix):
+            if isinstance(value, dict):
+                for k, v in value.items():
+                    path = f"{prefix}.{k}" if prefix else str(k)
+                    has_value[path] = has_value.get(path, False) or v is not None
+                    walk(v, path)
+            elif isinstance(value, list):
+                for v in value:
+                    walk(v, prefix)
+
+        walk(transactions, "")
+        return [path if present else f"{path} (always null)" for path, present in sorted(has_value.items())]
 
     @staticmethod
     def _enable_banking_error_code(response):

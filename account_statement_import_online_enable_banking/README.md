@@ -124,6 +124,23 @@ more.
   masked in the form). Anyone with database access can read it; treat the
   database as you would the key.
 
+## Troubleshooting
+
+To see what a bank actually sends - which fields a *Bankgiro inbetalning* carries, whether there
+is a payer name or a reference number - turn on *Log the bank's raw answer (debugging)* on the
+provider, wait for the next scheduled pull (or pull manually, within the PSD2 daily limit), read
+the Odoo server log and turn the flag off again. While it is on, every successful answer from
+Enable Banking is written at INFO under
+`odoo.addons.account_statement_import_online_enable_banking`, prefixed with the provider id,
+method and path, at most 20 000 characters each, and a page of transactions is followed by one
+line with the keys the bank uses across them (`debtor_account.other.identification`,
+`remittance_information`, …; `(always null)` marks a key sent without a value). Account
+numbers (IBANs wherever they appear, and the values of `iban`, `account_number`,
+`identification` and `msisdn` keys) and Swedish phone numbers (`+46…`, `0046…`, `07…`) are masked
+to `<masked>` plus their last four characters; counterparty names and remittance texts are logged
+as they are, so the log then holds personal data: keep the flag on only as long as needed.
+Nothing is logged while it is off.
+
 ## Licence
 
 AGPL-3.0, because the OCA base module it extends is AGPL-3.

@@ -427,6 +427,82 @@ class TestEnableBanking(TransactionCase):
         err, _log = self._error(status=200, text="<html>maintenance</html>")
         self.assertIn("could not be read", str(err))
 
+    # --- Debugging: the bank's raw answer in the log, masked (1.9.0) ---------------------------
+
+    def test_raw_log_text_masks_account_numbers_and_phones_but_keeps_names(self):
+        text = self.provider._enable_banking_raw_log_text(
+            {"transactions": [SWISH, BANKGIRO, DEBIT, SWISH_PERSONAL], "continuation_key": None})
+        self.assertNotIn("SE0000000000000000000001", text)
+        self.assertIn("<masked>0001", text, "the last four characters are kept")
+        self.assertNotIn("46700000000", text, "the Swish payer's number, in identification and in the remittance")
+        self.assertIn("TEST ASSOCIATION", text, "names stay")
+        self.assertIn("Water Utility", text)
+        self.assertIn("<masked>0000    1833000000000001 swish mottagen", text, "the remittance text stays")
+        self.assertIn("Bankgiro inbetalning", text)
+        # Masked by key, whatever the value looks like; the IBAN and phone forms wherever they appear.
+        data = {
+            "debtor": {"name": "Anna Exempel"}, "debtor_account": {"other": {"identification": "1234-5678-9012", "scheme_name": "BBAN"}},
+            "account_number": "123456789", "contact": {"msisdn": "0701234567"}, "iban_list": ["SE0000000000000000000002"],
+            "remittance_information": ["Faktura 17 tel 0046701234567", "ring 0701234567 eller +46701234567"],
+            "note": "to SE7280000832791234567897 from 0701234567", "amount": 0,
+        }
+        text = self.provider._enable_banking_raw_log_text(data)
+        for secret in ("1234-5678-9012", "123456789", "0701234567", "0046701234567", "+46701234567",
+                       "SE0000000000000000000002", "SE7280000832791234567897"):
+            self.assertNotIn(secret, text, secret)
+        self.assertIn("Anna Exempel", text)
+        self.assertIn("BBAN", text, "the scheme name is not a secret")
+        self.assertIn("Faktura 17 tel <masked>4567", text)
+        self.assertIn("ring <masked>4567 eller <masked>4567", text)
+        self.assertIn("to <masked>7897 from <masked>4567", text)
+        self.assertIn('"amount": 0', text, "a plain number under a harmless key stays")
+        self.assertEqual(data["account_number"], "123456789", "the answer itself is untouched")
+
+    def test_raw_log_only_when_the_provider_asks(self):
+        self.assertFalse(self.provider.eb_log_raw, "off by default")
+        page = {"transactions": [SWISH, BANKGIRO], "continuation_key": None}
+        self._answer(200, json_body=page)
+        with self.assertNoLogs(MODULE, "DEBUG"):
+            self.provider._eb_request("GET", "/accounts/acc-uid/transactions")
+        self.provider.eb_log_raw = True
+        with self.assertLogs(MODULE, "INFO") as logs:
+            data = self.provider._eb_request("GET", "/accounts/acc-uid/transactions")
+        self.assertEqual(data["transactions"][0]["creditor_account"]["iban"], "SE0000000000000000000001",
+                         "the import gets the answer as the bank sent it")
+        self.assertEqual(len(logs.output), 2, "the answer and the keys line")
+        answer, keys = logs.output
+        prefix = f"Enable Banking raw answer [provider {self.provider.id}] GET /accounts/acc-uid/transactions: "
+        self.assertIn(prefix, answer)
+        self.assertIn(prefix, keys)
+        self.assertNotIn("SE0000000000000000000001", answer)
+        self.assertNotIn("46700000000", answer)
+        self.assertIn("TEST ASSOCIATION", answer)
+        self.assertIn("2 transaction(s), keys: ", keys)
+        for path in ("bank_transaction_code.description", "debtor.name", "debtor_account.other.identification",
+                     "remittance_information", "debtor_account.iban (always null)", "entry_reference (always null)"):
+            self.assertIn(path, keys, path)
+        self.assertNotIn("1234567", keys, "keys only, no values")
+
+    def test_raw_log_is_cut_after_masking(self):
+        self.provider.eb_log_raw = True
+        page = {"transactions": [dict(BANKGIRO, remittance_information=["x" * 30000]),
+                                 dict(SWISH, remittance_information=["last SE0000000000000000000009"])],
+                "continuation_key": None}
+        self._answer(200, json_body=page)
+        with self.assertLogs(MODULE, "INFO") as logs:
+            self.provider._eb_request("GET", "/accounts/acc-uid/transactions")
+        answer = logs.output[0]
+        self.assertTrue(answer.endswith("… (truncated)"), answer[-60:])
+        self.assertLess(len(answer), 20000 + 200)
+        self.assertNotIn("x" * 20001, answer)
+        self.assertIn("debtor_account.other.identification", logs.output[1], "the keys line is not cut")
+        # A balances answer: logged, no keys line.
+        self._answer(200, json_body={"balances": [{"balance_type": "CLBD", "balance_amount": {"amount": "1.00"}}]})
+        with self.assertLogs(MODULE, "INFO") as logs:
+            self.provider._eb_request("GET", "/accounts/acc-uid/balances")
+        self.assertEqual(len(logs.output), 1)
+        self.assertIn("/accounts/acc-uid/balances: {\"balances\"", logs.output[0])
+
     def test_pagination_stops_on_a_repeated_page(self):
         def same_key(provider, method, path, params=None, body=None):
             return {"transactions": [SWISH], "continuation_key": "k"}
