@@ -223,6 +223,17 @@ one section per module. The format follows
 
 ## account_statement_import_online_enable_banking
 
+### [19.0.1.9.0] — 2026-10-07
+
+- Debugging flag on the provider, *Log the bank's raw answer (debugging)* (`eb_log_raw`, off by
+  default): every successful Enable Banking answer is written to the server log at INFO, prefixed
+  with provider id, method and path and cut at 20 000 characters, with IBANs, Swedish phone
+  numbers and the values of `iban`/`account_number`/`identification`/`msisdn` keys masked to
+  `<masked>` plus the last four characters; names and remittance texts are kept. A page of
+  transactions also gets one line with the keys the bank uses across them. Needed to see what SEB
+  sends for bankgiro deposits once it moves them into the account statement (2026-11-27) without
+  extra PSD2 calls. Nothing is logged while the flag is off, as before.
+
 ### [19.0.1.8.0] — 2026-09-29
 
 - Swish payments are reconciled automatically after a pull, as the Swedbank CSV import does, when
