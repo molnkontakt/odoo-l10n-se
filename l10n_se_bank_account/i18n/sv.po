@@ -323,3 +323,27 @@ msgstr ""
 "Leverantören drar fakturan från bolagets konto (autogiro eller avtalad "
 "dragning). Den kommer aldrig med i en betalfil: stäm av fakturan mot "
 "bankraden i stället."
+
+#. module: l10n_se_bank_account
+#. odoo-python
+#: code:addons/l10n_se_bank_account/models/account_edi_ubl.py:0
+msgid ""
+"%(giro)s number %(number)s in the file has an invalid check digit. The "
+"account was kept as it is, with the type Other: check the number with the "
+"supplier before paying."
+msgstr ""
+"%(giro)s-numret %(number)s i filen har en felaktig kontrollsiffra. Kontot "
+"behölls som det är, med typen Övrigt: kontrollera numret med leverantören "
+"innan betalning."
+
+#. module: l10n_se_bank_account
+#. odoo-python
+#: code:addons/l10n_se_bank_account/models/account_edi_ubl.py:0
+msgid ""
+"Bank account %(account)s of %(partner)s has no Swedish account type; the "
+"file says it is a %(giro)s number. Fill in the type on the account to pay it "
+"with a payment file."
+msgstr ""
+"Bankkontot %(account)s hos %(partner)s har ingen svensk kontotyp; filen "
+"säger att det är ett %(giro)s-nummer. Fyll i typen på kontot för att betala "
+"det med en betalfil."

@@ -668,3 +668,57 @@ def test_previous_bank_day():
     assert se_bank.previous_bank_day(d(2026, 9, 27)) == d(2026, 9, 25)  # Sunday -> Friday
     assert se_bank.previous_bank_day(d(2026, 4, 6)) == d(2026, 4, 2)  # Easter Monday -> Maundy Thursday
     assert se_bank.previous_bank_day(d(2027, 1, 1)) == d(2026, 12, 30)  # past New Year's Eve
+
+
+# --- Giro formatting and UBL payment account schemes ----------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("number", "expected"),
+    [
+        ("5551239", "BG 555-1239"),
+        ("55512347", "BG 5551-2347"),
+        ("BG 5551-2347", "BG 5551-2347"),
+        ("555-1239", "BG 555-1239"),
+    ],
+)
+def test_format_bankgiro(number, expected):
+    assert se_bank.format_bankgiro(number) == expected
+    assert se_bank.format_giro(number, "bankgiro") == expected
+
+
+@pytest.mark.parametrize(
+    ("number", "expected"),
+    [("1234566", "PG 123456-6"), ("12345674", "PG 1234567-4"), ("PG 12 34 56-6", "PG 123456-6"), ("5", "PG 5")],
+)
+def test_format_plusgiro(number, expected):
+    assert se_bank.format_plusgiro(number) == expected
+    assert se_bank.format_giro(number, "plusgiro") == expected
+
+
+def test_format_giro_other_types_unchanged():
+    assert se_bank.format_giro("52031234560", "bban") == "52031234560"
+    assert se_bank.format_giro(SEB_IBAN, "iban") == SEB_IBAN
+
+
+@pytest.mark.parametrize(
+    ("scheme", "expected"),
+    [
+        ("SE:BANKGIRO", "bankgiro"),
+        ("se:bankgiro", "bankgiro"),
+        ("SE:PLUSGIRO", "plusgiro"),
+        ("Plusgiro", "plusgiro"),
+        ("BANKGIRO", "bankgiro"),
+        ("SE:BG", "bankgiro"),
+        ("SE:PG", "plusgiro"),
+        ("POSTGIRO", "plusgiro"),
+        (" SE - Bankgirot ", "bankgiro"),
+        ("BIC", None),
+        ("SE:BANKGIROX", None),
+        ("ESSESESS", None),
+        ("", None),
+        (None, None),
+    ],
+)
+def test_giro_type_from_scheme(scheme, expected):
+    assert se_bank.giro_type_from_scheme(scheme) == expected

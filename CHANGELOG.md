@@ -165,6 +165,19 @@ one section per module. The format follows
 
 ## l10n_se_bank_account
 
+### [19.0.1.2.0] — 2026-10-16
+
+- Imported UBL/Peppol vendor bills: a supplier's Bankgiro or Plusgiro, which the file names with
+  `SE:BANKGIRO`/`SE:PLUSGIRO` in `PayeeFinancialAccount/FinancialInstitutionBranch/ID` (or the
+  account id's `schemeID`), is created as `BG 555-1239`/`PG 1234567-4` with its Swedish account
+  type filled in, so the payment-file modules can pay the bill at once. An account the supplier
+  already has with the same digits, however written, is reused and left as it is (a bare number
+  typed *Other* gets a chatter note); the Bankgiro is the bill's bank account when both are
+  offered; a number with an invalid check digit is kept as Odoo creates it, with a chatter note.
+  Numbers without a scheme are still never guessed.
+- `lib/se_bank.py`: `format_bankgiro`, `format_plusgiro`, `format_giro`, `giro_type_from_scheme`.
+- Depends on `account_edi_ubl_cii` (auto-installed with `account`).
+
 ### [19.0.1.1.0] — 2026-09-29
 
 - *Payee requires OCR* and *Payee accepts only messages* on Bankgiro/Plusgiro accounts (moved

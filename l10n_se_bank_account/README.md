@@ -31,6 +31,36 @@ accepts only messages** ("tillåter bara textmeddelanden, inte OCR"), never both
 modules follow them: no payment without a valid OCR number to the first, never an OCR or RF
 reference to the second.
 
+## Giro numbers in imported UBL/Peppol bills
+
+A Swedish supplier's Peppol BIS 3 bill carries the bare giro digits in
+`cac:PaymentMeans/cac:PayeeFinancialAccount/cbc:ID` and says which giro it is in
+`cac:FinancialInstitutionBranch/cbc:ID`: `SE:BANKGIRO` or `SE:PLUSGIRO` (the Swedish national
+rules). Odoo's import reads only the digits, so the account would be created as `5551239`, type
+*Other*, and the payment-file modules could not pay the bill until someone retyped it.
+
+When a vendor bill is imported from UBL (Peppol, e-mail or upload) this module reads the scheme
+(`FinancialInstitutionBranch/ID` or the account `ID`'s `schemeID`; `SE:BANKGIRO`, `SE:PLUSGIRO`,
+`Bankgiro`, `BG`, `PG`, `Postgiro`, case-insensitive) and:
+
+* creates the account as `BG 555-1239` / `PG 1234567-4` with the Swedish account type filled in,
+  after checking the check digit (`lib/se_bank.py`: `format_bankgiro`, `format_plusgiro`,
+  `giro_type_from_scheme`);
+* **reuses** an account the supplier already has with the same digits, however it is written
+  (`BG 555-1239`, `555-1239` or `5551239`), without changing it. A bare number left from an
+  earlier import keeps its type *Other* and the bill gets a chatter note asking for the type to be
+  filled in; an account typed as the *other* giro is a different payee and is not reused;
+* puts the **Bankgiro first** as the bill's bank account when the bill offers both, else the
+  Plusgiro, then whatever else the bill names (an IBAN, say);
+* keeps a number with an **invalid check digit** as Odoo creates it (raw digits, type *Other*)
+  and adds a chatter note naming the number;
+* leaves a number **without a scheme** alone: a bare 7- or 8-digit number can be either giro and
+  is never guessed, in UBL as when typed by hand.
+
+Only vendor bills are touched: a vendor credit note or a customer invoice names the company's own
+account, which Odoo never creates from a file. Plain UBL 2.0/2.1 files without the Peppol
+customization id go through Odoo's older import path and are not handled.
+
 ## Bank account numbers in payment files (MIG Annex 5)
 
 Swedish banks' ISO 20022 guides (SEB MIG pain.001.001.03, Annex 5) write a domestic account
@@ -91,6 +121,8 @@ Pure Python, no Odoo import: `from odoo.addons.l10n_se_bank_account.lib import s
 | `is_bank_day(day)`, `previous_bank_day(day)`, `bank_holidays(year)` | Swedish bank days (weekends, public holidays, midsummer, Christmas and New Year's Eve are not) |
 | `account_digits(acc_number)` | digits without `BG`/`PG` prefix or currency suffix |
 | `bankgiro_valid(number)`, `plusgiro_valid(number)` | length (7-8 / 2-8) and mod 10 check digit |
+| `format_bankgiro(number)`, `format_plusgiro(number)`, `format_giro(number, account_type)` | `BG 555-1239` / `BG 5551-2347`, `PG 1234567-4`; no validation |
+| `giro_type_from_scheme(scheme)` | `"bankgiro"`/`"plusgiro"` for a UBL payment account scheme such as `SE:BANKGIRO`, else `None` |
 | `ocr_valid(reference, length_digit=False)`, `make_ocr(payload, length_digit=False)` | OCR: 2-25 digits, Luhn, optional length digit |
 | `rf_valid(reference)`, `make_rf(payload)` | ISO 11649 creditor reference (`RF` + mod 97) |
 | `iban_valid(iban)`, `iban_compact(iban)`, `se_iban_bic(iban)` | IBAN check digits; BIC from a Swedish IBAN's bank code |
@@ -106,7 +138,8 @@ Swedish IBAN), `_l10n_se_account_problem_message()` (translated reason or `False
 
 ## Tests
 
-* Odoo: `tests/test_res_partner_bank.py` (`--test-tags /l10n_se_bank_account`)
+* Odoo: `tests/test_res_partner_bank.py` and `tests/test_ubl_import.py` (a Peppol BIS 3 bill with a
+  Bankgiro and a Plusgiro, `tests/data/peppol_bill_giro.xml`) (`--test-tags /l10n_se_bank_account`)
 * Library, without Odoo, from the repository root:
 
   ```

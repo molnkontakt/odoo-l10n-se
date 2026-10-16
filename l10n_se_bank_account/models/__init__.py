@@ -1,1 +1,1 @@
-from . import account_move, res_partner_bank
+from . import account_edi_ubl, account_move, res_partner_bank
