@@ -1,6 +1,6 @@
 {
     "name": "Sweden - Bank accounts, Bankgiro, Plusgiro, OCR",
-    "version": "19.0.1.1.0",
+    "version": "19.0.1.2.0",
     "category": "Accounting/Localizations",
     "summary": "Swedish account types and check digits for payment files: Bankgiro, Plusgiro, "
     "bank account (clearing number rules), IBAN, OCR and RF references",
@@ -15,11 +15,13 @@ Shared Swedish account-number rules for payment-file modules.
   clearing number range, e.g. Handelsbanken without clearing number, Swedbank 8-series with a
   5-digit clearing number zero-padded to 15 digits
 * A pure-Python library (``lib/se_bank.py``) that payment-file writers can use without the ORM
+* Imported UBL/Peppol bills: a supplier's Bankgiro/Plusgiro (``SE:BANKGIRO``/``SE:PLUSGIRO``) gets
+  its type and the ``BG 555-1239`` form, existing accounts are reused, Bankgiro first
     """,
     "author": "Molnkontakt AB",
     "website": "https://github.com/molnkontakt/odoo-l10n-se",
     "license": "LGPL-3",
-    "depends": ["account"],
+    "depends": ["account", "account_edi_ubl_cii"],  # account_edi_ubl_cii is auto-installed with account
     "data": [
         "views/res_partner_bank_views.xml",
         "views/account_move_views.xml",

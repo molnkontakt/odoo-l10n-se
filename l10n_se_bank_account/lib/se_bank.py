@@ -293,6 +293,48 @@ def plusgiro_valid(number):
     return 2 <= len(digits) <= 8 and luhn_valid(digits) and not _all_zero(digits)
 
 
+def format_bankgiro(number):
+    """A Bankgiro number written as Bankgirot does: ``BG 555-1239`` (7 digits) or ``BG 5551-2347`` (8).
+
+    The input may carry a prefix or separators; nothing is validated (see ``bankgiro_valid``).
+    """
+    digits = account_digits(number)
+    return f"BG {digits[:-4]}-{digits[-4:]}" if len(digits) > 4 else f"BG {digits}"
+
+
+def format_plusgiro(number):
+    """A Plusgiro number written with its check digit set off: ``PG 417740-8``.
+
+    The input may carry a prefix or separators; nothing is validated (see ``plusgiro_valid``).
+    """
+    digits = account_digits(number)
+    return f"PG {digits[:-1]}-{digits[-1:]}" if len(digits) > 1 else f"PG {digits}"
+
+
+def format_giro(number, account_type):
+    """``format_bankgiro``/``format_plusgiro`` per ``account_type``; other types give the number as is."""
+    if account_type == "bankgiro":
+        return format_bankgiro(number)
+    if account_type == "plusgiro":
+        return format_plusgiro(number)
+    return number
+
+
+# Payment account scheme identifiers that name a Swedish giro. Peppol BIS Billing 3 (Swedish
+# national rules) puts ``SE:BANKGIRO``/``SE:PLUSGIRO`` in
+# ``cac:PayeeFinancialAccount/cac:FinancialInstitutionBranch/cbc:ID``; older Svefaktura/UBL files
+# and some senders use the bare words or the BG/PG abbreviations, with or without the ``SE:`` prefix.
+_GIRO_SCHEME_RE = re.compile(r"^\s*(?:SE\s*[:\-]\s*)?(BANKGIRO|BANKGIROT|BG|PLUSGIRO|PLUSGIROT|POSTGIRO|PG)\s*$", re.IGNORECASE)
+
+
+def giro_type_from_scheme(scheme):
+    """``"bankgiro"``/``"plusgiro"`` for a payment account scheme id such as ``SE:BANKGIRO``, else ``None``."""
+    match = _GIRO_SCHEME_RE.match(scheme or "")
+    if not match:
+        return None
+    return "bankgiro" if match.group(1).upper().startswith("B") else "plusgiro"
+
+
 # --- References ------------------------------------------------------------------------------
 
 
